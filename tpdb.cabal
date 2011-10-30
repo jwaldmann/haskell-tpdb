@@ -1,0 +1,28 @@
+Name: tpdb
+Version: 0.0
+Author: Johannes Waldmann
+Category: Science
+License: GPL
+License-file: LICENSE
+Cabal-Version: >= 1.6
+Synopsis: Data Type for Rewriting Systems
+
+
+Description:
+   The package defines data types and parsers for rewriting systems,
+   as used in the Termination Competitions, 
+   see http://www.termination-portal.org/wiki/XTC_Format_Specification
+
+Build-Type: Simple
+
+Source-Repository head
+  Type: git
+  Location: git://dfa.imn.htwk-leipzig.de/srv/git/tpdb/
+
+Library
+  Build-Depends: base, hxt, containers
+
+  Exposed-Modules:
+    TPDB.XTC, TPDB.XTC.Identifier, TPDB.XTC.Term, 
+    TPDB.XTC.Rule, TPDB.XTC.RS, TPDB.XTC.Problem, TPDB.XTC.Read
+
