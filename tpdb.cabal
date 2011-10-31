@@ -1,10 +1,11 @@
 Name: tpdb
 Version: 0.0
 Author: Johannes Waldmann
+Maintainer: Johannes Waldmann
 Category: Science
 License: GPL
 License-file: LICENSE
-Cabal-Version: >= 1.6
+Cabal-Version: >= 1.8
 Synopsis: Data Type for Rewriting Systems
 
 
