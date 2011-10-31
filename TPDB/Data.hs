@@ -1,7 +1,7 @@
 module TPDB.Data where
 
 data Identifier = Identifier { name :: String , arity :: Int }
-    deriving Show
+    deriving ( Eq, Ord, Show )
 
 data Term v s = Var v 
               | Node s [ Term v s ]

@@ -38,4 +38,3 @@ instance ( Pretty s, Pretty r ) => Pretty ( RS s r ) where
         -- FIXME: output strategy, theory
         ]
 
-
