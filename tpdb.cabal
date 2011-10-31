@@ -22,7 +22,7 @@ Source-Repository head
   Location: git://dfa.imn.htwk-leipzig.de/srv/git/tpdb/
 
 Library
-  Build-Depends: base, hxt, pretty, parsec
+  Build-Depends: base==4.*, hxt, pretty, parsec
 
   Exposed-Modules:
     TPDB.Data, 
