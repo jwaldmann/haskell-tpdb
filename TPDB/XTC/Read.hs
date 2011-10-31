@@ -1,10 +1,11 @@
 {-# language Arrows, NoMonomorphismRestriction, PatternSignatures #-}
 
--- | construct data object from XML tree
--- implementations follows these examples:
--- http://www.haskell.org/haskellwiki/HXT/Practical/
+-- | construct data object from XML tree.
 
 module TPDB.XTC.Read where
+
+-- implementations follows these examples:
+-- http://www.haskell.org/haskellwiki/HXT/Practical/
 
 import TPDB.Data
 
@@ -72,7 +73,6 @@ getTRS = proc x -> do
                   , separate = False -- for TRS, don't need comma between rules
                   }
         _  -> error $ unwords [ "cannot handle theories" ]
-
 
 getSignature = proc x -> do
     returnA <<< listA ( getFuncsym <<< getChild "funcsym" ) -< x

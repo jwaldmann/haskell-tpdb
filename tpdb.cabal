@@ -10,8 +10,9 @@ Synopsis: Data Type for Rewriting Systems
 
 Description:
    The package defines data types and parsers for rewriting systems,
-   as used in the Termination Competitions, 
-   see http://www.termination-portal.org/wiki/XTC_Format_Specification
+   as used in the Termination Competitions.
+   For syntax and semantics specification, 
+   see <http://www.termination-portal.org/wiki/TPDB>
 
 Build-Type: Simple
 

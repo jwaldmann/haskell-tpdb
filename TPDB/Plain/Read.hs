@@ -1,5 +1,5 @@
 -- | textual input,
--- cf. http://www.lri.fr/~marche/tpdb/format.html
+-- cf. <http://www.lri.fr/~marche/tpdb/format.html>
 
 {-# language PatternSignatures, TypeSynonymInstances, FlexibleInstances #-}
 
