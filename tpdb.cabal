@@ -20,10 +20,26 @@ Source-Repository head
   Location: git://dfa.imn.htwk-leipzig.de/srv/git/tpdb/
 
 Library
-  Build-Depends: base, hxt, pretty
+  Build-Depends: base, hxt, pretty, parsec
 
   Exposed-Modules:
     TPDB.Data, 
-    TPDB.Plain.Write,
+    TPDB.Plain.Write,     TPDB.Plain.Read,
     TPDB.XTC,  TPDB.XTC.Read
+
+Test-Suite XML
+  Type: exitcode-stdio-1.0
+  main-is: read_print_xml.hs
+  hs-source-dirs: test .
+
+Test-Suite TRS
+  Type: exitcode-stdio-1.0
+  main-is: read_print_trs.hs
+  hs-source-dirs: test .
+
+Test-Suite SRS
+  Type: exitcode-stdio-1.0
+  main-is: read_print_srs.hs
+  hs-source-dirs: test .
+
 

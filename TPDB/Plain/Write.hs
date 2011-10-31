@@ -1,6 +1,8 @@
 -- | the "old" TPDB format 
 -- cf. http://www.lri.fr/~marche/tpdb/format.html
 
+{-# language FlexibleContexts #-}
+
 module TPDB.Plain.Write where
 
 import TPDB.Data
@@ -38,3 +40,5 @@ instance ( Pretty s, Pretty r ) => Pretty ( RS s r ) where
         -- FIXME: output strategy, theory
         ]
 
+instance ( Pretty s, Pretty r ) => Pretty ( Problem s r ) where
+    pretty p = pretty $ trs p 

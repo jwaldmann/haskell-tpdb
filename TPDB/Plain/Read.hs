@@ -11,37 +11,44 @@ import Text.Parsec
 import Text.Parsec.Token
 import Text.Parsec.Language
 import Text.Parsec.Char
-import Control.Monad ( guard )
+import Control.Monad ( guard, void )
 
-import qualified Data.Set as S
-import qualified Data.Map as M
+
+trs :: String -> Either String ( TRS Identifier Identifier )
+trs s = case Text.Parsec.parse reader "input" s of
+    Left err -> Left $ show err
+    Right t  -> Right t
+
+srs :: String -> Either String ( SRS Identifier )
+srs s = case Text.Parsec.parse reader "input" s of
+    Left err -> Left $ show err
+    Right t  -> Right t
 
 type Parser = Parsec String () 
 
 class Reader a where reader :: Parser a
 
+-- | warning: by definition, {}[] may appear in identifiers
 lexer = makeTokenParser
     $ emptyDef
-       { identStart  = alphaNum <|> oneOf "_:!#$%&*+./<=>?@\\^|-~"
-       , identLetter = alphaNum <|> oneOf "_:!#$%&*+./<=>?@\\^|-~"
+       { identStart  = alphaNum <|> oneOf "_:!#$%&*+./<=>?@\\^|-~{}[]"
+       , identLetter = alphaNum <|> oneOf "_:!#$%&*+./<=>?@\\^|-~{}[]"
        , commentLine = "" , commentStart = "" , commentEnd = ""
-       , reservedNames = [ "VAR", "THEORY", "STRATEGY", "RULES" ]
-       , reservedOpNames = [ "->", "->=" ]
+       , reservedNames = [ "VAR", "THEORY", "STRATEGY", "RULES", "->", "->=" ]
        }
 
 
 instance Reader Identifier where 
     reader = do
         i <- identifier lexer 
-	     <|> operator lexer
-	whiteSpace lexer
-	return $ Identifier { arity = undefined, name = i }
+	return $ Identifier { arity = 0, name = i }
 
 instance Reader s =>  Reader [s] where
     reader = many reader
 
 -- NOTE: this is dangerous since we read the variables as constants,
--- and this needs to be patched up later
+-- and this needs to be patched up later.
+-- NOTE: this is more dangerous as we do not set the arity of identifiers
 instance ( Reader v, Reader s ) => Reader ( Term v s ) where
     reader = do
         f  <- reader 
@@ -61,6 +68,9 @@ data Declaration u
      | Theory_Declaration 
      | Strategy_Declaration 
      | Rules_Declaration [ Rule u ]
+     | Unknown_Declaration
+       -- ^ this is super-ugly: a parenthesized, possibly nested, 
+       -- possibly comma-separated, list of identifiers or strings
 
 declaration :: Reader u => Bool -> Parser ( Declaration u )
 declaration sep = parens lexer $ 
@@ -73,6 +83,11 @@ declaration sep = parens lexer $
        <|> do reserved lexer "RULES" 
               us <- ( if sep then commaSep lexer else many ) reader
               return $ Rules_Declaration us
+       <|> do anylist ; return Unknown_Declaration
+
+anylist = void 
+        $ commaSep lexer 
+        $ many ( void ( identifier lexer ) <|> parens lexer anylist )
 
 instance Reader ( SRS Identifier ) where
     reader = do
