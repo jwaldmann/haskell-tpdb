@@ -1,7 +1,5 @@
 module TPDB.Data where
 
-import Data.Set
-
 data Identifier = Identifier { name :: String , arity :: Int }
     deriving Show
 

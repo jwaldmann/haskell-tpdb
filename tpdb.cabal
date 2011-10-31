@@ -20,8 +20,10 @@ Source-Repository head
   Location: git://dfa.imn.htwk-leipzig.de/srv/git/tpdb/
 
 Library
-  Build-Depends: base, hxt, containers
+  Build-Depends: base, hxt, pretty
 
   Exposed-Modules:
-    TPDB.XTC, TPDB.Data, TPDB.XTC.Read
+    TPDB.Data, 
+    TPDB.Plain.Write,
+    TPDB.XTC,  TPDB.XTC.Read
 

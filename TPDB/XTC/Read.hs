@@ -18,8 +18,6 @@ import Control.Arrow
 import Control.Arrow.ArrowList
 import Control.Arrow.ArrowTree
 
-import Data.Set
-
 atTag tag = deep (isElem >>> hasName tag)
 
 getTerm = getVar <+> getFunApp
