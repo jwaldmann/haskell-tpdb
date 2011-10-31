@@ -23,6 +23,5 @@ Library
   Build-Depends: base, hxt, containers
 
   Exposed-Modules:
-    TPDB.XTC, TPDB.XTC.Identifier, TPDB.XTC.Term, 
-    TPDB.XTC.Rule, TPDB.XTC.RS, TPDB.XTC.Problem, TPDB.XTC.Read
+    TPDB.XTC, TPDB.Data, TPDB.XTC.Read
 

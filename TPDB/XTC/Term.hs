@@ -2,16 +2,13 @@
 
 module TPDB.XTC.Term where
 
-import TPDB.XTC.Identifier
+
 
 import Text.XML.HXT.Arrow.XmlArrow hiding ( getName )
 import Control.Arrow
 import Control.Arrow.ArrowList
 import Control.Arrow.ArrowTree
 
-data Term v s = Var v 
-              | Node s [ Term v s ]
-    deriving Show
 
 getTerm = getVar <+> getFunApp
 

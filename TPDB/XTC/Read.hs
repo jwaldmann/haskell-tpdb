@@ -6,12 +6,7 @@
 
 module TPDB.XTC.Read where
 
-import TPDB.XTC.Term
-import TPDB.XTC.Identifier
-import TPDB.XTC.Problem
-import TPDB.XTC.RS
-import TPDB.XTC.Rule
-
+import TPDB.Data
 
 import Text.XML.HXT.Arrow.XmlArrow
 
@@ -27,13 +22,32 @@ import Data.Set
 
 atTag tag = deep (isElem >>> hasName tag)
 
+getTerm = getVar <+> getFunApp
+
+getVar = proc x -> do
+    nm <- getText <<< getChildren <<< hasName "var" -< x
+    returnA -< Var $ Identifier { arity = 0, name = nm }
+
+getFunApp = proc x -> do
+    sub <- hasName "funapp" -< x
+    nm <- getText <<< gotoChild "name" -< sub
+    gs <- listA ( getTerm <<< gotoChild "arg" ) -< sub
+    let c = Identifier { arity = length gs , name = nm }
+    returnA -< Node c gs
+          
+gotoChild tag = proc x -> do
+    returnA <<< getChildren <<< getChild tag -< x
+
+getChild tag = proc x -> do
+    returnA <<< hasName tag <<< isElem <<< getChildren -< x
+
 getProblem = atTag "problem" >>> proc x -> do
     ty <- getType <<< getAttrValue "type" -< x
     rs <- getTRS <<< getChild "trs" -< x
     st <- getStrategy <<< getChild "strategy" -< x
     returnA -< case st of
         Full -> Problem { trs = rs
-                        , TPDB.XTC.Problem.strategy = st
+                        , TPDB.Data.strategy = st
                         , type_ = ty 
                         }
         _    -> error $ unwords [ "cannot handle strategy", show st ]
