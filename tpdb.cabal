@@ -21,6 +21,9 @@ Source-Repository head
   Type: git
   Location: git://dfa.imn.htwk-leipzig.de/srv/git/tpdb/
 
+-- Extra-Source-Files:
+--   test/3.15.xml, test/33.trs ,  test/z001.srs
+
 Library
   Build-Depends: base==4.*, hxt, pretty, parsec
 
@@ -29,7 +32,6 @@ Library
     TPDB.Plain.Write,     TPDB.Plain.Read,
     TPDB.XTC,  TPDB.XTC.Read
 
-  Extra-Source-Files: test/3.15.xml test/33.trs test/z001.srs
 
 Test-Suite XML
   Type: exitcode-stdio-1.0
