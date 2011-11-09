@@ -29,6 +29,8 @@ Library
     TPDB.Plain.Write,     TPDB.Plain.Read,
     TPDB.XTC,  TPDB.XTC.Read
 
+  Extra-Source-Files: test/3.15.xml test/33.trs test/z001.srs
+
 Test-Suite XML
   Type: exitcode-stdio-1.0
   main-is: read_print_xml.hs
