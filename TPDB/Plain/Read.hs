@@ -31,8 +31,8 @@ class Reader a where reader :: Parser a
 -- | warning: by definition, {}[] may appear in identifiers
 lexer = makeTokenParser
     $ emptyDef
-       { identStart  = alphaNum <|> oneOf "_:!#$%&*+./<=>?@\\^|-~{}[]"
-       , identLetter = alphaNum <|> oneOf "_:!#$%&*+./<=>?@\\^|-~{}[]"
+       { identStart  = alphaNum <|> oneOf "_:!#$%&*+./<=>?@\\^|-~{}[]'"
+       , identLetter = alphaNum <|> oneOf "_:!#$%&*+./<=>?@\\^|-~{}[]'"
        , commentLine = "" , commentStart = "" , commentEnd = ""
        , reservedNames = [ "VAR", "THEORY", "STRATEGY", "RULES", "->", "->=" ]
        }
@@ -81,7 +81,13 @@ declaration sep = parens lexer $
        <|> do reserved lexer "STRATEGY" 
               error "TPDB.Plain.Read: parser for THEORY decl. missing"
        <|> do reserved lexer "RULES" 
-              us <- ( if sep then commaSep lexer else many ) reader
+              us <- if sep then do 
+                        many $ do 
+                            u <- reader ; optional $ comma lexer
+                            return u
+                        -- yes, TPDB contains some trailing commas, e.g., z008
+                        -- ( RULES a b -> b a , )
+                    else many reader
               return $ Rules_Declaration us
        <|> do anylist ; return Unknown_Declaration
 
