@@ -25,6 +25,9 @@ data Vector a = Vector [ a ]
 data Matrix a = Matrix [ Vector a ]
    deriving Typeable
 
+data MaxPlus = MinusInfinite | Finite Integer
+   deriving ( Show, Read, Typeable )
+
 data Mi_Fun a = 
      Mi_Fun { mi_const :: Vector a
             , mi_args :: [ Matrix a ]

@@ -41,7 +41,7 @@ lexer = makeTokenParser
 instance Reader Identifier where 
     reader = do
         i <- identifier lexer 
-	return $ Identifier { arity = 0, name = i }
+	return $ Identifier { name = i }
 
 instance Reader s =>  Reader [s] where
     reader = many reader

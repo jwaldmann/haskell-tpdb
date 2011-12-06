@@ -6,7 +6,7 @@ module TPDB.Rainbow.Proof.Xml where
 
 import TPDB.Rainbow.Proof.Type
 
--- import Con.Xml
+import TPDB.Xml
 -- import Matrix.MaxPlus ( MaxPlus )
 -- import Autolib.Reader hiding ( many ) 
 -- import Autolib.TES
@@ -62,7 +62,7 @@ toplevel p =
 instance XmlContent Identifier where
     parseContents = do
         CString _ s _ <- next 
-        return $ mkunary s
+        return  $ Identifier s
     toContents i =
           -- probably not here: E.xmlEscape E.stdXmlEscaper
           -- this introduces whitespace between &lt; and =
@@ -108,11 +108,20 @@ instance XRead a => XRead ( Vector a ) where
     xread = fmap Vector $ many $ element "velem" xread
 
 
+-- FIXME:
+instance XmlContent MaxPlus where
+    parseContents = do
+        CString _ s _ <- next 
+        return  $ read s
+    toContents i =
+          [ CString False ( escape $ show i ) () ]
+
+
 -- | for some types, e.g. Integer
 -- , do not use XmlContent instance for element type
 -- but show them (as string).
 -- reason: the XmlContent module contains an instance
--- for integer that poduces <integer value="42"/>
+-- for integer that produces <integer value="42"/>
 -- and there is no way to turn this off.
 
 data Xml_As_String a = Xml_As_String a
@@ -245,7 +254,7 @@ instance XmlContent Proof where
 	    : do
 	        p <- parts
 	        let sys = system $ claim p 
-		    vs = original_variables sys
+		    vs = signature sys
 		    u = head $ filter strict $ rules sys
 		return $ mkel "scc"
 		       $ toContents ( externalize vs u )
@@ -274,16 +283,17 @@ externalize vs u =
 	-- according to inverse order in declaration (!?)
 	m  = Map.fromList 
 	   $ zip ( reverse vs ) 
-	   $ map ( mknullary . show ) [ 1 .. ]
+	   $ map ( \ i -> Identifier $ "v" ++ show i )  [ 1 .. ]
+        rename :: Identifier -> Identifier
 	rename v = let Just w = Map.lookup v m in w
 	handle ( Node f args ) = Node ( Hd_Mark $ unP f ) 
 	    $ map ( fmap Int_Mark . vmap rename ) args
     in  Rule { lhs = handle $ lhs u, rhs = handle $ rhs u, strict = True } 
 
+-- | super ugly risky: name mangling
+unP :: Identifier -> Identifier
 unP k = let cs = show k 
-        in  case last cs of 'P' -> mk ( arity k ) $ init cs
-
-
+        in  case last cs of 'P' -> Identifier $ init cs
 
 instance XmlContent Over_Graph where
     toContents og = return $ mkel ( map toLower $ show og ) []
@@ -304,9 +314,9 @@ instance ( Typeable a, XmlContent a ) => XRead ( Marked a ) where
 -- FIXME
 instance XRead Identifier where
     xread = CParser $ \ ( c : cs ) -> 
-        return ( mknullary "some_identifier", cs )
+        return ( Identifier "some_identifier" , cs )
 	-- error $ info [c]
 
 -- FIXME: we will need this for SCC
-instance XmlContent TES where
+-- instance XmlContent TES where
     
