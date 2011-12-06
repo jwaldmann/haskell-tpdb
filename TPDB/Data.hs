@@ -25,7 +25,7 @@ data Rule a = Rule { lhs :: a, rhs :: a
                    , strict :: Bool
                    , top :: Bool
                    }
-    deriving Show
+    deriving ( Eq, Show)
 
 data RS s r = 
      RS { signature :: [ s ] -- ^ better keep order in signature (?)
