@@ -142,6 +142,9 @@ vars t = S.fromList $ do
     Var v <- subterms t
     return v
 
+isvar :: Term v c -> Bool
+isvar ( Var _ ) = True ; isvar _ = False
+
 -- | list of variables (each occurs once, unspecified ordering)
 lvars :: Ord v => Term v c -> [ v ]
 lvars = S.toList . vars
