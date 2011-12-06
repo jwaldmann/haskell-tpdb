@@ -12,12 +12,14 @@ where
 import TPDB.Data.Term
 
 import Data.Typeable
-
+import Control.Monad ( guard )
 
 
 data Identifier = Identifier { name :: String  }
     deriving ( Eq, Ord, Show, Typeable )
 
+mk :: Int -> String -> Identifier
+mk a n = Identifier { name = n }
 
 ---------------------------------------------------------------------
 
@@ -34,8 +36,10 @@ data RS s r =
          }
     deriving Show
 
-strict_rules = filter strict . rules
-non_strict_rules = filter ( not . strict ) . rules
+strict_rules sys = 
+    do u <- rules sys ; guard $ strict u ; return ( lhs u, rhs u )
+non_strict_rules sys = 
+    do u <- rules sys ; guard $ not $ strict u ; return ( lhs u, rhs u )
 
 type TRS v s = RS s ( Term v s )
 
