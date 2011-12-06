@@ -34,6 +34,9 @@ data RS s r =
          }
     deriving Show
 
+strict_rules = filter strict . rules
+non_strict_rules = filter ( not . strict ) . rules
+
 type TRS v s = RS s ( Term v s )
 
 type SRS s = RS s [ s ]
