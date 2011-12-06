@@ -8,7 +8,7 @@ import Data.Typeable
 
 data Term v s = Var v 
               | Node s [ Term v s ]
-    deriving ( Show, Typeable )
+    deriving ( Eq, Ord, Show, Typeable )
 
 vmap :: ( v -> u ) -> Term v s -> Term u s
 vmap f ( Var v ) = Var ( f v )
