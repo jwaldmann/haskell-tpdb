@@ -6,10 +6,8 @@
 module TPDB.Plain.Write where
 
 import TPDB.Data
-
+import TPDB.Pretty
 import Text.PrettyPrint.HughesPJ
-
-class Pretty a where pretty :: a -> Doc
 
 instance Pretty Identifier where
     pretty i = text $ name i
@@ -21,17 +19,22 @@ instance ( Pretty v, Pretty s ) => Pretty ( Term v s ) where
             [] -> pretty f 
             _  -> pretty f <+> parens ( fsep $ punctuate comma $ map pretty xs )
 
-instance Pretty a => Pretty ( Rule a ) where
-    pretty u = hsep [ pretty $ lhs u
+instance PrettyTerm a => Pretty ( Rule a ) where
+    pretty u = hsep [ prettyTerm $ lhs u
                     , if strict u then text "->" else text "->="
                     -- FIXME: implement "top" annotation
-                    , pretty $ rhs u
+                    , prettyTerm $ rhs u
                     ]
 
-instance Pretty s => Pretty [s] where
-    pretty xs = hsep $ map pretty xs
+class PrettyTerm a where prettyTerm :: a -> Doc
 
-instance ( Pretty s, Pretty r ) => Pretty ( RS s r ) where
+instance Pretty s => PrettyTerm [s] where
+    prettyTerm xs = hsep $ map pretty xs
+
+instance ( Pretty v, Pretty s ) => PrettyTerm ( Term v s ) where
+    prettyTerm = pretty
+
+instance ( Pretty s, PrettyTerm r ) => Pretty ( RS s r ) where
     pretty sys = vcat 
         [ parens $ text "RULES" <+>
           vcat ( ( if separate sys then punctuate comma else id )

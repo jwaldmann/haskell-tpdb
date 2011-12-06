@@ -1,5 +1,5 @@
 Name: tpdb
-Version: 0.1
+Version: 0.2
 Author: Johannes Waldmann
 Maintainer: Johannes Waldmann
 Category: Science
@@ -10,7 +10,8 @@ Synopsis: Data Type for Rewriting Systems
 
 
 Description:
-   The package defines data types and parsers for rewriting systems,
+   The package defines data types and parsers for rewriting systems
+   and termination proofs,
    as used in the Termination Competitions.
    For syntax and semantics specification, 
    see <http://www.termination-portal.org/wiki/TPDB>
@@ -25,13 +26,13 @@ Source-Repository head
 --   test/3.15.xml, test/33.trs ,  test/z001.srs
 
 Library
-  Build-Depends: base==4.*, hxt, pretty, parsec
+  Build-Depends: base==4.*, hxt, pretty, parsec, time, containers, HaXml
 
   Exposed-Modules:
     TPDB.Data, 
     TPDB.Plain.Write,     TPDB.Plain.Read,
     TPDB.XTC,  TPDB.XTC.Read
-
+    TPDB.Rainbow.Proof.Xml,     TPDB.Rainbow.Proof.Type
 
 Test-Suite XML
   Type: exitcode-stdio-1.0
