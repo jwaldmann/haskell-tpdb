@@ -27,7 +27,7 @@ data Rule a = Rule { lhs :: a, rhs :: a
                    , strict :: Bool
                    , top :: Bool
                    }
-    deriving ( Eq, Show)
+    deriving ( Eq, Ord, Show)
 
 data RS s r = 
      RS { signature :: [ s ] -- ^ better keep order in signature (?)
@@ -66,14 +66,16 @@ data Strategy = Full | Innermost | Outermost
 type TES = TRS Identifier Identifier
 type SES = SRS Identifier
 
-mknullary s = Identifier { name = s }
-mkunary s = Identifier { name = s }
+mknullary s = Identifier { arity = 0, name = s }
+mkunary s = Identifier { arity = 1, name = s }
 
 from_strict_rules :: Bool -> [(t,t)] -> RS i t
 from_strict_rules sep rs = 
-    RS { rules = map ( \ (l,r) -> Rule { strict = True, lhs = l, rhs = r } ) rs
+    RS { rules = map ( \ (l,r) ->
+             Rule { strict = True, top = False, lhs = l, rhs = r } ) rs
        , separate = sep 
        }
+
 with_rules sys rs = sys { rules = rs }
 
 

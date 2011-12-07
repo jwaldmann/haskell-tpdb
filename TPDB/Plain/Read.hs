@@ -12,7 +12,7 @@ import Text.Parsec.Token
 import Text.Parsec.Language
 import Text.Parsec.Char
 import Control.Monad ( guard, void )
-
+import Data.List ( nub )
 
 trs :: String -> Either String ( TRS Identifier Identifier )
 trs s = case Text.Parsec.parse reader "input" s of
@@ -41,7 +41,7 @@ lexer = makeTokenParser
 instance Reader Identifier where 
     reader = do
         i <- identifier lexer 
-	return $ Identifier { arity = 0 ; name = i }
+	return $ Identifier { arity = 0 , name = i }
 
 instance Reader s =>  Reader [s] where
     reader = many reader
@@ -49,7 +49,7 @@ instance Reader s =>  Reader [s] where
 -- NOTE: this is dangerous since we read the variables as constants,
 -- and this needs to be patched up later.
 -- NOTE: this is more dangerous as we do not set the arity of identifiers
-instance ( Reader v, Reader s ) => Reader ( Term v s ) where
+instance ( Reader v ) => Reader ( Term v Identifier ) where
     reader = do
         f  <- reader 
         xs <- option [] $ parens lexer $ commaSep lexer reader
@@ -105,18 +105,26 @@ instance Reader ( TRS Identifier Identifier ) where
         ds <- many $ declaration False
 	return $ make_trs ds
 
-make_srs :: [ Declaration [s] ] -> SRS s
-make_srs ds = 
-    let us = do Rules_Declaration us <- ds ; us
-    in  RS { signature = [] , rules = us, separate = True }
+repair_signature_srs sys = 
+    let sig = nub $ do u <- rules sys ; lhs u ++ rhs u
+    in  sys { signature = sig }
+
+make_srs :: Eq s => [ Declaration [s] ] -> SRS s
+make_srs ds = repair_signature_srs $
+    let us = do Rules_Declaration us <- ds ; us        
+    in  RS { rules = us, separate = True }
+
+repair_signature_trs sys = 
+    let sig = nub $ do u <- rules sys ; lsyms ( lhs u ) ++ lsyms ( rhs u)
+    in  sys { signature = sig }
 
 make_trs :: [ Declaration ( Term Identifier Identifier ) ] 
          -> TRS Identifier Identifier
-make_trs ds =
+make_trs ds = repair_signature_trs $
     let vs = do Var_Declaration vs <- ds ; vs
         us = do Rules_Declaration us <- ds ; us
         us' = repair_variables vs us
-    in  RS { signature = [], rules = us', separate = False }
+    in  RS { rules = us', separate = False }
 
 
 repair_variables vars rules = do
