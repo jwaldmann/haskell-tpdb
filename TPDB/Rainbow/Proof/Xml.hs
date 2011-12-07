@@ -62,7 +62,7 @@ toplevel p =
 instance XmlContent Identifier where
     parseContents = do
         CString _ s _ <- next 
-        return  $ Identifier s
+        return  $ mknullary s
     toContents i =
           -- probably not here: E.xmlEscape E.stdXmlEscaper
           -- this introduces whitespace between &lt; and =
@@ -283,7 +283,7 @@ externalize vs u =
 	-- according to inverse order in declaration (!?)
 	m  = Map.fromList 
 	   $ zip ( reverse vs ) 
-	   $ map ( \ i -> Identifier $ "v" ++ show i )  [ 1 .. ]
+	   $ map ( \ i -> mknullary $ "v" ++ show i )  [ 1 .. ]
         rename :: Identifier -> Identifier
 	rename v = let Just w = Map.lookup v m in w
 	handle ( Node f args ) = Node ( Hd_Mark $ unP f ) 
@@ -293,7 +293,7 @@ externalize vs u =
 -- | super ugly risky: name mangling
 unP :: Identifier -> Identifier
 unP k = let cs = show k 
-        in  case last cs of 'P' -> Identifier $ init cs
+        in  case last cs of 'P' -> mknullary $ init cs
 
 instance XmlContent Over_Graph where
     toContents og = return $ mkel ( map toLower $ show og ) []
@@ -314,7 +314,7 @@ instance ( Typeable a, XmlContent a ) => XRead ( Marked a ) where
 -- FIXME
 instance XRead Identifier where
     xread = CParser $ \ ( c : cs ) -> 
-        return ( Identifier "some_identifier" , cs )
+        return ( mknullary "some_identifier" , cs )
 	-- error $ info [c]
 
 -- FIXME: we will need this for SCC

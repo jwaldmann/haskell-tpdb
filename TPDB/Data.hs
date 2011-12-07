@@ -15,11 +15,11 @@ import Data.Typeable
 import Control.Monad ( guard )
 
 
-data Identifier = Identifier { name :: String  }
+data Identifier = Identifier { name :: String , arity :: Int }
     deriving ( Eq, Ord, Show, Typeable )
 
 mk :: Int -> String -> Identifier
-mk a n = Identifier { name = n }
+mk a n = Identifier { arity = a, name = n }
 
 ---------------------------------------------------------------------
 
