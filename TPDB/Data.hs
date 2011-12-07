@@ -16,7 +16,9 @@ import Control.Monad ( guard )
 
 
 data Identifier = Identifier { name :: String , arity :: Int }
-    deriving ( Eq, Ord, Show, Typeable )
+    deriving ( Eq, Ord, Typeable )
+
+instance Show Identifier where show = name
 
 mk :: Int -> String -> Identifier
 mk a n = Identifier { arity = a, name = n }
@@ -27,14 +29,14 @@ data Rule a = Rule { lhs :: a, rhs :: a
                    , strict :: Bool
                    , top :: Bool
                    }
-    deriving ( Eq, Ord, Show)
+    deriving ( Eq, Ord )
 
 data RS s r = 
      RS { signature :: [ s ] -- ^ better keep order in signature (?)
          , rules :: [ Rule r ]
         , separate :: Bool -- ^ if True, write comma between rules
          }
-    deriving Show
+
 
 strict_rules sys = 
     do u <- rules sys ; guard $ strict u ; return ( lhs u, rhs u )
@@ -51,7 +53,6 @@ data Problem v s =
              -- , metainformation :: Metainformation
              , type_ :: Type 
              }
-     deriving Show
 
 data Type = Termination | Complexity
      deriving Show 

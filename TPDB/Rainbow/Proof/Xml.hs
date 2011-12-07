@@ -288,7 +288,7 @@ externalize vs u =
 	rename v = let Just w = Map.lookup v m in w
 	handle ( Node f args ) = Node ( Hd_Mark $ unP f ) 
 	    $ map ( fmap Int_Mark . vmap rename ) args
-    in  Rule { lhs = handle $ lhs u, rhs = handle $ rhs u, strict = True } 
+    in  Rule { lhs = handle $ lhs u, rhs = handle $ rhs u, strict = True , top = False } 
 
 -- | super ugly risky: name mangling
 unP :: Identifier -> Identifier
