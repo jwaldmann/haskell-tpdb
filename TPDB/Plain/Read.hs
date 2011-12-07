@@ -41,7 +41,7 @@ lexer = makeTokenParser
 instance Reader Identifier where 
     reader = do
         i <- identifier lexer 
-	return $ Identifier { name = i }
+	return $ Identifier { arity = 0 ; name = i }
 
 instance Reader s =>  Reader [s] where
     reader = many reader
@@ -53,7 +53,7 @@ instance ( Reader v, Reader s ) => Reader ( Term v s ) where
     reader = do
         f  <- reader 
         xs <- option [] $ parens lexer $ commaSep lexer reader
-        return $ Node f xs
+        return $ Node ( f { arity = length xs } ) xs
 
 instance Reader u => Reader ( Rule u ) where
     reader = do
