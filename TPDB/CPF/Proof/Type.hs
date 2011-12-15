@@ -1,27 +1,53 @@
 {-# OPTIONS -fglasgow-exts #-}
 
--- | internal representation of Rainbow termination proofs,
--- see <http://color.loria.fr/>
--- this file is modelled after rainbow/proof.ml
--- it omits constructors not needed for matrix interpretations (for the moment)
-module Rainbow.Proof.Type 
+-- | internal representation of CPF termination proofs,
+-- see <http://cl-informatik.uibk.ac.at/software/cpf/>
 
-( module Rainbow.Proof.Type
+module TPDB.CPF.Proof.Type 
+
+( module TPDB.CPF.Proof.Type
 , Identifier
 , TES
 )
 
 where
 
-import Autolib.TES
-import Autolib.ToDoc
-import Autolib.Reader
-import Autolib.TES.Identifier
-import Text.XML.HaXml.XmlContent.Haskell hiding ( text )
-import qualified Text.ParserCombinators.Parsec as P
+import TPDB.Data
 
-import qualified Data.Time as T
-import Data.Typeable
+import Text.XML.HaXml.XmlContent.Haskell hiding ( text )
+
+data CertificationProblem =
+     CertificationProblem { input :: CertificationProblemInput 
+                          , proof :: Proof }  
+
+data CertificationProblemInput 
+    = TrsInput { trs :: TRS Identifier Identifier }
+      -- ^ this is actually not true, since instead of copying from XTC,
+      -- CPF format repeats the definition of TRS,
+      -- and it's a different one (relative rules are extra)
+      
+data Proof = TrsTerminationProof TrsTerminationProof
+           -- | TrsNonterminationProof  
+
+data TrsTerminationProof 
+     = RIsEmpty
+     | RuleRemoval { orderingConstraintProof :: OrderingConstraintProof
+                   , trs :: TRS Identifier Identifier 
+                   , trsTerminationProof :: TrsTerminationProof  
+                   }  
+     | DpTrans  { dps :: DPS, markedSymbols :: Bool , dpProof :: DpProof }
+     | StringReversal { trs :: TRS Identifier Identifier
+                      , trsTerminationProof :: TrsTerminationProof  
+                      }  
+       
+data DpProof = PIsEmpty  
+     | RedPairProc { orderingConstraintProof :: OrderingConstraintProof
+                   , dps :: DPS , dpProof :: DpProof }  
+
+data OrderingConstraintProof
+     = RedPair {  
+     { strict :: Bool, ceCompatible :: Bool  
+     , monotonePositions ::
 
 data Vector a = Vector [ a ] 
    deriving Typeable
