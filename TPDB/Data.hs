@@ -29,14 +29,14 @@ data Rule a = Rule { lhs :: a, rhs :: a
                    , strict :: Bool
                    , top :: Bool
                    }
-    deriving ( Eq, Ord )
+    deriving ( Eq, Ord, Typeable )
 
 data RS s r = 
      RS { signature :: [ s ] -- ^ better keep order in signature (?)
          , rules :: [ Rule r ]
         , separate :: Bool -- ^ if True, write comma between rules
          }
-
+   deriving ( Typeable )
 
 strict_rules sys = 
     do u <- rules sys ; guard $ strict u ; return ( lhs u, rhs u )
