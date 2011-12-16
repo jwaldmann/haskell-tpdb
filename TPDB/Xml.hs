@@ -10,6 +10,19 @@ import qualified Text.XML.HaXml.Pretty as P
 
 import Data.Typeable
 
+mkel name cs = CElem ( Elem (N name) [] cs ) ()
+rmkel name cs = return $ mkel name cs
+
+instance Typeable t => HTypeable t where 
+    toHType x = let cs = show ( typeOf x ) in Prim cs cs
+
+escape [] = []
+escape ( c : cs ) = case c of
+    '<' -> "&lt;" ++ escape cs
+    '>' -> "&gt;" ++ escape cs
+    _   -> c :       escape cs
+
+
 type Contents = [ Content Posn ]
 
 data CParser a = CParser { unCParser :: Contents -> Maybe ( a, Contents ) }
@@ -89,3 +102,6 @@ info ( c : cs ) = case c of
     CString _ s _ -> "CString : " ++ s
     CRef _ _ -> "CRef"
     CMisc _ _ -> "CMisc"
+
+
+

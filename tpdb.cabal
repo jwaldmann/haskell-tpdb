@@ -29,7 +29,7 @@ Library
   Build-Depends: base==4.*, hxt, pretty, parsec, time, containers, HaXml
 
   Exposed-Modules:
-    TPDB.Data,     TPDB.Data.Term
+    TPDB.Data,     TPDB.Data.Term, TPDB.Data.Xml
     TPDB.Pretty, TPDB.Plain.Write,     TPDB.Plain.Read,
     TPDB.XTC,  TPDB.XTC.Read, TPDB.Xml, 
     TPDB.Rainbow.Proof.Xml,     TPDB.Rainbow.Proof.Type

@@ -7,6 +7,7 @@ module TPDB.Rainbow.Proof.Xml where
 import TPDB.Rainbow.Proof.Type
 
 import TPDB.Xml
+import TPDB.Data.Xml
 -- import Matrix.MaxPlus ( MaxPlus )
 -- import Autolib.Reader hiding ( many ) 
 -- import Autolib.TES
@@ -39,10 +40,6 @@ tox p =
         -- don't escape, see remarks in Autolib.TES.Identifier
     in  Document pro emptyST t []
 
-mkel name cs = CElem ( Elem (N name) [] cs ) ()
-
-instance Typeable t => HTypeable t where 
-    toHType x = let cs = show ( typeOf x ) in Prim cs cs
 
 toplevel p = 
     let	atts = [ ( N "xmlns"
@@ -57,46 +54,6 @@ toplevel p =
 	       ]
         unProof [ CElem ( Elem (N "proof") [] cs ) _ ] = cs
     in  Elem (N "proof") atts $ unProof $ toContents p
-
--- | FIXME: move to separate module
-instance XmlContent Identifier where
-    parseContents = do
-        CString _ s _ <- next 
-        return  $ mknullary s
-    toContents i =
-          -- probably not here: E.xmlEscape E.stdXmlEscaper
-          -- this introduces whitespace between &lt; and =
-          -- [ CString False $ show i ]
-          -- and this creates a CDATA element
-          -- [ CString True $ show i ]
-          -- so here comes an UGLY HACK:
-          [ CString False ( escape $ show i ) () ]
-
-escape [] = []
-escape ( c : cs ) = case c of
-    '<' -> "&lt;" ++ escape cs
-    '>' -> "&gt;" ++ escape cs
-    _   -> c :       escape cs
-
-instance ( Typeable ( Term v c ) , XmlContent v, XmlContent c )
-         => XmlContent ( Term v c ) where
-    toContents ( Var v ) = return $ mkel "var" $ toContents v
-    toContents ( Node f xs ) = return $ mkel "app"
-         $ mkel "fun" ( toContents f )
-         : map ( \ x -> mkel "arg" $ toContents x ) xs
-
-
-instance HTypeable ( Rule ( Term v c )) where
-     toHType _ = Prim "Rule" "Rule"
-
-instance ( HTypeable ( Rule ( Term v c) )
-         , XmlContent ( Term v c ) ) 
-         => XmlContent ( Rule ( Term v c ) ) where
-    toContents u =
-        return $ mkel "rule" 
-               [ mkel "lhs" $ toContents $ lhs u
-               , mkel "rhs" $ toContents $ rhs u
-               ]
 
 
 instance ( Typeable a, XmlContent a ) => XmlContent ( Vector a ) where

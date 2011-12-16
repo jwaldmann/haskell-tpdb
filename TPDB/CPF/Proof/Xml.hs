@@ -14,6 +14,9 @@ import Text.XML.HaXml.Types (QName (..) )
 import Text.XML.HaXml.XmlContent.Haskell hiding ( element, many )
 import Text.XML.HaXml.Types ( EncodingDecl(..), emptyST, XMLDecl(..) )
 
+import TPDB.Xml 
+import TPDB.Data.Xml 
+
 import Data.List ( nub )
 import Data.Char ( toLower )
 import Data.Map (Map)
@@ -23,18 +26,12 @@ import qualified Data.Time as T
 import Control.Monad
 import Data.Typeable
 
-tox :: Proof -> Document ()
+tox :: CertificationProblem -> Document ()
 tox p = 
     let xd = XMLDecl "1.0" ( Just $ EncodingDecl "UTF-8" ) Nothing 
         pro = Prolog ( Just xd ) [] Nothing []
         e = Elem (N "what") [] $ toContents p
     in  Document pro emptyST e []
-
-mkel name cs = CElem ( Elem (N name) [] cs ) ()
-rmkel name cs = return $ mkel name cs
-
-instance Typeable t => HTypeable t where 
-    toHType x = let cs = show ( typeOf x ) in Prim cs cs
 
 instance XmlContent CertificationProblem where
    toContents cp = rmkel "certificationProblem"
@@ -57,16 +54,6 @@ instance ( Typeable t, XmlContent t  )
         rmkel "lhs" ( toContents $ T.lhs u )
      ++ rmkel "rhs" ( toContents $ T.rhs u )
 
-instance ( Typeable v, Typeable c, XmlContent v , XmlContent c  ) 
-        => XmlContent ( T.Term v c ) where
-    toContents t = case t of
-        T.Var v -> rmkel "var" $ toContents v
-        T.Node f args -> rmkel "funapp" 
-            $ rmkel "name" ( toContents f )
-           ++ concat ( map toContents args )
-
-instance XmlContent Identifier where
-   toContents i = [ CString False ( show i ) () ]
 
 instance XmlContent Proof where
    toContents p = case p of
