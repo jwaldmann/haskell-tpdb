@@ -5,7 +5,7 @@
 module TPDB.CPF.Proof.Xml where
 
 import TPDB.CPF.Proof.Type
-
+import qualified TPDB.Data as T
 
 import qualified Text.XML.HaXml.Escape as E
 import qualified Text.XML.HaXml.Pretty as P
@@ -45,6 +45,28 @@ instance XmlContent CertificationProblem where
 instance XmlContent CertificationProblemInput where
    toContents i = case i of
       TrsInput {} -> rmkel "trsInput" $ toContents ( trsinput_trs i )
+
+instance ( Typeable v, Typeable c, XmlContent v , XmlContent c  ) 
+        => XmlContent ( T.TRS v c ) where
+   toContents s = rmkel "trs" 
+       $ rmkel "rules" $ concat $ map toContents $ T.rules s
+
+instance ( Typeable t, XmlContent t  ) 
+        => XmlContent ( T.Rule t) where
+   toContents u = rmkel "rule" $
+        rmkel "lhs" ( toContents $ T.lhs u )
+     ++ rmkel "rhs" ( toContents $ T.rhs u )
+
+instance ( Typeable v, Typeable c, XmlContent v , XmlContent c  ) 
+        => XmlContent ( T.Term v c ) where
+    toContents t = case t of
+        T.Var v -> rmkel "var" $ toContents v
+        T.Node f args -> rmkel "funapp" 
+            $ rmkel "name" ( toContents f )
+           ++ concat ( map toContents args )
+
+instance XmlContent Identifier where
+   toContents i = [ CString False ( show i ) () ]
 
 instance XmlContent Proof where
    toContents p = case p of
@@ -94,11 +116,12 @@ instance XmlContent Domain where
    toContents d = rmkel "domain" $ case d of
        Naturals -> rmkel "naturals" []
 
-instance ( Typeable s, XmlContent s ) => XmlContent ( Interpret s ) where
-   toContents i = rmkel "interpret" $ 
-         toContents ( symbol i )
-      ++ rmkel "arity" [ CString False ( show ( arity i )) () ]
-      ++ toContents ( value i )
+instance XmlContent Interpret  where
+   toContents i = rmkel "interpret" $ case i of
+       Interpret { symbol = s } -> 
+           toContents s
+        ++ rmkel "arity" [ CString False ( show ( arity i )) () ]
+        ++ toContents ( value i )
 
 instance XmlContent Value where
    toContents v = case v of
@@ -108,12 +131,17 @@ instance XmlContent Polynomial where
    toContents p = rmkel "polynomial" $ case p of
        Sum     ps -> rmkel "sum"     $ concat ( map toContents ps )
        Product ps -> rmkel "product" $ concat ( map toContents ps )
-       Coefficient c -> toContents c
+       Polynomial_Coefficient c -> rmkel "coefficient" $ toContents c
 
 instance XmlContent Coefficient where
-   toContents c = rmkel "coefficient" $ case c of
+   toContents v = case v of
+       Matrix vs -> rmkel "matrix" $ concat ( map toContents vs )
        Vector cs -> rmkel "vector" $ concat ( map toContents cs )
-       Coefficient_Integer i -> rmkel "integer" [ CString False ( show i ) () ]
+       Coefficient_Coefficient i -> 
+          rmkel "coefficient" $ toContents i
 
--- | general fallback
-instance Typeable a => XmlContent a 
+
+
+
+
+

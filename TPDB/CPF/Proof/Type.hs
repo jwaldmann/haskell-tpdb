@@ -36,7 +36,8 @@ data Proof = TrsTerminationProof TrsTerminationProof
 data Sharp i = Sharp i | Plain i
    deriving ( Typeable )
 
-data DPS = DPS [ Rule (Term Identifier ( Sharp Identifier )) ]
+data DPS = forall s . ( XmlContent s , Typeable s ) 
+        => DPS [ Rule (Term Identifier s) ]
    deriving ( Typeable )
 
 data TrsTerminationProof 
@@ -47,7 +48,7 @@ data TrsTerminationProof
                    , trsTerminationProof :: TrsTerminationProof  
                    }  
 -}
-     | DpTrans  { dptrans_dps :: TRS Identifier (Sharp Identifier )
+     | DpTrans  { dptrans_dps :: DPS
                 , markedSymbols :: Bool , dptrans_dpProof :: DpProof }
      | StringReversal { trs :: TRS Identifier Identifier
                       , trsTerminationProof :: TrsTerminationProof  
@@ -65,7 +66,7 @@ data OrderingConstraintProof
 
 data Interpretation =
      Interpretation { interpretation_type :: Interpretation_Type
-                    , interprets :: [ Interpret ( Sharp Identifier ) ]
+                    , interprets :: [ Interpret  ]
                     }
    deriving ( Typeable )
 
@@ -78,7 +79,7 @@ data Interpretation_Type =
 data Domain = Naturals 
    deriving ( Typeable )
 
-data Interpret s = Interpret 
+data Interpret = forall s .  XmlContent s => Interpret 
     { symbol :: s , arity :: Int , value :: Value }
    deriving ( Typeable )
 
@@ -87,11 +88,12 @@ data Value = Polynomial Polynomial
 
 data Polynomial = Sum [ Polynomial ]
                 | Product [ Polynomial ]
-                | Coefficient Coefficient
+                | Polynomial_Coefficient Coefficient
    deriving ( Typeable )
 
 data Coefficient = Vector [ Coefficient ]
-                 | Coefficient_Integer Integer
+           | Matrix [ Coefficient ]
+           | forall a . XmlContent a => Coefficient_Coefficient a
    deriving ( Typeable )
 
 
