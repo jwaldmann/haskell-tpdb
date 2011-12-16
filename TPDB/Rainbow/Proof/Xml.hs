@@ -257,8 +257,14 @@ instance XmlContent Over_Graph where
 
 instance ( Typeable a, XmlContent a ) => XmlContent ( Marked a ) where
     toContents m = case m of
+{-
         Hd_Mark x -> return $ mkel "hd_mark" $ toContents x
         Int_Mark x -> return $ mkel "int_mark" $ toContents x
+-}
+-- HACK
+        Hd_Mark x -> rmkel "sharp" $ rmkel "name" $ toContents x
+        Int_Mark x -> rmkel "name" $ toContents x
+
     parseContents = wrap xread
 
 instance ( Typeable a, XmlContent a ) => XRead ( Marked a ) where

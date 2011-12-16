@@ -30,7 +30,7 @@ tox :: CertificationProblem -> Document ()
 tox p = 
     let xd = XMLDecl "1.0" ( Just $ EncodingDecl "UTF-8" ) Nothing 
         pro = Prolog ( Just xd ) [] Nothing []
-        e = Elem (N "what") [] $ toContents p
+        [ CElem e _ ] = toContents p
     in  Document pro emptyST e []
 
 instance XmlContent CertificationProblem where
@@ -88,11 +88,11 @@ instance XmlContent OrderingConstraintProof where
            
 instance XmlContent Interpretation where
    toContents i = rmkel "interpretation" $
-        toContents ( interpretation_type i )
+        rmkel "type" ( toContents $ interpretation_type i )
      ++ concat ( map toContents $ interprets i )
       
 instance XmlContent Interpretation_Type where
-   toContents t = rmkel "type" $
+   toContents t = rmkel "matrixInterpretation" $
         toContents ( domain t )
      ++ rmkel "dimension" 
             [ CString False ( show ( dimension t )) () ]
