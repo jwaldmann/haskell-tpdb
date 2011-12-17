@@ -34,17 +34,27 @@ data Mi_Fun a =
             }
    deriving Typeable
 
-data Matrix_Int = forall k a 
+data Poly_Fun a = 
+     Poly_Fun { coefficients :: [a]
+            }
+   deriving Typeable
+
+type Matrix_Int = Interpretation Mi_Fun
+type Polynomial_Int = Interpretation Poly_Fun
+
+data Interpretation f = forall k a 
     . ( XmlContent k, XmlContent a, Typeable a ) -- Haskell2Xml a 
      => 
-     Matrix_Int { mi_domain :: Domain
+     Interpretation { mi_domain :: Domain
                 , mi_dim :: Integer
 		, mi_duration :: T.NominalDiffTime -- ^ this is an extension
   	        , mi_start :: T.UTCTime
 	        , mi_end :: T.UTCTime
-                , mi_int :: [ (k , Mi_Fun a ) ]
+                -- , mi_int :: [ (k , Mi_Fun a ) ]
+                  , mi_int :: [ (k ,  f a ) ]
                 }
-   deriving Typeable
+
+instance Typeable  (Interpretation f )
 
 data Domain = Natural | Arctic | Arctic_Below_Zero | Tropical 
     deriving ( Show, Eq, Ord, Typeable )
@@ -55,6 +65,7 @@ instance Pretty T.UTCTime where pretty = text . show
 
 data Red_Ord 
     = Red_Ord_Matrix_Int Matrix_Int
+    | Red_Ord_Polynomial_Int Polynomial_Int
     | Red_Ord_Simple_Projection Simple_Projection
     | Red_Ord_Usable_Rules Usable_Rules
    deriving Typeable

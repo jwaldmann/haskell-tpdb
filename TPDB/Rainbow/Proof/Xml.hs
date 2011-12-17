@@ -121,7 +121,7 @@ instance XmlContent Domain where
     toContents d = [ CString False ( show d ) ( )]
 
 instance XmlContent Matrix_Int where
-    toContents ( Matrix_Int { mi_domain = o, mi_dim = d, mi_int = i
+    toContents ( Interpretation { mi_domain = o, mi_dim = d, mi_int = i
 			    , mi_start = s, mi_end = e, mi_duration = u } ) =
         return $ mkel ( case o of Natural -> "matrix_int" 
                                   Arctic -> "arctic_int" 
@@ -162,7 +162,7 @@ mai tag o v0 = element tag $ do
     s <- element "start" $ xfromstring
     e <- element "end" $ xfromstring
     let u = T.diffUTCTime e s
-    return $ Matrix_Int 
+    return $ Interpretation
 	   { mi_domain = o, mi_dim = d, mi_int = i
 	   , mi_start = s, mi_end = e, mi_duration = u
 	   }
