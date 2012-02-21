@@ -44,4 +44,12 @@ instance ( Pretty s, PrettyTerm r ) => Pretty ( RS s r ) where
         ]
 
 instance ( Pretty s, Pretty r ) => Pretty ( Problem s r ) where
-    pretty p = pretty $ trs p 
+    pretty p = vcat
+       [ pretty $ trs p 
+       , case strategy p of  
+             Nothing -> empty
+             Just s -> fsep [ text "strategy", text ( show s ) ]
+       , case startterm p of  
+             Nothing -> empty
+             Just s -> fsep [ text "startterm", text ( show s ) ]        
+       ]

@@ -44,12 +44,14 @@ getProblem = atTag "problem" >>> proc x -> do
     ty <- getType <<< getAttrValue "type" -< x
     rs <- getTRS <<< getChild "trs" -< x
     st <- getStrategy <<< getChild "strategy" -< x
-    returnA -< case st of
-        Full -> Problem { trs = rs
+    stt <- listA ( getStartterm <<< getChild "startterm" ) -< x
+    returnA -< Problem { trs = rs
                         , TPDB.Data.strategy = st
                         , type_ = ty 
+                        , startterm = case stt of
+                             [] -> Nothing
+                             [x] -> x
                         }
-        _    -> error $ unwords [ "cannot handle strategy", show st ]
 
 getType = proc x -> do
     returnA -< case x of
@@ -59,7 +61,15 @@ getType = proc x -> do
 getStrategy = proc x -> do
     cs <- getText <<< getChildren -< x
     returnA -< case cs of
-        "FULL" -> Full
+        "FULL" -> Just Full
+
+getStartterm = ( proc x -> do
+        getChild "constructor-based" -< x
+        returnA -< Just Startterm_Constructor_based
+   ) <+>  ( proc x -> do
+        getChild "full" -< x
+        returnA -< Just Startterm_Full
+   ) <+> ( proc x -> do returnA -< Nothing )
 
 getTRS = proc x -> do
     sig <- getSignature <<< getChild "signature" -< x

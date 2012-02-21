@@ -48,10 +48,11 @@ type TRS v s = RS s ( Term v s )
 type SRS s = RS s [ s ]
 
 data Problem v s = 
-     Problem { trs :: TRS v s
-             , strategy :: Strategy
+     Problem { type_ :: Type 
+             , trs :: TRS v s
+             , strategy :: Maybe Strategy
              -- , metainformation :: Metainformation
-             , type_ :: Type 
+             , startterm :: Maybe Startterm  
              }
 
 data Type = Termination | Complexity
@@ -60,7 +61,12 @@ data Type = Termination | Complexity
 data Strategy = Full | Innermost | Outermost
      deriving Show
 
----------------------------------------------------------------------
+data Startterm = 
+       Startterm_Constructor_based
+       | Startterm_Full
+     deriving Show     
+
+------------------------------------------------------
 
 -- | legaca stuff (used in matchbox)
 

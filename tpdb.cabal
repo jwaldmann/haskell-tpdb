@@ -36,18 +36,22 @@ Library
     TPDB.CPF.Proof.Xml,     TPDB.CPF.Proof.Type
 
 Test-Suite XML
+  Build-Depends: base==4.*, hxt, pretty, parsec, time, containers, HaXml
   Type: exitcode-stdio-1.0
   main-is: read_print_xml.hs
   hs-source-dirs: test .
 
 Test-Suite TRS
+  Build-Depends: base==4.*, hxt, pretty, parsec, time, containers, HaXml
   Type: exitcode-stdio-1.0
   main-is: read_print_trs.hs
   hs-source-dirs: test .
 
 Test-Suite SRS
+  Build-Depends: base==4.*, hxt, pretty, parsec, time, containers, HaXml
   Type: exitcode-stdio-1.0
   main-is: read_print_srs.hs
+
   hs-source-dirs: test .
 
 

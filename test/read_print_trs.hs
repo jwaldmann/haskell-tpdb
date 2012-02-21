@@ -1,5 +1,6 @@
 import TPDB.Plain.Write
 import TPDB.Plain.Read
+import TPDB.Pretty
 
 import Control.Monad ( forM, void )
 
