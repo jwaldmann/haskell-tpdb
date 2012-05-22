@@ -25,10 +25,7 @@ compress :: ( Ord s )
               -- ((f, a), Nothing ) semantics: f of arity a is an "old" function symbol.
               -- output is in dependency order (will only refer to previously defined symbols).
 compress pool sys = 
-    let osig = M.fromListWith ( \ o n -> if o == n then o else error "different arities" ) 
-             $ do u <- rules sys ; t <- [ lhs u , rhs u ]
-                  ( _ , Node f args ) <- positions t
-                  return ( f, length args )
+    let osig = ohsig sys
         forbidden = M.keysSet osig
         fresh = filter ( `S.notMember` forbidden ) pool
         con = make fresh sys
@@ -37,6 +34,15 @@ compress pool sys =
           ++ map ( \ (f, p) -> ( (f, arity p), Just (parent p, branch p, child p) ) ) 
              (  reverse $ defs con )
         )
+
+ohsig sys = M.fromListWith ( \ o n -> if o == n then o else error "different arities" ) 
+             $ do u <- rules sys ; t <- [ lhs u , rhs u ]
+                  ( _ , Node f args ) <- positions t
+                  return ( f, length args )
+
+dont_compress pool sys = 
+    let osig = ohsig sys
+    in ( sys , map ( \ fa -> ( fa, Nothing ) ) ( M.toList osig ) )
                   
 
 data Pattern s = Pattern
@@ -67,7 +73,7 @@ handle ( fg : free ) con =
 
 patterns_in_term t = do
     Node f xs <- subterms t
-    ( k , x @ ( Node g ys ) ) <- zip [ 1 .. ] xs
+    ( k , x @ ( Node g ys ) ) <- zip [ 0 .. ] xs
     let r = not $ null $ do Node {} <- ys ; return ()
     return $ Pattern { arity = length xs - 1 + length ys
                      , parent = f, branch = k, child = g, has_grand_child = r }
@@ -107,14 +113,14 @@ apply_term ( fg, p @ Pattern { parent = f, branch = i, child = g } )
            t @ ( Node top args ) =
     let ( newtop, newargs ) =
             if matches p t 
-            then let ( pre, Node _ sub : post ) = splitAt (i - 1) args
+            then let ( pre, Node _ sub : post ) = splitAt i args
                  in  ( fg, pre ++ sub ++ post )
             else ( top, args )
     in  Node newtop $ map ( apply_term ( fg, p ) ) newargs
 
 matches ( Pattern { parent = f, branch = i, child = g } ) 
         ( Node top args ) | top == f = 
-    case args !! (i-1) of
+    case args !! i of
          Node bot _ | bot == g -> True
          _ -> False
 matches p _ = False
