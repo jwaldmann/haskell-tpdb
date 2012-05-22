@@ -225,7 +225,8 @@ instance XRead Proof where
 	    [ element "trivial" $ return Trivial
 	    , element "reverse" $ fmap Reverse xread
 	    , element "as_trs" $ fmap As_TRS xread
-	    , element "manna_ness" $ do return () ; o <- xread ; p <- xread ; return $ MannaNess o p 
+	    , element "manna_ness" $ do 
+                      return () ; o <- xread ; p <- xread ; return $ MannaNess o p 
 	    , element "mark_symbols" $ fmap MarkSymb xread
 	    , element "dp" $ fmap DP xread
 	    , complain "Proof"
@@ -245,7 +246,8 @@ externalize vs u =
 	rename v = let Just w = Map.lookup v m in w
 	handle ( Node f args ) = Node ( Hd_Mark $ unP f ) 
 	    $ map ( fmap Int_Mark . vmap rename ) args
-    in  Rule { lhs = handle $ lhs u, rhs = handle $ rhs u, strict = True , top = False } 
+    in  Rule { lhs = handle $ lhs u, rhs = handle $ rhs u
+             , relation = Strict , top = False } 
 
 -- | super ugly risky: name mangling
 unP :: Identifier -> Identifier

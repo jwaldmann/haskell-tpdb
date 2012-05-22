@@ -73,8 +73,8 @@ getStartterm = ( proc x -> do
 
 getTRS = proc x -> do
     sig <- getSignature <<< getChild "signature" -< x
-    str <- getRules True <<< getChild "rules" -< x
-    nostr <- listA ( getRules False <<< getChild "relrules" <<< getChild "rules" ) -< x
+    str <- getRules Strict <<< getChild "rules" -< x
+    nostr <- listA ( getRules Weak <<< getChild "relrules" <<< getChild "rules" ) -< x
     -- FIXME: check that symbols are use with correct arity
     th <- listA ( atTag "theory" ) -< x
     returnA -< case th of
@@ -98,7 +98,7 @@ getRules str = proc x -> do
 getRule str = proc x -> do
     l <-  getTerm <<< isElem <<< gotoChild "lhs" -< x
     r <-  getTerm <<< isElem <<< gotoChild "rhs" -< x
-    returnA -< Rule { lhs = l, strict = str, rhs = r, top = False }
+    returnA -< Rule { lhs = l, relation = str, rhs = r, top = False }
 
 readProblems :: FilePath -> IO [ Problem Identifier Identifier ]
 readProblems file = do

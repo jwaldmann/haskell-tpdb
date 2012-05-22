@@ -58,10 +58,13 @@ instance ( Reader v ) => Reader ( Term v Identifier ) where
 instance Reader u => Reader ( Rule u ) where
     reader = do
         l <- reader
-        s <-  do reservedOp lexer "->"  ; return True
-          <|> do reservedOp lexer "->=" ; return False
+        rel <-  do reservedOp lexer "->"  ; return Strict
+          <|> do reservedOp lexer "->=" ; return Weak
+          -- FIXME: for the moment, we do not parse this
+          -- as it would deviate from published TPDB syntax
+          -- <|> do reservedOp lexer "=" ; return Equal
         r <- reader
-        return $ Rule { lhs = l, strict = s, top = False, rhs = r }
+        return $ Rule { lhs = l, relation = rel, top = False, rhs = r }
 
 data Declaration u
      = Var_Declaration [ Identifier ]

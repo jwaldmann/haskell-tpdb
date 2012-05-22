@@ -21,7 +21,10 @@ instance ( Pretty v, Pretty s ) => Pretty ( Term v s ) where
 
 instance PrettyTerm a => Pretty ( Rule a ) where
     pretty u = hsep [ prettyTerm $ lhs u
-                    , if strict u then text "->" else text "->="
+                    , case relation u of 
+                         Strict -> text "->" 
+                         Weak -> text "->="
+                         Equal -> text "="
                     -- FIXME: implement "top" annotation
                     , prettyTerm $ rhs u
                     ]

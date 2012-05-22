@@ -25,11 +25,23 @@ mk a n = Identifier { arity = a, name = n }
 
 ---------------------------------------------------------------------
 
+data Relation = Strict |  Weak | Equal deriving ( Eq, Ord, Typeable, Show )
+
 data Rule a = Rule { lhs :: a, rhs :: a 
-                   , strict :: Bool
+                   , relation :: Relation
                    , top :: Bool
                    }
     deriving ( Eq, Ord, Typeable )
+
+strict :: Rule a -> Bool
+strict u = case relation u of Strict -> True ; _ -> False
+
+weak :: Rule a -> Bool
+weak u = case relation u of Weak -> True ; _ -> False
+
+equal :: Rule a -> Bool
+equal u = case relation u of Equal -> True ; _ -> False
+
 
 data RS s r = 
      RS { signature :: [ s ] -- ^ better keep order in signature (?)
@@ -40,8 +52,10 @@ data RS s r =
 
 strict_rules sys = 
     do u <- rules sys ; guard $ strict u ; return ( lhs u, rhs u )
-non_strict_rules sys = 
-    do u <- rules sys ; guard $ not $ strict u ; return ( lhs u, rhs u )
+weak_rules sys = 
+    do u <- rules sys ; guard $ weak u ; return ( lhs u, rhs u )
+equal_rules sys = 
+    do u <- rules sys ; guard $ equal u ; return ( lhs u, rhs u )
 
 type TRS v s = RS s ( Term v s )
 
@@ -79,7 +93,7 @@ mkunary s = Identifier { arity = 1, name = s }
 from_strict_rules :: Bool -> [(t,t)] -> RS i t
 from_strict_rules sep rs = 
     RS { rules = map ( \ (l,r) ->
-             Rule { strict = True, top = False, lhs = l, rhs = r } ) rs
+             Rule { relation = Strict, top = False, lhs = l, rhs = r } ) rs
        , separate = sep 
        }
 
