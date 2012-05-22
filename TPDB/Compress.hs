@@ -2,7 +2,7 @@
 
 module TPDB.Compress where
 
-import TPDB.Data hiding ( trs )
+import TPDB.Data hiding ( trs, arity )
 import TPDB.Plain.Write ()
 import qualified TPDB.Plain.Read (trs) -- for testing
 import TPDB.Pretty 
@@ -19,10 +19,10 @@ compress :: ( Ord s )
                 -- occur in the original TRS's signature.
          -> TRS v s 
          -> ( TRS v s 
-            , [ (s, Maybe (s,Int,s) ) ] 
-            ) -- ^  (f, a, Just (g,i,h)) semantics: new function symbols f
+            , [ ((s, Int), Maybe (s,Int,s) ) ] 
+            ) -- ^  ((f, a), Just (g,i,h)) semantics: new function symbols f
               -- by substituting h in the i-th position (start at 0) of g.
-              -- (f, Nothing ) semantics: f of arity a is an "old" function symbol
+              -- ((f, a), Nothing ) semantics: f of arity a is an "old" function symbol
 compress pool sys = 
     let osig = M.fromListWith ( \ o n -> if o == n then o else error "different arities" ) 
              $ do u <- rules sys ; t <- [ lhs u , rhs u ]
@@ -32,13 +32,14 @@ compress pool sys =
         fresh = filter ( `S.notMember` forbidden ) pool
         con = make fresh sys
     in  ( trs con 
-        ,    map ( \ f -> ( f, Nothing ) ) ( S.toList forbidden )
-          ++ map ( \ (f, p) -> ( f, Just (parent p, branch p, child p) ) ) ( defs con )
+        ,    map ( \ fa -> ( fa, Nothing ) ) ( M.toList osig )
+          ++ map ( \ (f, p) -> ( (f, arity p), Just (parent p, branch p, child p) ) ) ( defs con )
         )
                   
 
 data Pattern s = Pattern
-             { parent :: s
+             { arity :: Int
+             , parent :: s
              , branch :: Int
              , child :: s
              , has_grand_child :: Bool 
@@ -66,7 +67,8 @@ patterns_in_term t = do
     Node f xs <- subterms t
     ( k , x @ ( Node g ys ) ) <- zip [ 1 .. ] xs
     let r = not $ null $ do Node {} <- ys ; return ()
-    return $ Pattern { parent = f, branch = k, child = g, has_grand_child = r }
+    return $ Pattern { arity = length xs - 1 + length ys
+                     , parent = f, branch = k, child = g, has_grand_child = r }
 
 patterns_in_rule u = do
     t <- [ lhs u, rhs u ]
