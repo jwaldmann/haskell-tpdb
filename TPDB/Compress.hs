@@ -22,7 +22,8 @@ compress :: ( Ord s )
             , [ ((s, Int), Maybe (s,Int,s) ) ] 
             ) -- ^  ((f, a), Just (g,i,h)) semantics: new function symbols f
               -- by substituting h in the i-th position (start at 0) of g.
-              -- ((f, a), Nothing ) semantics: f of arity a is an "old" function symbol
+              -- ((f, a), Nothing ) semantics: f of arity a is an "old" function symbol.
+              -- output is in dependency order (will only refer to previously defined symbols).
 compress pool sys = 
     let osig = M.fromListWith ( \ o n -> if o == n then o else error "different arities" ) 
              $ do u <- rules sys ; t <- [ lhs u , rhs u ]
@@ -33,7 +34,8 @@ compress pool sys =
         con = make fresh sys
     in  ( trs con 
         ,    map ( \ fa -> ( fa, Nothing ) ) ( M.toList osig )
-          ++ map ( \ (f, p) -> ( (f, arity p), Just (parent p, branch p, child p) ) ) ( defs con )
+          ++ map ( \ (f, p) -> ( (f, arity p), Just (parent p, branch p, child p) ) ) 
+             (  reverse $ defs con )
         )
                   
 
