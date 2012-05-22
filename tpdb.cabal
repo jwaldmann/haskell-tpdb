@@ -30,6 +30,7 @@ Library
 
   Exposed-Modules:
     TPDB.Data,     TPDB.Data.Term, TPDB.Data.Xml
+    TPDB.Compress
     TPDB.Pretty, TPDB.Plain.Write,     TPDB.Plain.Read,
     TPDB.XTC,  TPDB.XTC.Read, TPDB.Xml, 
     TPDB.Rainbow.Proof.Xml,     TPDB.Rainbow.Proof.Type

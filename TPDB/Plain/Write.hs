@@ -9,6 +9,8 @@ import TPDB.Data
 import TPDB.Pretty
 import Text.PrettyPrint.HughesPJ
 
+import Data.List ( nub )
+
 instance Pretty Identifier where
     pretty i = text $ name i
 
@@ -29,9 +31,10 @@ instance PrettyTerm a => Pretty ( Rule a ) where
                     , prettyTerm $ rhs u
                     ]
 
-class PrettyTerm a where prettyTerm :: a -> Doc
+class PrettyTerm a where 
+    prettyTerm :: a -> Doc
 
-instance Pretty s => PrettyTerm [s] where
+instance Pretty s => PrettyTerm [s] where    
     prettyTerm xs = hsep $ map pretty xs
 
 instance ( Pretty v, Pretty s ) => PrettyTerm ( Term v s ) where
@@ -43,6 +46,9 @@ instance ( Pretty s, PrettyTerm r ) => Pretty ( RS s r ) where
           vcat ( ( if separate sys then punctuate comma else id )
                  $ map pretty $ rules sys 
                )
+        -- FIXME: variables are not shown (and it is impossible to compute
+        -- them here, this is actually a TPDB format design error, 
+        -- since variables should be local (per rule), not global)
         -- FIXME: output strategy, theory
         ]
 
