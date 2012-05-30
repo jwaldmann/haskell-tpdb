@@ -1,5 +1,5 @@
 Name: tpdb
-Version: 0.4
+Version: 0.5
 Author: Johannes Waldmann
 Maintainer: Johannes Waldmann
 Category: Science
@@ -26,11 +26,12 @@ Source-Repository head
 --   test/3.15.xml, test/33.trs ,  test/z001.srs
 
 Library
-  Build-Depends: base==4.*, hxt, pretty, parsec, time, containers, HaXml
+  Build-Depends: base==4.*, hxt, pretty, parsec, time, containers, HaXml, filepath
 
   Exposed-Modules:
     TPDB.Data,     TPDB.Data.Term, TPDB.Data.Xml
-    TPDB.Compress
+    TPDB.Compress, TPDB.Convert, TPDB.Input
+    TPDB.Mirror, 
     TPDB.Pretty, TPDB.Plain.Write,     TPDB.Plain.Read,
     TPDB.XTC,  TPDB.XTC.Read, TPDB.Xml, 
     TPDB.Rainbow.Proof.Xml,     TPDB.Rainbow.Proof.Type
