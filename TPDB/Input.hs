@@ -37,3 +37,12 @@ get_trs f = do
         Right x -> srs2trs x
         Left  x -> x
 
+get_srs f = do
+    x <- get f
+    return $ case x of
+        Right x -> x
+        Left  x -> case trs2srs x of
+            Nothing -> error "not an SRS"
+            Just x -> x
+            
+
