@@ -6,6 +6,8 @@ module TPDB.Rainbow.Proof.Xml where
 
 import TPDB.Rainbow.Proof.Type
 
+import qualified TPDB.CPF.Proof.Type as C
+
 import TPDB.Xml
 import TPDB.Data.Xml
 -- import Matrix.MaxPlus ( MaxPlus )
@@ -113,7 +115,8 @@ instance XRead a => XRead ( Mi_Fun a ) where
 	args <- many $ element "arg" xread
 	return $ Mi_Fun { mi_const = con, mi_args = args }
         
-
+instance C.ToExotic a => C.ToExotic (Xml_As_String a) where
+    toExotic (Xml_As_String x) = C.toExotic x
 
 --------------------------------------------------------------------------------
 
@@ -151,7 +154,7 @@ instance XRead Matrix_Int where
 
 -- | FIXME this is broken because the keys could be
 -- Identifier or Marked Identifier
-mai :: forall a . ( Typeable a, XmlContent a )
+mai :: forall a . ( Typeable a, XmlContent a, C.ToExotic a )
     => String -> Domain -> a -> CParser Matrix_Int
 mai tag o v0 = element tag $ do
     d <- element "dimension" $ xfromstring

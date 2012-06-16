@@ -19,8 +19,16 @@ import Text.XML.HaXml.XmlContent.Haskell hiding ( text )
 
 data CertificationProblem =
      CertificationProblem { input :: CertificationProblemInput 
-                          , proof :: Proof }  
+                          , cpfVersion :: String -- urgh
+                          , proof :: Proof 
+                          , origin :: Origin  
+                          }  
    deriving ( Typeable )
+
+data Origin = ProofOrigin Tool 
+    deriving Typeable
+data Tool = Tool { name :: String , version :: String } 
+    deriving Typeable
 
 data CertificationProblemInput 
     = TrsInput { trsinput_trs :: TRS Identifier Identifier }
@@ -76,7 +84,7 @@ data Interpretation_Type =
                          }
    deriving ( Typeable )
 
-data Domain = Naturals 
+data Domain = Naturals | Arctic | Tropical
    deriving ( Typeable )
 
 data Interpret = forall s .  XmlContent s => Interpret 
@@ -96,10 +104,8 @@ data Coefficient = Vector [ Coefficient ]
            | forall a . XmlContent a => Coefficient_Coefficient a
    deriving ( Typeable )
 
+data Exotic = Minus_Infinite | E_Integer Integer | E_Rational Rational | Plus_Infinite
+   deriving Typeable
 
-
-
-
-
-
+class ToExotic a where toExotic :: a -> Exotic
 

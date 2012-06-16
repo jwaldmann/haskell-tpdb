@@ -36,7 +36,19 @@ tox p =
 instance XmlContent CertificationProblem where
    toContents cp = rmkel "certificationProblem"
          [ mkel "input" $ toContents ( input cp )
+         , mkel "cpfVersion" [ CString False ( cpfVersion cp ) () ]
          , mkel "proof" $ toContents ( proof cp )
+         , mkel "origin" $ toContents ( origin cp )
+         ]
+
+instance XmlContent Origin where
+   toContents o = case o of
+       ProofOrigin t -> rmkel "proofOrigin" $ toContents t
+
+instance XmlContent Tool where
+   toContents t = rmkel "tool" 
+         [ mkel "name" [ CString False ( name t ) () ]
+         , mkel "version" [ CString False ( version t ) () ]
          ]
 
 instance XmlContent CertificationProblemInput where
@@ -65,7 +77,8 @@ instance ( Typeable i , XmlContent i ) => XmlContent ( Sharp i ) where
        Sharp q -> rmkel "sharp" $ toContents  q
 
 instance XmlContent DPS where
-   toContents ( DPS rules ) = rmkel "dps" $ concat $ map toContents rules
+   toContents ( DPS rules ) = rmkel "dps" 
+        $ rmkel "rules" $ rules >>= toContents
 
 instance XmlContent TrsTerminationProof where
    toContents p = rmkel "trsTerminationProof" $ case p of
@@ -73,6 +86,9 @@ instance XmlContent TrsTerminationProof where
              toContents ( dptrans_dps p )
           ++ rmkel "markedSymbols" [ CString False "true" () ]
           ++ toContents ( dptrans_dpProof p )
+      StringReversal {} -> rmkel "stringReversal" $
+             ( toContents $ trs p )
+          ++ ( toContents $ trsTerminationProof p )
 
 instance XmlContent DpProof where
    toContents p = rmkel "dpProof" $ case p of
@@ -102,11 +118,13 @@ instance XmlContent Interpretation_Type where
 instance XmlContent Domain where
    toContents d = rmkel "domain" $ case d of
        Naturals -> rmkel "naturals" []
+       Arctic   -> rmkel "arctic" $ rmkel "domain" $ rmkel "naturals" [] 
+       Tropical -> rmkel  "tropical" $ rmkel "domain" $ rmkel "naturals" [] 
 
 instance XmlContent Interpret  where
    toContents i = rmkel "interpret" $ case i of
        Interpret { symbol = s } -> 
-           toContents s
+           rmkel "name" ( toContents s )
         ++ rmkel "arity" [ CString False ( show ( arity i )) () ]
         ++ toContents ( value i )
 
@@ -127,7 +145,11 @@ instance XmlContent Coefficient where
        Coefficient_Coefficient i -> 
           rmkel "coefficient" $ toContents i
 
-
+instance XmlContent Exotic where
+    toContents e = case e of
+       Minus_Infinite -> rmkel "minusInfinity" []
+       E_Integer i -> rmkel "integer" [ CString False ( show i ) () ]
+       Plus_Infinite -> rmkel "plusInfinity" []
 
 
 

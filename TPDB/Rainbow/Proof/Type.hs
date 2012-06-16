@@ -13,6 +13,8 @@ import TPDB.Pretty
 import TPDB.Plain.Write () -- just instances
 import Text.PrettyPrint.HughesPJ
 
+import qualified TPDB.CPF.Proof.Type as C
+
 import Text.XML.HaXml.XmlContent.Haskell hiding ( text )
 import qualified Text.Parsec as P
 
@@ -25,7 +27,10 @@ data Vector a = Vector [ a ]
 data Matrix a = Matrix [ Vector a ]
    deriving Typeable
 
-data MaxPlus = MinusInfinite | Finite Integer
+data MaxPlus = MinusInfinite | MaxPlusFinite Integer
+   deriving ( Show, Read, Typeable )
+
+data MinPlus = MinPlusFinite Integer | PlusInfinite 
    deriving ( Show, Read, Typeable )
 
 data Mi_Fun a = 
@@ -43,7 +48,7 @@ type Matrix_Int = Interpretation Mi_Fun
 type Polynomial_Int = Interpretation Poly_Fun
 
 data Interpretation f = forall k a 
-    . ( XmlContent k, XmlContent a, Typeable a ) -- Haskell2Xml a 
+    . ( XmlContent k, XmlContent a, C.ToExotic a, Typeable a ) -- Haskell2Xml a 
      => 
      Interpretation { mi_domain :: Domain
                 , mi_dim :: Integer
@@ -153,6 +158,19 @@ data Marked a = Hd_Mark a | Int_Mark a
 
 
 
+instance C.ToExotic Integer where
+  toExotic = C.E_Integer
+instance C.ToExotic MaxPlus where
+  toExotic a = case a of
+    MinusInfinite -> C.Minus_Infinite
+    MaxPlusFinite f -> C.E_Integer f
+instance C.ToExotic MinPlus where
+  toExotic a = case a of
+    MinPlusFinite f -> C.E_Integer f
+    PlusInfinite -> C.Plus_Infinite
 
-
+{-
+instance C.ToExotic ( Xml_As_String Integer ) where
+  toExotic ( Xml_As_String i ) = C.toExotic i
+-}
 
