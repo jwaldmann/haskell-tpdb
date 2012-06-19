@@ -137,6 +137,8 @@ instance XmlContent Polynomial where
        Sum     ps -> rmkel "sum"     $ concat ( map toContents ps )
        Product ps -> rmkel "product" $ concat ( map toContents ps )
        Polynomial_Coefficient c -> rmkel "coefficient" $ toContents c
+       Polynomial_Variable v -> rmkel "variable" [ CString False v () ]
+
 
 instance XmlContent Coefficient where
    toContents v = case v of

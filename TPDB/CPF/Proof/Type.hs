@@ -97,6 +97,7 @@ data Value = Polynomial Polynomial
 data Polynomial = Sum [ Polynomial ]
                 | Product [ Polynomial ]
                 | Polynomial_Coefficient Coefficient
+                | Polynomial_Variable String
    deriving ( Typeable )
 
 data Coefficient = Vector [ Coefficient ]
