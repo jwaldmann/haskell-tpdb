@@ -25,6 +25,7 @@ import qualified Data.Map as Map
 import qualified Data.Time as T
 import Control.Monad
 import Data.Typeable
+import Data.Ratio
 
 tox :: CertificationProblem -> Document ()
 tox p = 
@@ -118,13 +119,21 @@ instance XmlContent Interpretation_Type where
 instance XmlContent Domain where
    toContents d = rmkel "domain" $ case d of
        Naturals -> rmkel "naturals" []
-       Arctic   -> rmkel "arctic" $ rmkel "domain" $ rmkel "naturals" [] 
-       Tropical -> rmkel  "tropical" $ rmkel "domain" $ rmkel "naturals" [] 
+       Rationals delta -> rmkel "rationals" 
+         $ rmkel "delta" $ toContents delta
+       Arctic d -> rmkel "arctic" $ toContents d
+       Tropical d -> rmkel  "tropical" $ toContents d
+
+instance XmlContent Rational where
+    toContents r = rmkel "rational" 
+        [ mkel "numerator" [ CString False ( show $ numerator r ) () ]
+        , mkel "denominator" [ CString False ( show $ denominator r ) () ]
+        ]
 
 instance XmlContent Interpret  where
    toContents i = rmkel "interpret" $ case i of
        Interpret { symbol = s } -> 
-           rmkel "name" ( toContents s )
+           sharp_name_HACK ( toContents s )
         ++ rmkel "arity" [ CString False ( show ( arity i )) () ]
         ++ toContents ( value i )
 

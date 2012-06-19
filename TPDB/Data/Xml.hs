@@ -38,8 +38,14 @@ instance ( Typeable ( Term v c ) , XmlContent v, XmlContent c )
 -}
 -- for CPF:
     toContents ( Node f args ) = rmkel "funapp" 
-            $ rmkel "name" ( toContents f )
+            $ sharp_name_HACK ( toContents f )
            ++ map ( \ arg -> mkel "arg" $ toContents arg ) args
+
+
+sharp_name_HACK e = case e of
+    [ CElem ( Elem (N "sharp") [] cs ) () ] -> 
+        rmkel "sharp" $ rmkel "name" cs
+    _ -> rmkel "name" e
 
 
 

@@ -84,7 +84,10 @@ data Interpretation_Type =
                          }
    deriving ( Typeable )
 
-data Domain = Naturals | Arctic | Tropical
+data Domain = Naturals 
+            | Rationals Rational
+            | Arctic Domain
+            | Tropical Domain
    deriving ( Typeable )
 
 data Interpret = forall s .  XmlContent s => Interpret 
