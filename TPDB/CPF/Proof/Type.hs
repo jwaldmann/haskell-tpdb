@@ -50,12 +50,10 @@ data DPS = forall s . ( XmlContent s , Typeable s )
 
 data TrsTerminationProof 
      = RIsEmpty
-{-
-     | RuleRemoval { orderingConstraintProof :: OrderingConstraintProof
+     | RuleRemoval { rr_orderingConstraintProof :: OrderingConstraintProof
                    , trs :: TRS Identifier Identifier 
                    , trsTerminationProof :: TrsTerminationProof  
                    }  
--}
      | DpTrans  { dptrans_dps :: DPS
                 , markedSymbols :: Bool , dptrans_dpProof :: DpProof }
      | StringReversal { trs :: TRS Identifier Identifier
@@ -64,7 +62,7 @@ data TrsTerminationProof
    deriving ( Typeable )
        
 data DpProof = PIsEmpty  
-     | RedPairProc { orderingConstraintProof :: OrderingConstraintProof
+     | RedPairProc { dp_orderingConstraintProof :: OrderingConstraintProof
                    , red_pair_dps :: DPS , redpairproc_dpProof :: DpProof }  
    deriving ( Typeable )
 

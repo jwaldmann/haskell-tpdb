@@ -90,12 +90,16 @@ instance XmlContent TrsTerminationProof where
       StringReversal {} -> rmkel "stringReversal" $
              ( toContents $ trs p )
           ++ ( toContents $ trsTerminationProof p )
+      RuleRemoval {} -> rmkel "ruleRemoval"
+          $  toContents ( rr_orderingConstraintProof p )
+          ++ toContents ( trs p )
+          ++ toContents ( trsTerminationProof p )
 
 instance XmlContent DpProof where
    toContents p = rmkel "dpProof" $ case p of
        PIsEmpty -> rmkel "pIsEmpty" []
        RedPairProc {} ->  rmkel "redPairProc" 
-         $ toContents ( orderingConstraintProof p )
+         $ toContents ( dp_orderingConstraintProof p )
         ++ toContents ( red_pair_dps p )
         ++ toContents ( redpairproc_dpProof p )
 
