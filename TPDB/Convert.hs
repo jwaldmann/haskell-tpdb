@@ -9,10 +9,9 @@ srs2trs s = s { separate = False
               }  
 
 convert_srs_rule u = 
-    let v = Var ( Identifier "x" 0 )
-        build = foldr ( \ c t -> Node c [ t ] ) v
-    in  u { lhs = build $ lhs u
-          , rhs = build $ rhs u        
+    let v = Identifier "x" 0 
+    in  u { lhs = unspine v $ lhs u
+          , rhs = unspine v $ rhs u        
           } 
                   
 trs2srs :: Eq v => TRS v s -> Maybe ( SRS s )
@@ -26,6 +25,10 @@ convert_trs_rule u = do
       guard $ left_base == right_base     
       return $ u { lhs = left_spine, rhs = right_spine }
 
+unspine :: v -> [s] -> Term v s
+unspine v = foldr (  \ c t -> Node c [ t ] ) ( Var v )
+
+spine :: Term v s -> Maybe ( [s], v )
 spine t = case t of
     Node f [ a ] -> do
       ( sp, base ) <- spine a 
