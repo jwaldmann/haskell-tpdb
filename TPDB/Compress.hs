@@ -11,17 +11,18 @@ import Control.Monad ( guard )
 import qualified Data.Set as S
 import qualified Data.Map as M
 
--- | compute a compresses version of the TRS.
--- Warning: in the output, the arities of fresh identifiers will we nonsensical
+-- | compute a compressed version of the TRS.
+-- Warning: in the output, the arities of fresh identifiers will be nonsensical
 compress :: ( Ord s )
          => [s] -- ^ supply of function symbols. This can be any infinite list,
                 -- the implementation will filter out those elements that
                 -- occur in the original TRS's signature.
          -> TRS v s 
          -> ( TRS v s 
-            , [ ((s, Int), Maybe (s,Int,s) ) ] 
-            ) -- ^  ((f, a), Just (g,i,h)) semantics: new function symbols f
+            , [ ((s, Int), Maybe (s,Int,s,Int) ) ] 
+            ) -- ^  ((f, a), Just (g,i,h,a)) semantics: new function symbols f
               -- by substituting h in the i-th position (start at 0) of g.
+              -- arity of child is a
               -- ((f, a), Nothing ) semantics: f of arity a is an "old" function symbol.
               -- output is in dependency order (will only refer to previously defined symbols).
 compress pool sys = 
@@ -31,7 +32,7 @@ compress pool sys =
         con = make fresh sys
     in  ( trs con 
         ,    map ( \ fa -> ( fa, Nothing ) ) ( M.toList osig )
-          ++ map ( \ (f, p) -> ( (f, arity p), Just (parent p, branch p, child p) ) ) 
+          ++ map ( \ (f, p) -> ( (f, arity p), Just (parent p, branch p, child p, child_arity p) ) ) 
              (  reverse $ defs con )
         )
 
@@ -50,6 +51,7 @@ data Pattern s = Pattern
              , parent :: s
              , branch :: Int
              , child :: s
+             , child_arity :: Int
              , has_grand_child :: Bool 
              }
     deriving ( Eq, Ord )
@@ -76,7 +78,10 @@ patterns_in_term t = do
     ( k , x @ ( Node g ys ) ) <- zip [ 0 .. ] xs
     let r = not $ null $ do Node {} <- ys ; return ()
     return $ Pattern { arity = length xs - 1 + length ys
-                     , parent = f, branch = k, child = g, has_grand_child = r }
+                     , parent = f, branch = k
+                     , child = g, child_arity = length ys
+                     , has_grand_child = r 
+                     }
 
 patterns_in_rule u = do
     t <- [ lhs u, rhs u ]
@@ -127,7 +132,10 @@ matches p _ = False
 
 
 
-collect xs = M.fromListWith (+)  $ zip xs $ repeat 1
+collect xs = M.fromListWith (+) $ do 
+    x <- xs 
+    return ( x, child_arity x )
+
 
 invert :: ( Ord a, Ord b )
        => M.Map a b -> M.Map b [a]
