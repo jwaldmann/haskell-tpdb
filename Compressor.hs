@@ -21,8 +21,8 @@ main = do
     args <- getArgs
     ss <- collect args
     forM ( map dp ss ) $ \ s -> do
-        print $ pretty s 
-        print $ pretty ( compress supply s)
+        -- print $ pretty s 
+        -- print $ pretty ( compress supply s)
         print $ judge s
 
 
