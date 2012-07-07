@@ -20,6 +20,7 @@ main = do
     hSetBuffering stdout LineBuffering 
     args <- getArgs
     ss <- collect args
+    putStrLn "action"
     forM ( map dp ss ) $ \ s -> do
         -- print $ pretty s 
         -- print $ pretty ( compress supply s)
