@@ -79,9 +79,28 @@ handle free con =
                        , defs = here ++ defs con
                        }
 
-patterns_in_term t = do
+patterns_in_term t = 
+    nonoverlapping t ++ overlapping t
+
+overlapping t = do
+    (pos, Node f xs) <- positions t
+    ( k , x @ ( Node g ys ) ) <- zip [ 0 .. ] xs
+    guard $ f == g
+    let sub = case ys !! k of 
+          Node h _ -> True
+          _ -> False
+    guard $ if sub then even $ length pos else True 
+    let r = not $ null $ do Node {} <- ys ; return ()
+    return $ Pattern { arity = length xs - 1 + length ys
+                     , parent = f, branch = k
+                     , child = g, child_arity = length ys
+                     , has_grand_child = r 
+                     }
+
+nonoverlapping t = do
     Node f xs <- subterms t
     ( k , x @ ( Node g ys ) ) <- zip [ 0 .. ] xs
+    guard $ f /= g
     let r = not $ null $ do Node {} <- ys ; return ()
     return $ Pattern { arity = length xs - 1 + length ys
                      , parent = f, branch = k
