@@ -4,6 +4,8 @@ import TPDB.Data
 import TPDB.XTC.Read ( readProblems )
 import TPDB.Plain.Write ( )
 import TPDB.Pretty ( pretty )
+import Text.PrettyPrint.HughesPJ 
+  ( text, ($$), nest, vcat )
 
 import System.Environment
 import System.IO
@@ -22,10 +24,13 @@ main = do
     ss <- collect args
     putStrLn "action"
     forM ( map dp ss ) $ \ s -> do
-        -- print $ pretty s 
-        -- print $ pretty ( compress supply s)
+        print $ text "original TRS" </> pretty s 
+        let ( com, rules ) = compress supply s
+        print $ text "compressed TRS" </> vcat
+            ( pretty com : map pretty rules )
         print $ judge s
 
+p </> q = p $$ nest 4 q
 
 judge sys = 
     let csys = compress supply sys
