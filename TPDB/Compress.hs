@@ -10,6 +10,9 @@ import TPDB.Pretty
 import Control.Monad ( guard ) 
 import qualified Data.Set as S
 import qualified Data.Map.Strict as M
+import Data.List ( sortBy )
+import Data.Ord ( comparing )
+
 
 -- | compute a compressed version of the TRS.
 -- Warning: in the output, the arities of fresh identifiers will be nonsensical
@@ -64,18 +67,41 @@ data Container v s = Container
 make fresh trs = handle fresh $ Container trs []
 
 
-handle ( fg : free ) con = 
-    case best_patterns $ trs con of
+handle free con = 
+    case -- take 1 $ 
+         disjoint $ best_patterns $ trs con of
         [] -> con
-        p @ Pattern { parent = f, child = g } : _ -> 
-            handle free  
-                 $ con { trs = apply_system ( fg, p ) $ trs con
-                       , defs = (fg, p) : defs con
+        ps -> 
+            let ( pre, post ) 
+                    = splitAt ( length ps ) free
+                here = zip pre ps      
+            in handle post
+                 $ con { trs = apply_system here $ trs con
+                       , defs = here ++ defs con
                        }
 
-patterns_in_term t = do
+patterns_in_term t = 
+    nonoverlapping t ++ overlapping t
+
+overlapping t = do
+    (pos, Node f xs) <- positions t
+    ( k , x @ ( Node g ys ) ) <- zip [ 0 .. ] xs
+    guard $ f == g
+    let sub = case ys !! k of 
+          Node h _ -> True
+          _ -> False
+    guard $ if sub then even $ length pos else True 
+    let r = not $ null $ do Node {} <- ys ; return ()
+    return $ Pattern { arity = length xs - 1 + length ys
+                     , parent = f, branch = k
+                     , child = g, child_arity = length ys
+                     , has_grand_child = r 
+                     }
+
+nonoverlapping t = do
     Node f xs <- subterms t
     ( k , x @ ( Node g ys ) ) <- zip [ 0 .. ] xs
+    guard $ f /= g
     let r = not $ null $ do Node {} <- ys ; return ()
     return $ Pattern { arity = length xs - 1 + length ys
                      , parent = f, branch = k
@@ -91,37 +117,46 @@ patterns trs = do
     u <- rules trs
     patterns_in_rule u
 
+disjoint ps =
+   let h seen [] = []
+       h seen (p:ps) = 
+         if S.notMember (parent p) seen
+            && S.notMember (child p) seen
+         then p : h (S.insert (parent p)   
+                     $ S.insert (child p) seen) ps
+         else h seen ps     
+   in  h S.empty ps 
+
 best_patterns trs = do
-    let fm = invert $ collect $ patterns trs
-    guard $ M.size fm > 0
-    let ( n, ps ) = last $ M.toAscList fm
-    p <- ps
+    let pns = sortBy ( comparing ( negate . snd ))
+            $  M.toList $ collect $ patterns trs
+    let threshold = case pns of          
+          [] -> 0
+          (p,n) : _ -> div n 2
+    (p,n) <- takeWhile ( \ (p,n) -> n >= threshold ) pns
     guard $ ( n > 1 ) || ( n == 1 && has_grand_child p )
     return p
 
--- apply_system :: ( Identifier, Pattern ) -> TES -> TES
-apply_system fgp trs = do
-    trs { rules = map ( apply_rule fgp ) $ rules trs }
 
-apply_rule fgp u = 
-    u { lhs = apply_term fgp $ lhs u
-      , rhs = apply_term fgp $ rhs u
+apply_system fgps trs = do
+    trs { rules = map ( apply_rule fgps ) $ rules trs }
+
+apply_rule fgps u = 
+    u { lhs = apply_term fgps $ lhs u
+      , rhs = apply_term fgps $ rhs u
       }
 
-{-
-apply_term :: ( Identifier, Pattern ) 
-           -> Term Identifier Identifier 
-           -> Term Identifier Identifier 
--}
-apply_term ( fg, p ) ( Var v ) = Var v
-apply_term ( fg, p @ Pattern { parent = f, branch = i, child = g } ) 
-           t @ ( Node top args ) =
-    let ( newtop, newargs ) =
-            if matches p t 
-            then let ( pre, Node _ sub : post ) = splitAt i args
-                 in  ( fg, pre ++ sub ++ post )
-            else ( top, args )
-    in  Node newtop $ map ( apply_term ( fg, p ) ) newargs
+apply_term _ ( Var v ) = Var v
+apply_term fgps t @ (Node top args) = 
+    let Node newtop newargs = multi_matches fgps t
+    in  Node newtop $ map (apply_term fgps) newargs
+        
+multi_matches [] t = t
+multi_matches ((fg, p@Pattern{parent=f,branch=i,child=g}) : fgps ) t@(Node top args) = 
+    if matches p t
+    then let ( pre, Node _ sub : post) = splitAt i args 
+         in  Node fg ( pre ++ sub ++ post )    
+    else multi_matches fgps t         
 
 matches ( Pattern { parent = f, branch = i, child = g } ) 
         ( Node top args ) | top == f = 

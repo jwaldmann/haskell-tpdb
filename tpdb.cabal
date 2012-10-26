@@ -1,5 +1,5 @@
 Name: tpdb
-Version: 0.5.1
+Version: 0.6.0
 Author: Johannes Waldmann
 Maintainer: Johannes Waldmann
 Category: Science
@@ -36,6 +36,10 @@ Library
     TPDB.XTC,  TPDB.XTC.Read, TPDB.Xml, 
     TPDB.Rainbow.Proof.Xml,     TPDB.Rainbow.Proof.Type
     TPDB.CPF.Proof.Xml,     TPDB.CPF.Proof.Type
+
+Executable Compressor
+    Main-is: Compressor.hs
+    Build-depends: base==4.*, containers, directory, pretty, hxt, parsec
 
 Test-Suite XML
   Build-Depends: base==4.*, hxt, pretty, parsec, time, containers, HaXml

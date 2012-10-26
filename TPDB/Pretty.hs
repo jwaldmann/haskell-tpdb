@@ -12,6 +12,9 @@ instance ( Pretty a, Pretty b ) => Pretty (a,b) where
 instance ( Pretty a, Pretty b, Pretty c ) => Pretty (a,b,c) where
     pretty (x,y,z) = parens $ fsep $ punctuate comma [ pretty x, pretty y, pretty z ]
 
+instance ( Pretty a, Pretty b, Pretty c, Pretty d ) => Pretty (a,b,c,d) where
+    pretty (x,y,z,u) = parens $ fsep $ punctuate comma [ pretty x, pretty y, pretty z, pretty u ]
+
 instance Pretty a => Pretty [a]  where
     pretty xs = brackets $ fsep $ punctuate comma $ map pretty xs
 

@@ -1,9 +1,13 @@
+{-# language DoAndIfThenElse #-}
+
 import TPDB.Compress (compress)
 import TPDB.DP ( dp, Marked (Auxiliary) )
 import TPDB.Data
 import TPDB.XTC.Read ( readProblems )
 import TPDB.Plain.Write ( )
 import TPDB.Pretty ( pretty )
+import Text.PrettyPrint.HughesPJ 
+  ( text, ($$), nest, vcat )
 
 import System.Environment
 import System.IO
@@ -20,10 +24,15 @@ main = do
     hSetBuffering stdout LineBuffering 
     args <- getArgs
     ss <- collect args
+    putStrLn "action"
     forM ( map dp ss ) $ \ s -> do
-        print $ length $ rules s
-        -- print $ pretty s 
+        print $ text "original TRS" </> pretty s 
+        let ( com, rules ) = compress supply s
+        print $ text "compressed TRS" </> vcat
+            ( pretty com : map pretty rules )
         print $ judge s
+
+p </> q = p $$ nest 4 q
 
 judge sys = 
     let csys = compress supply sys
@@ -59,7 +68,8 @@ collect fs = do
     let special d = isPrefixOf "." d
     fss <- forM fs $ \ f -> do
         d <- doesDirectoryExist f
-        if d then do
+        if d 
+        then do
            fs <- getDirectoryContents f
            collect $ map ( ( f ++ "/" ) ++ )
                    $ filter (not . special) fs
