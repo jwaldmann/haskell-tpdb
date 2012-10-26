@@ -1,0 +1,9 @@
+(VAR x y z)
+(RULES
+h(z,e(x)) -> h(c(z),d(z,x))
+d(z,g(0,0)) -> e(0)
+d(z,g(x,y)) -> g(e(x),d(z,y))
+d(c(z),g(g(x,y),0)) -> g(d(c(z),g(x,y)),d(z,g(x,y)))
+g(e(x),e(y)) -> e(g(x,y))
+)
+(COMMENT Example 33 in \cite{D33})
