@@ -9,7 +9,7 @@ import TPDB.Pretty
 
 import Control.Monad ( guard ) 
 import qualified Data.Set as S
-import qualified Data.Map as M
+import qualified Data.Map.Strict as M
 
 -- | compute a compressed version of the TRS.
 -- Warning: in the output, the arities of fresh identifiers will be nonsensical
@@ -47,12 +47,12 @@ dont_compress pool sys =
                   
 
 data Pattern s = Pattern
-             { arity :: Int
-             , parent :: s
-             , branch :: Int
-             , child :: s
-             , child_arity :: Int
-             , has_grand_child :: Bool 
+             { parent :: ! s
+             , branch :: ! Int
+             , child :: ! s
+             , arity :: ! Int
+             , child_arity :: ! Int
+             , has_grand_child :: ! Bool 
              }
     deriving ( Eq, Ord )
 

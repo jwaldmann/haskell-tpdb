@@ -21,6 +21,7 @@ main = do
     args <- getArgs
     ss <- collect args
     forM ( map dp ss ) $ \ s -> do
+        print $ length $ rules s
         -- print $ pretty s 
         print $ judge s
 
