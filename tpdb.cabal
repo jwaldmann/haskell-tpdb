@@ -39,22 +39,22 @@ Library
 
 Executable Compressor
     Main-is: Compressor.hs
-    Build-depends: base==4.*, containers, directory, pretty, hxt, parsec
+    Build-depends: base==4.*, containers >= 0.5, directory, pretty, hxt, parsec
 
 Test-Suite XML
-  Build-Depends: base==4.*, hxt, pretty, parsec, time, containers, HaXml
+  Build-Depends: base==4.*, hxt, pretty, parsec, time, containers  >= 0.5, HaXml
   Type: exitcode-stdio-1.0
   main-is: read_print_xml.hs
   hs-source-dirs: test .
 
 Test-Suite TRS
-  Build-Depends: base==4.*, hxt, pretty, parsec, time, containers, HaXml
+  Build-Depends: base==4.*, hxt, pretty, parsec, time, containers  >= 0.5, HaXml
   Type: exitcode-stdio-1.0
   main-is: read_print_trs.hs
   hs-source-dirs: test .
 
 Test-Suite SRS
-  Build-Depends: base==4.*, hxt, pretty, parsec, time, containers, HaXml
+  Build-Depends: base==4.*, hxt, pretty, parsec, time, containers  >= 0.5, HaXml
   Type: exitcode-stdio-1.0
   main-is: read_print_srs.hs
 
