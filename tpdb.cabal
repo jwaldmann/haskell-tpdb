@@ -1,5 +1,5 @@
 Name: tpdb
-Version: 0.6.0
+Version: 0.6.1
 Author: Johannes Waldmann
 Maintainer: Johannes Waldmann
 Category: Science
@@ -31,7 +31,7 @@ Library
   Exposed-Modules:
     TPDB.Data,     TPDB.Data.Term, TPDB.Data.Xml
     TPDB.Compress, TPDB.Convert, TPDB.Input
-    TPDB.Mirror, 
+    TPDB.Mirror, TPDB.DP
     TPDB.Pretty, TPDB.Plain.Write,     TPDB.Plain.Read,
     TPDB.XTC,  TPDB.XTC.Read, TPDB.Xml, 
     TPDB.Rainbow.Proof.Xml,     TPDB.Rainbow.Proof.Type
