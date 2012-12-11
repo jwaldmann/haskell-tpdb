@@ -20,7 +20,7 @@ Build-Type: Simple
 
 Source-Repository head
   Type: git
-  Location: git://dfa.imn.htwk-leipzig.de/srv/git/tpdb/
+  Location: git://github.com/jwaldmann/haskell-tpdb.git
 
 -- Extra-Source-Files:
 --   test/3.15.xml, test/33.trs ,  test/z001.srs
