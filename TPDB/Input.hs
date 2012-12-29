@@ -14,28 +14,44 @@ get :: FilePath
          -> IO ( Either (TRS Identifier Identifier) 
                         ( SRS Identifier ) )
 get f = do
+    m <- getE f
+    case m of
+        Right x -> return x 
+        Left err -> error err
+
+getE f = do
     let ( base, ext ) = splitExtension f    
     case ext of                     
       ".srs" -> do
           s <- readFile f    
           case srs s of
-              Left err -> error err
-              Right t -> return $ Right t
+              Left err -> return $ Left err
+              Right t -> return $ Right $ Right t
       ".trs" -> do        
           s <- readFile f
           case TPDB.Plain.Read.trs s of
-              Left err -> error err
-              Right t -> return $ Left t            
+              Left err -> return $ Left err
+              Right t -> return $ Right $ Left t 
       ".xml" -> do
           ps <- readProblems f
           case ps of 
-              [ p ] -> return $ Left $ TPDB.Data.trs p
+              [ p ] -> return $ Right $ Left $ TPDB.Data.trs p
+              [] -> return $ Left "no TRS"
+              _ -> return $ Left "more than one TRS"
 
 get_trs f = do
     x <- get f
     return $ case x of
         Right x -> srs2trs x
         Left  x -> x
+
+getE_trs f = do
+    e <- getE f
+    return $ case e of
+        Right x -> Right $ case x of
+            Right x -> srs2trs x
+            Left  x -> x
+        Left e -> Left e
 
 get_srs f = do
     x <- get f
