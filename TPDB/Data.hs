@@ -17,17 +17,17 @@ import Control.Monad ( guard )
 import Data.Hashable
 
 data Identifier = 
-     Identifier { _hash :: Int
+     Identifier { _identifier_hash :: Int
                 , name :: String , arity :: Int }
     deriving ( Eq, Ord, Typeable )
 
 instance Hashable Identifier where
-    hashWithSalt s i = hash (s, _hash i)
+    hashWithSalt s i = hash (s, _identifier_hash i)
 
 instance Show Identifier where show = name
 
 mk :: Int -> String -> Identifier
-mk a n = Identifier { _hash = hash (a,n)
+mk a n = Identifier { _identifier_hash = hash (a,n)
                     , arity = a, name = n }
 
 ---------------------------------------------------------------------
