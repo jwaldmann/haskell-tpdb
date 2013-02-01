@@ -1,5 +1,3 @@
-{-# language DeriveGeneric #-}
-
 module TPDB.DP where
 
 import TPDB.Data
@@ -13,9 +11,13 @@ import Data.Hashable
 import GHC.Generics
 
 data Marked a = Original a | Marked a | Auxiliary a
-    deriving ( Eq, Ord, Generic )
+    deriving ( Eq, Ord )
 
-instance Hashable a => Hashable (Marked a)
+instance Hashable a => Hashable (Marked a) where
+    hashWithSalt s m = case m of
+        Original x -> hashWithSalt s $ hashWithSalt (0::Int) x
+        Marked x -> hashWithSalt s $ hashWithSalt (1::Int) x
+        Auxiliary x -> hashWithSalt s $ hashWithSalt (2::Int) x
 
 instance Pretty a => Pretty ( Marked a) where
    pretty m = case m of
