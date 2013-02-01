@@ -25,13 +25,13 @@ getTerm = getVar <+> getFunApp
 
 getVar = proc x -> do
     nm <- getText <<< getChildren <<< hasName "var" -< x
-    returnA -< Var $ Identifier { name = nm, arity = 0 }
+    returnA -< Var $ mk 0 nm
 
 getFunApp = proc x -> do
     sub <- hasName "funapp" -< x
     nm <- getText <<< gotoChild "name" -< sub
     gs <- listA ( getTerm <<< gotoChild "arg" ) -< sub
-    let c = Identifier { name = nm, arity = length gs }
+    let c = mk (length gs) nm
     returnA -< Node c gs
           
 gotoChild tag = proc x -> do
@@ -90,7 +90,7 @@ getSignature = proc x -> do
 getFuncsym = proc x -> do
     nm <- getText <<< gotoChild "name" -< x
     ar <- getText <<< gotoChild "arity" -< x
-    returnA -< Identifier { name = nm , arity = read ar }
+    returnA -< mk (read ar) nm
 
 getRules str = proc x -> do
     returnA <<< listA ( getRule str  <<< getChild "rule" ) -< x
