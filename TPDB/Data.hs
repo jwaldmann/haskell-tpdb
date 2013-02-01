@@ -14,14 +14,21 @@ import TPDB.Data.Term
 import Data.Typeable
 import Control.Monad ( guard )
 
+import Data.Hashable
 
-data Identifier = Identifier { name :: String , arity :: Int }
+data Identifier = 
+     Identifier { _hash :: Int
+                , name :: String , arity :: Int }
     deriving ( Eq, Ord, Typeable )
+
+instance Hashable Identifier where
+    hashWithSalt s i = hash (s, _hash i)
 
 instance Show Identifier where show = name
 
 mk :: Int -> String -> Identifier
-mk a n = Identifier { arity = a, name = n }
+mk a n = Identifier { _hash = hash (a,n)
+                    , arity = a, name = n }
 
 ---------------------------------------------------------------------
 

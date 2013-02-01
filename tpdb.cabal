@@ -1,5 +1,5 @@
 Name: tpdb
-Version: 0.6.2
+Version: 0.6.3
 Author: Johannes Waldmann
 Maintainer: Johannes Waldmann
 Category: Science
@@ -26,7 +26,7 @@ Source-Repository head
 --   test/3.15.xml, test/33.trs ,  test/z001.srs
 
 Library
-  Build-Depends: base==4.*, hxt, pretty, parsec, time, containers, HaXml, filepath
+  Build-Depends: base==4.*, hxt, pretty, parsec, time, containers, HaXml, filepath, hashable
 
   Exposed-Modules:
     TPDB.Data,     TPDB.Data.Term, TPDB.Data.Xml
@@ -39,7 +39,7 @@ Library
 
 Executable Compressor
     Main-is: Compressor.hs
-    Build-depends: base==4.*, containers >= 0.5, directory, pretty, hxt, parsec
+    Build-depends: base==4.*, containers >= 0.5, directory, pretty, hxt, parsec, hashable
 
 Test-Suite XML
   Build-Depends: base==4.*, hxt, pretty, parsec, time, containers  >= 0.5, HaXml

@@ -9,7 +9,7 @@ srs2trs s = s { separate = False
               }  
 
 convert_srs_rule u = 
-    let v = Identifier "x" 0 
+    let v = mk 0 "x" 
     in  u { lhs = unspine v $ lhs u
           , rhs = unspine v $ rhs u        
           } 

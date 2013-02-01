@@ -1,3 +1,5 @@
+{-# language DeriveGeneric #-}
+
 module TPDB.DP where
 
 import TPDB.Data
@@ -7,8 +9,13 @@ import Text.PrettyPrint.HughesPJ
 import qualified Data.Set as S
 import Control.Monad ( guard )
 
+import Data.Hashable
+import GHC.Generics
+
 data Marked a = Original a | Marked a | Auxiliary a
-    deriving ( Eq, Ord )
+    deriving ( Eq, Ord, Generic )
+
+instance Hashable a => Hashable (Marked a)
 
 instance Pretty a => Pretty ( Marked a) where
    pretty m = case m of
