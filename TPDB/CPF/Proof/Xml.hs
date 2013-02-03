@@ -83,6 +83,7 @@ instance XmlContent DPS where
 
 instance XmlContent TrsTerminationProof where
    toContents p = rmkel "trsTerminationProof" $ case p of
+      RIsEmpty -> rmkel "rIsEmpty" []
       DpTrans {} -> rmkel "dpTrans" $
              toContents ( dptrans_dps p )
           ++ rmkel "markedSymbols" [ CString False "true" () ]

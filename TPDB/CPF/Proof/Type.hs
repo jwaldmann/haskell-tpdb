@@ -42,7 +42,7 @@ data Proof = TrsTerminationProof TrsTerminationProof
    deriving ( Typeable )
 
 data Sharp i = Sharp i | Plain i
-   deriving ( Typeable )
+   deriving ( Typeable, Eq, Ord )
 
 data DPS = forall s . ( XmlContent s , Typeable s ) 
         => DPS [ Rule (Term Identifier s) ]
