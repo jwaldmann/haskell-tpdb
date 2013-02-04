@@ -12,13 +12,17 @@ module TPDB.Pretty
 
 where
 
-import Text.PrettyPrint.Leijen.Text hiding ( text )
+import Text.PrettyPrint.Leijen.Text 
+    hiding ( text, (<+>), vcat )
+import qualified Text.PrettyPrint.Leijen.Text 
 import Data.String ( fromString )
 
 -- class Pretty a where pretty :: a -> Doc
 
 fsep = fillSep
 ($$) = (<$$>)
+x <+> y = x Text.PrettyPrint.Leijen.Text.<+> align y
+vcat = align . Text.PrettyPrint.Leijen.Text.vcat
 
 render :: Doc -> String
 render = show
