@@ -1,8 +1,10 @@
+{-# language OverloadedStrings #-}
+
 module TPDB.DP where
 
 import TPDB.Data
 import TPDB.Pretty
-import Text.PrettyPrint.HughesPJ
+import TPDB.Pretty
 
 import qualified Data.Set as S
 import Control.Monad ( guard )
@@ -22,7 +24,7 @@ instance Hashable a => Hashable (Marked a) where
 instance Pretty a => Pretty ( Marked a) where
    pretty m = case m of
        Original a -> pretty a
-       Marked a -> pretty a <> text "#"
+       Marked a -> pretty a <> "#"
        Auxiliary a -> pretty a
 
 dp s = 

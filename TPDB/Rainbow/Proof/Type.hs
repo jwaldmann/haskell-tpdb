@@ -1,4 +1,6 @@
-{-# OPTIONS -fglasgow-exts #-}
+{-# language OverloadedStrings #-}
+{-# language ExistentialQuantification #-}
+{-# language DeriveDataTypeable #-}
 
 -- | internal representation of Rainbow termination proofs,
 -- see <http://color.loria.fr/>
@@ -11,7 +13,6 @@ where
 import TPDB.Data hiding ( Type (..))
 import TPDB.Pretty
 import TPDB.Plain.Write () -- just instances
-import Text.PrettyPrint.HughesPJ
 
 import qualified TPDB.CPF.Proof.Type as C
 
@@ -20,6 +21,7 @@ import qualified Text.Parsec as P
 
 import qualified Data.Time as T
 import Data.Typeable
+import Data.String (fromString)
 
 data Vector a = Vector [ a ] 
    deriving Typeable
@@ -64,9 +66,9 @@ instance Typeable  (Interpretation f )
 data Domain = Natural | Arctic | Arctic_Below_Zero | Tropical 
     deriving ( Show, Eq, Ord, Typeable )
 
-instance Pretty Domain where pretty = text . show
-instance Pretty T.NominalDiffTime where pretty = text . show
-instance Pretty T.UTCTime where pretty = text . show
+instance Pretty Domain where pretty = fromString . show
+instance Pretty T.NominalDiffTime where pretty = fromString . show
+instance Pretty T.UTCTime where pretty = fromString . show
 
 data Red_Ord 
     = Red_Ord_Matrix_Int Matrix_Int
@@ -79,14 +81,14 @@ data Usable_Rules = Usable_Rules [ Identifier ]
     deriving Typeable
 
 instance Pretty Usable_Rules where 
-    pretty (Usable_Rules sp) = text "Usable_Rules" <+> pretty sp
+    pretty (Usable_Rules sp) = "Usable_Rules" <+> pretty sp
 
 
 data Simple_Projection = Simple_Projection [ ( Identifier, Int ) ]
     deriving Typeable
 
 instance Pretty Simple_Projection where 
-    pretty (Simple_Projection sp) = text "Simple_Projection" <+> pretty sp
+    pretty (Simple_Projection sp) = "Simple_Projection" <+> pretty sp
 
 data Claim =
      Claim { system :: TRS Identifier Identifier
@@ -110,9 +112,9 @@ instance Show Property where show = render . pretty
 
 instance Pretty Property where
     pretty p = case p of
-        Termination -> text "YES # Termination"
-        Top_Termination -> text "YES # Top_Termination"
-        Complexity ( lo, hi ) -> text "YES" <+> pretty ( lo, hi ) 
+        Termination -> "YES # Termination"
+        Top_Termination -> "YES # Top_Termination"
+        Complexity ( lo, hi ) -> "YES" <+> pretty ( lo, hi ) 
 
 -- | see specification:
 -- http://termination-portal.org/wiki/Complexity
@@ -126,13 +128,13 @@ instance Show Function where show = render . pretty
 
 instance Pretty Function where
     pretty f = case f of
-        Unknown -> text "?"
+        Unknown -> "?"
         Polynomial { degree = Nothing } -> 
-            text "POLY"
+            "POLY"
         Polynomial { degree = Just 0 } -> 
-            text "O(1)"
+            "O(1)"
         Polynomial { degree = Just d } -> 
-            text "O" <+> parens ( text "n^" <> pretty d)
+            "O" <+> parens ( "n^" <> pretty d)
 
 
 

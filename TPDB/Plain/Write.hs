@@ -2,17 +2,18 @@
 -- cf. <http://www.lri.fr/~marche/tpdb/format.html>
 
 {-# language FlexibleContexts #-}
+{-# language OverloadedStrings #-}
 
 module TPDB.Plain.Write where
 
 import TPDB.Data
 import TPDB.Pretty
-import Text.PrettyPrint.HughesPJ
 
 import Data.List ( nub )
+import Data.String ( fromString )
 
 instance Pretty Identifier where
-    pretty i = text $ name i
+    pretty i = fromString $ name i
 
 instance ( Pretty v, Pretty s ) => Pretty ( Term v s ) where
     pretty t = case t of
@@ -24,9 +25,9 @@ instance ( Pretty v, Pretty s ) => Pretty ( Term v s ) where
 instance PrettyTerm a => Pretty ( Rule a ) where
     pretty u = hsep [ prettyTerm $ lhs u
                     , case relation u of 
-                         Strict -> text "->" 
-                         Weak -> text "->="
-                         Equal -> text "="
+                         Strict -> "->" 
+                         Weak -> "->="
+                         Equal -> "="
                     -- FIXME: implement "top" annotation
                     , prettyTerm $ rhs u
                     ]
@@ -42,7 +43,7 @@ instance ( Pretty v, Pretty s ) => PrettyTerm ( Term v s ) where
 
 instance ( Pretty s, PrettyTerm r ) => Pretty ( RS s r ) where
     pretty sys = vcat 
-        [ parens $ text "RULES" <+>
+        [ parens $ "RULES" <+>
           vcat ( ( if separate sys then punctuate comma else id )
                  $ map pretty $ rules sys 
                )
@@ -57,8 +58,10 @@ instance ( Pretty s, Pretty r ) => Pretty ( Problem s r ) where
        [ pretty $ trs p 
        , case strategy p of  
              Nothing -> empty
-             Just s -> fsep [ text "strategy", text ( show s ) ]
+             Just s -> fsep [ "strategy"
+                            , fromString ( show s ) ]
        , case startterm p of  
              Nothing -> empty
-             Just s -> fsep [ text "startterm", text ( show s ) ]        
+             Just s -> fsep [ "startterm"
+                            , fromString ( show s ) ] 
        ]
