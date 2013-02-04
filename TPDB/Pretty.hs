@@ -4,14 +4,16 @@ module TPDB.Pretty
 , render, renderCompact, displayIO
 , Pretty (..)
 , fsep , hsep, vsep, vcat, hcat
-, parens, punctuate, comma, nest
+, parens, brackets, angles, braces, enclose
+, punctuate, comma, nest
 , empty, text
 , (<>), (<+>), ($$)
 )
 
 where
 
-import Text.PrettyPrint.Leijen.Text
+import Text.PrettyPrint.Leijen.Text hiding ( text )
+import Data.String ( fromString )
 
 -- class Pretty a where pretty :: a -> Doc
 
@@ -20,6 +22,9 @@ fsep = fillSep
 
 render :: Doc -> String
 render = show
+
+text :: String -> Doc
+text = fromString
 
 {-
 
