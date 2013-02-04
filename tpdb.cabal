@@ -60,7 +60,10 @@ Test-Suite SRS
   Build-Depends: base==4.*, hxt, wl-pprint-text, parsec, time, containers  >= 0.5, HaXml, hashable
   Type: exitcode-stdio-1.0
   main-is: read_print_srs.hs
-
   hs-source-dirs: test .
 
-
+Test-Suite Speed
+  Build-Depends: base==4.*, hxt, wl-pprint-text, parsec, time, containers  >= 0.5, HaXml, hashable, pretty,bytestring
+  Type: exitcode-stdio-1.0
+  main-is: speed.hs
+  hs-source-dirs: test .
