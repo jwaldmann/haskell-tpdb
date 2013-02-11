@@ -28,9 +28,12 @@ convert_trs_rule u = do
 unspine :: v -> [s] -> Term v s
 unspine v = foldr (  \ c t -> Node c [ t ] ) ( Var v )
 
+-- | success iff term consists of unary symbols
+-- and the lowest node is a variable
 spine :: Term v s -> Maybe ( [s], v )
 spine t = case t of
-    Node f [ a ] -> do
-      ( sp, base ) <- spine a 
+    Node f args -> do
+      [ arg ] <- return args
+      ( sp, base ) <- spine arg 
       return ( f : sp, base )
     Var v -> return ( [] , v ) 
