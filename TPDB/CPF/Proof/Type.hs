@@ -38,7 +38,7 @@ data CertificationProblemInput
    deriving ( Typeable )      
 
 data Proof = TrsTerminationProof TrsTerminationProof
-           -- | TrsNonterminationProof  
+           --  | TrsNonterminationProof  
    deriving ( Typeable )
 
 data Sharp i = Sharp i | Plain i
