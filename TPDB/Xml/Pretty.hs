@@ -1,11 +1,11 @@
 -- | original author: Malcolm Wallace, 
 -- license: LGPL
 -- http://hackage.haskell.org/packages/archive/HaXml/1.23.3/doc/html/Text-XML-HaXml-Pretty.html
-
+--
 -- modified by Johannes Waldmann
 -- to use a different pretty-printer back-end.
-
--- | This is a pretty-printer for turning the internal representation
+--
+-- This is a pretty-printer for turning the internal representation
 --   of generic structured XML documents into the Doc type (which can
 --   later be rendered using Text.PrettyPrint.HughesPJ.render).
 --   Essentially there is one pp function for each type in
