@@ -56,9 +56,19 @@ data TrsTerminationProof
                    }  
      | DpTrans  { dptrans_dps :: DPS
                 , markedSymbols :: Bool , dptrans_dpProof :: DpProof }
+     | Semlab {  model :: Model 
+              , trs :: TRS Identifier Identifier
+              , trsTerminationProof :: TrsTerminationProof
+              }
+     | Unlab {  trs :: TRS Identifier Identifier
+              , trsTerminationProof :: TrsTerminationProof
+              }
      | StringReversal { trs :: TRS Identifier Identifier
                       , trsTerminationProof :: TrsTerminationProof  
                       }  
+   deriving ( Typeable )
+
+data Model = FiniteModel { carrierSize :: Int }
    deriving ( Typeable )
        
 data DpProof = PIsEmpty  
