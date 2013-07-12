@@ -94,8 +94,8 @@ data Startterm =
 type TES = TRS Identifier Identifier
 type SES = SRS Identifier
 
-mknullary s = Identifier { arity = 0, name = s }
-mkunary s = Identifier { arity = 1, name = s }
+mknullary s = mk 0 s
+mkunary   s = mk 1 s
 
 from_strict_rules :: Bool -> [(t,t)] -> RS i t
 from_strict_rules sep rs = 
