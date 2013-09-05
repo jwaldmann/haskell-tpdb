@@ -3,15 +3,17 @@ module TPDB.Convert where
 import TPDB.Data
 import Control.Monad ( forM, guard )
 
-srs2trs :: SRS s -> TRS Identifier s
+srs2trs :: SRS Identifier -> TRS Identifier Identifier
 srs2trs s = s { separate = False
               , rules = map convert_srs_rule $ rules s
               }  
 
 convert_srs_rule u = 
-    let v = mk 0 "x" 
-    in  u { lhs = unspine v $ lhs u
-          , rhs = unspine v $ rhs u        
+    let v = mk 0 "x"
+        set_arity a s = s { arity = a }
+        handle = unspine v . map (set_arity 1)
+    in  u { lhs = handle $ lhs u
+          , rhs = handle $ rhs u        
           } 
                   
 trs2srs :: Eq v => TRS v s -> Maybe ( SRS s )
