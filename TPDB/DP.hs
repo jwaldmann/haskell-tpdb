@@ -33,6 +33,7 @@ dp s =
        os = map ( \ u -> Rule { relation = Weak
                                , lhs = fmap Original $ lhs u  
                                , rhs = fmap Original $ rhs u  
+                               , top = False
                                } )
            $ rules s
        defined = S.fromList $ do 
@@ -43,5 +44,9 @@ dp s =
             u <- rules s
             (_, r @ (Node f args)) <- positions $ rhs u
             guard $ S.member f defined
-            return $ u { lhs = marked $ lhs u, rhs = marked r }
+            return $ Rule { relation = Strict
+                          , lhs = marked $ lhs u
+                          , rhs = marked r 
+                          , top = True
+                          }
    in RS { rules = us ++ os, separate = separate s } 
