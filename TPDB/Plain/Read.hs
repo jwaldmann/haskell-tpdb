@@ -11,6 +11,10 @@ import Text.Parsec
 import Text.Parsec.Token
 import Text.Parsec.Language
 import Text.Parsec.Char
+
+import TPDB.Pretty (pretty)
+import TPDB.Plain.Write ()
+
 import Control.Monad ( guard, void )
 import Data.List ( nub )
 
@@ -99,12 +103,14 @@ anylist = void
         $ many ( void ( identifier lexer ) <|> parens lexer anylist )
 
 instance Reader ( SRS Identifier ) where
-    reader = do
+    reader = do 
+        many space
         ds <- many $ declaration True
 	return $ make_srs ds
 
 instance Reader ( TRS Identifier Identifier ) where
     reader = do
+        many space
         ds <- many $ declaration False
 	return $ make_trs ds
 

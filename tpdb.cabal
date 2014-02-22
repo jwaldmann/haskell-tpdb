@@ -1,5 +1,5 @@
 Name: tpdb
-Version: 0.8.2
+Version: 0.8.3
 Author: Johannes Waldmann
 Maintainer: Johannes Waldmann
 Category: Science
@@ -54,6 +54,12 @@ Test-Suite TRS
   Build-Depends: base==4.*, hxt, wl-pprint-text, parsec, time, containers  >= 0.5, HaXml, hashable
   Type: exitcode-stdio-1.0
   main-is: read_print_trs.hs
+  hs-source-dirs: test .
+
+Test-Suite TRS_02
+  Build-Depends: base==4.*, hxt, wl-pprint-text, parsec, time, containers  >= 0.5, HaXml, hashable
+  Type: exitcode-stdio-1.0
+  main-is: read_print_trs_2.hs
   hs-source-dirs: test .
 
 Test-Suite SRS
