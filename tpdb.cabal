@@ -2,7 +2,7 @@ Name: tpdb
 Version: 0.8.3
 Author: Johannes Waldmann
 Maintainer: Johannes Waldmann
-Category: Science
+Category: Logic
 License: GPL
 License-file: LICENSE
 Cabal-Version: >= 1.8
@@ -17,6 +17,8 @@ Description:
    see <http://www.termination-portal.org/wiki/TPDB>
 
 Build-Type: Simple
+
+Homepage: https://github.com/jwaldmann/haskell-tpdb
 
 Source-Repository head
   Type: git
