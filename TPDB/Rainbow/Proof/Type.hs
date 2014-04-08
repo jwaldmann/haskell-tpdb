@@ -59,9 +59,7 @@ data Interpretation f = forall k a
 	        , mi_end :: T.UTCTime
                 -- , mi_int :: [ (k , Mi_Fun a ) ]
                   , mi_int :: [ (k ,  f a ) ]
-                }
-
-instance Typeable  (Interpretation f )
+                }   deriving Typeable 
 
 data Domain = Natural | Arctic | Arctic_Below_Zero | Tropical 
     deriving ( Show, Eq, Ord, Typeable )
