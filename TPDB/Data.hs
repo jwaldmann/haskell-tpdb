@@ -30,6 +30,7 @@ mk :: Int -> String -> Identifier
 mk a n = Identifier { _identifier_hash = hash (a,n)
                     , arity = a, name = n }
 
+
 ---------------------------------------------------------------------
 
 data Relation = Strict |  Weak | Equal deriving ( Eq, Ord, Typeable, Show )

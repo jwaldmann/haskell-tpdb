@@ -1,4 +1,4 @@
-module TPDB.DP ( dp, components )
+module TPDB.DP ( module TPDB.DP.Transform )
 
 where
 

@@ -53,3 +53,7 @@ instance Pretty a => Pretty (Maybe a) where
         Nothing -> text "Nothing"
         Just x -> text "Just" <+> pretty x -- FIXME: parens missing
 -}
+
+instance ( Pretty a, Pretty b ) => Pretty (Either a b) where
+    pretty (Left x) = text "Left" <+> parens (pretty x)
+    pretty (Right x) = text "Right" <+> parens (pretty x)
