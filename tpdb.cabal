@@ -35,7 +35,8 @@ Library
     TPDB.Data,     TPDB.Data.Term, TPDB.Data.Xml
     -- TPDB.Compress, 
     TPDB.Convert, TPDB.Input
-    TPDB.Mirror, TPDB.DP
+    TPDB.Mirror
+    TPDB.DP, TPDB.DP.Graph, TPDB.DP.Transform, TPDB.DP.Unify
     TPDB.Pretty, TPDB.Plain.Write,     TPDB.Plain.Read,
     TPDB.XTC,  TPDB.XTC.Read, TPDB.Xml, 
     TPDB.Xml.Pretty,
