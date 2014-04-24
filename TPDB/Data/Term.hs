@@ -68,6 +68,18 @@ subterms t = t : case t of
 		      subterms arg
     _ -> []
 
+-- Note: following implementation relies on @subterms@
+-- returning the preorder list (where the full term goes first)
+strict_subterms t = tail $ subterms t
+
+isSubtermOf :: (Eq v, Eq c ) 
+         => Term v c ->  Term v c  -> Bool
+isSubtermOf s t = elem s $ subterms t
+
+isStrictSubtermOf :: (Eq v, Eq c ) 
+         => Term v c ->  Term v c  -> Bool
+isStrictSubtermOf s t = elem s $ strict_subterms t
+
 -- | compute new symbol at position, giving the position
 pmap:: ( Position -> c -> d )
      -> Term v c
