@@ -28,7 +28,7 @@ Source-Repository head
 --   test/3.15.xml, test/33.trs ,  test/z001.srs
 
 Library
-  Build-Depends: base==4.*, hxt, wl-pprint-text, 
+  Build-Depends: base==4.*, hxt, wl-pprint-text, mtl,
     parsec, time, containers, HaXml, filepath, hashable
 
   Exposed-Modules:
