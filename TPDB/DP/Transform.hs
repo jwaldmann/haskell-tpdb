@@ -1,7 +1,7 @@
 {-# language OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
 
-module TPDB.DP.Transform ( dp ) where
+module TPDB.DP.Transform  where
 
 import TPDB.Data
 import TPDB.Pretty
@@ -15,6 +15,9 @@ import GHC.Generics
 data Marked a = Original a | Marked a | Auxiliary a
     deriving ( Eq, Ord, Generic )
 
+isOriginal m = case m of Original {} -> True ; _ -> False
+isMarked   m = case m of Marked   {} -> True ; _ -> False
+
 instance Hashable a => Hashable (Marked a) 
 
 instance Pretty a => Pretty ( Marked a) where
@@ -26,6 +29,12 @@ instance Pretty a => Pretty ( Marked a) where
 mark_top :: Term v a -> Term v (Marked a)
 mark_top  (Node f args) = 
           Node (Marked f) $ map (fmap Original) args
+
+defined s = S.fromList $ do 
+                u <- rules s
+                let Node f args = lhs u
+                -- will raise exception if lhs is variable
+                return f
 
 -- | compute the DP transformed system.
 
@@ -39,11 +48,7 @@ dp s =
                                , top = False
                                } )
            $ rules s
-       defined = S.fromList $ do 
-                u <- rules s
-                let Node f args = lhs u
-                -- will raise exception if lhs is variable
-                return f
+       def = defined s
        us = do 
             u <- rules s
             let ssubs = S.fromList $ strict_subterms $ lhs u
@@ -51,7 +56,7 @@ dp s =
                     -- will raise exception if rhs contains 
                     -- a variable that is not in lhs
                     Node f args -> 
-                        ( if S.member f defined then (r :) else id )
+                        ( if S.member f def then (r :) else id )
                         ( args >>= walk )
             r <- walk $ rhs u
             return $ Rule { relation = Strict
@@ -59,7 +64,7 @@ dp s =
                           , rhs = mark_top r 
                           , top = True
                           }
-   in RS { signature = map Marked ( S.toList defined )
+   in RS { signature = map Marked ( S.toList def )
                      ++ map Original ( signature s )
          , rules = us ++ os
          , separate = separate s 
