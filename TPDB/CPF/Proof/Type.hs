@@ -41,9 +41,6 @@ data Proof = TrsTerminationProof TrsTerminationProof
            --  | TrsNonterminationProof  
    deriving ( Typeable )
 
-data Sharp i = Sharp i | Plain i
-   deriving ( Typeable, Eq, Ord )
-
 data DPS = forall s . ( XmlContent s , Typeable s ) 
         => DPS [ Rule (Term Identifier s) ]
    deriving ( Typeable )
@@ -68,7 +65,7 @@ data TrsTerminationProof
                       }  
    deriving ( Typeable )
 
-data Model = FiniteModel { carrierSize :: Int }
+data Model = FiniteModel Int Interpret
    deriving ( Typeable )
        
 data DpProof = PIsEmpty  
@@ -76,9 +73,12 @@ data DpProof = PIsEmpty
                    , red_pair_dps :: DPS , redpairproc_dpProof :: DpProof }  
    deriving ( Typeable )
 
-data OrderingConstraintProof
-     =  RedPair { interpretation :: Interpretation }
-   deriving ( Typeable )
+data OrderingConstraintProof = OCPRedPair RedPair
+                             deriving ( Typeable )
+
+data RedPair = RPInterpretation Interpretation
+             | RPPathOrder      PathOrder
+             deriving ( Typeable )
 
 data Interpretation =
      Interpretation { interpretation_type :: Interpretation_Type
@@ -98,11 +98,12 @@ data Domain = Naturals
             | Tropical Domain
    deriving ( Typeable )
 
-data Interpret = forall s .  XmlContent s => Interpret 
-    { symbol :: s , arity :: Int , value :: Value }
+data Interpret = Interpret 
+    { symbol :: Symbol , arity :: Int , value :: Value }
    deriving ( Typeable )
 
-data Value = Polynomial Polynomial
+data Value = Polynomial    Polynomial
+           | ArithFunction ArithFunction
    deriving ( Typeable )
 
 data Polynomial = Sum [ Polynomial ]
@@ -110,6 +111,24 @@ data Polynomial = Sum [ Polynomial ]
                 | Polynomial_Coefficient Coefficient
                 | Polynomial_Variable String
    deriving ( Typeable )
+
+data ArithFunction = AFNatural  Integer
+                   | AFVariable Integer
+                   | AFSum      [ArithFunction]
+                   | AFProduct  [ArithFunction]
+                   | AFMin      [ArithFunction]
+                   | AFMax      [ArithFunction]
+                   | AFIfEqual  ArithFunction ArithFunction ArithFunction ArithFunction
+                   deriving ( Typeable )
+
+data Symbol = SymName  String
+            | SymSharp Symbol
+            | SymLabel Symbol Label
+            deriving ( Typeable )
+
+data Label = LblNumber [Integer]
+           | LblSymbol [Symbol]
+           deriving ( Typeable )
 
 data Coefficient = Vector [ Coefficient ]
            | Matrix [ Coefficient ]
@@ -121,3 +140,18 @@ data Exotic = Minus_Infinite | E_Integer Integer | E_Rational Rational | Plus_In
 
 class ToExotic a where toExotic :: a -> Exotic
 
+data PathOrder = PathOrder [PrecedenceEntry] [ArgumentFilterEntry]
+               deriving Typeable
+
+data PrecedenceEntry = PrecedenceEntry { peSymbol     :: Symbol
+                                       , peArity      :: Int
+                                       , pePrecedence :: Integer
+                                       }
+                     deriving Typeable
+
+data ArgumentFilterEntry = 
+     ArgumentFilterEntry { afeSymbol :: Symbol
+                         , afeArity  :: Int
+                         , afeFilter :: Either Int [Int]
+                         }
+     deriving Typeable
