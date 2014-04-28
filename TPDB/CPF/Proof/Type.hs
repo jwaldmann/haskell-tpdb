@@ -69,8 +69,11 @@ data Model = FiniteModel Int Interpret
    deriving ( Typeable )
        
 data DpProof = PIsEmpty  
-     | RedPairProc { dp_orderingConstraintProof :: OrderingConstraintProof
-                   , red_pair_dps :: DPS , redpairproc_dpProof :: DpProof }  
+             | RedPairProc { rppOrderingConstraintProof :: OrderingConstraintProof
+                           , rppDps                     :: DPS 
+                           , rppDpProof                 :: DpProof 
+                           , rppUsableRules             :: Maybe DPS
+                           }  
    deriving ( Typeable )
 
 data OrderingConstraintProof = OCPRedPair RedPair

@@ -130,15 +130,22 @@ instance XmlContent Model where
         ]
 
 instance XmlContent DpProof where
-   parseContents = error "parseContents not implemented"
+  parseContents = error "parseContents not implemented"
 
-   toContents p = rmkel "dpProof" $ case p of
-       PIsEmpty -> rmkel "pIsEmpty" []
-       RedPairProc {} ->  rmkel "redPairProc" $ concat
-         [ toContents $ dp_orderingConstraintProof p
-         , toContents $ red_pair_dps p
-         , toContents $ redpairproc_dpProof p
-         ]
+  toContents p = rmkel "dpProof" $ case p of
+    PIsEmpty -> rmkel "pIsEmpty" []
+    RedPairProc {} -> case rppUsableRules p of
+      Nothing -> rmkel "redPairProc" $ concat
+        [ toContents $ rppOrderingConstraintProof p
+        , toContents $ rppDps p
+        , toContents $ rppDpProof p
+        ]
+      Just (DPS ur) -> rmkel "redPairUrProc" $ concat
+        [ toContents $ rppOrderingConstraintProof p
+        , toContents $ rppDps p
+        , toContents $ rppDpProof p
+        , rmkel "usableRules" $ rmkel "rules" $ concatMap toContents ur
+        ]
 
 instance XmlContent OrderingConstraintProof where
   parseContents = error "parseContents not implemented"
