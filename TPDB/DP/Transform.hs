@@ -13,7 +13,7 @@ import Data.Hashable
 import GHC.Generics
 
 data Marked a = Original a | Marked a | Auxiliary a
-    deriving ( Eq, Ord, Generic )
+    deriving ( Show, Eq, Ord, Generic )
 
 isOriginal m = case m of Original {} -> True ; _ -> False
 isMarked   m = case m of Marked   {} -> True ; _ -> False
