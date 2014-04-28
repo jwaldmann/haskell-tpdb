@@ -74,6 +74,14 @@ data DpProof = PIsEmpty
                            , rppDpProof                 :: DpProof 
                            , rppUsableRules             :: Maybe DPS
                            }  
+             | DepGraphProc [ DepGraphComponent ]
+   deriving ( Typeable )
+
+data DepGraphComponent =
+     DepGraphComponent { dgcRealScc :: Bool
+                       , dgcDps :: DPS
+                       , dgcDpProof :: DpProof
+                       }
    deriving ( Typeable )
 
 data OrderingConstraintProof = OCPRedPair RedPair

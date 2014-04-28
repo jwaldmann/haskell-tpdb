@@ -146,6 +146,14 @@ instance XmlContent DpProof where
         , toContents $ rppDpProof p
         , rmkel "usableRules" $ rmkel "rules" $ concatMap toContents ur
         ]
+    DepGraphProc cs -> rmkel "depGraphProc" $ concat $ map toContents cs
+
+instance XmlContent DepGraphComponent where
+    toContents dgc = rmkel "component" $ concat
+        [ rmkel "realScc" $ toContents $ dgcRealScc dgc
+        , rmkel "dps" $ toContents $ dgcDps dgc
+        , rmkel "dpProof" $ toContents $ dgcDpProof dgc
+        ]
 
 instance XmlContent OrderingConstraintProof where
   parseContents = error "parseContents not implemented"
