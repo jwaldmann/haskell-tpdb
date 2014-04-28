@@ -21,7 +21,8 @@ restrict dp =
 usable ::   (Ord v, Ord c)
        => TRS v c -> S.Set (Rule (Term v c))
 usable dp = fixpoint ( \ s -> S.union s $ required dp s)
-    (required dp $ S.fromList $ rules dp) 
+    (required dp $ S.filter strict
+                 $ S.fromList $ rules dp) 
 
 fixpoint f x = 
     let y = f x in if x == y then x else fixpoint f y
