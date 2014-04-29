@@ -144,6 +144,13 @@ instance XmlContent DpProof where
         ]
     DepGraphProc cs -> rmkel "depGraphProc" $ concat $ map toContents cs
 
+    SemLabProc {} -> rmkel "semlabProc" $ concat
+      [ toContents $ slpModel p
+      , toContents $ slpDps p
+      , toContents $ symbolize $ slpTrs p
+      , toContents $ slpDpProof p
+      ]
+
 instance XmlContent DepGraphComponent where
     toContents dgc = rmkel "component" $ concat $
         [ {- rmkel "dps" $ -} toContents $ dgcDps dgc

@@ -75,6 +75,12 @@ data DpProof = PIsEmpty
                            , rppUsableRules             :: Maybe DPS
                            }  
              | DepGraphProc [ DepGraphComponent ]
+
+             | SemLabProc { slpModel   :: Model
+                          , slpDps     :: DPS
+                          , slpTrs     :: TRS Identifier Identifier
+                          , slpDpProof :: DpProof
+                          }
    deriving ( Typeable )
 
 data DepGraphComponent =
