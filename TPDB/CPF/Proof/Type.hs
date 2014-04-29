@@ -71,8 +71,8 @@ data Model = FiniteModel Int [Interpret]
 data DpProof = PIsEmpty  
              | RedPairProc { rppOrderingConstraintProof :: OrderingConstraintProof
                            , rppDps                     :: DPS 
-                           , rppDpProof                 :: DpProof 
                            , rppUsableRules             :: Maybe DPS
+                           , rppDpProof                 :: DpProof 
                            }  
              | DepGraphProc [ DepGraphComponent ]
 
