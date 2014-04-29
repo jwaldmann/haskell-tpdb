@@ -81,6 +81,10 @@ data DpProof = PIsEmpty
                           , slpTrs     :: DPS
                           , slpDpProof :: DpProof
                           }
+             | UnlabProc  { ulpDps :: DPS
+                          , ulpTrs :: DPS
+                          , ulpDpProof :: DpProof
+                          }
    deriving ( Typeable )
 
 data DepGraphComponent =

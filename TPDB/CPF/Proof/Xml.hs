@@ -153,6 +153,13 @@ instance XmlContent DpProof where
       , toContents $ slpDpProof p
       ]
 
+    UnlabProc {} -> rmkel "unlabProc" $ concat
+      [ toContents $ slpDps p
+      , case slpTrs p of
+          DPS rules -> rmkel "trs" $ rmkel "rules" $ rules >>= toContents
+      , toContents $ slpDpProof p
+      ]
+
 instance XmlContent DepGraphComponent where
     toContents dgc = rmkel "component" $ concat $
         [ {- rmkel "dps" $ -} toContents $ dgcDps dgc
