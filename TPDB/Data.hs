@@ -50,6 +50,11 @@ weak u = case relation u of Weak -> True ; _ -> False
 equal :: Rule a -> Bool
 equal u = case relation u of Equal -> True ; _ -> False
 
+instance Functor (RS s) where
+    fmap f rs = rs { rules = map (fmap f) $ rules rs }
+
+instance Functor Rule where 
+    fmap f u = u { lhs = f $ lhs u, rhs = f $ rhs u } 
 
 data RS s r = 
      RS { signature :: [ s ] -- ^ better keep order in signature (?)

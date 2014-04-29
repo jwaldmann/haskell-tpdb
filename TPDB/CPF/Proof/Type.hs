@@ -132,7 +132,7 @@ data ArithFunction = AFNatural  Integer
                    | AFIfEqual  ArithFunction ArithFunction ArithFunction ArithFunction
                    deriving ( Typeable )
 
-data Symbol = SymName  String
+data Symbol = SymName  Identifier
             | SymSharp Symbol
             | SymLabel Symbol Label
             deriving ( Typeable )

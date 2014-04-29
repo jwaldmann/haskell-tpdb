@@ -37,10 +37,25 @@ instance ( Typeable ( Term v c ) , XmlContent v, XmlContent c )
          : map ( \ x -> mkel "arg" $ toContents x ) xs
 -}
 -- for CPF:
+
+-- the problem is this:
+-- a variable is an Identifier, and must look like "<var>foo</var>"
+-- a constructor symbol is also an Identifier
+-- but it must look like "<funapp><name>bar<name>..."
+-- so it should be wrapped into <name>
+-- but no, if the constructor is sharped (or labelled)
+-- then it must look like "<funapp><sharp><name>bar..."
+-- price question: what is the correct 
+-- instance XmlContent Identifier ?
+-- the answer probably is "there is none",
+-- and toContents (Term v Identifier) should never occur,
+-- instead need to call  toContents (Term v Symbol)
+
     toContents ( Node f args ) = rmkel "funapp" 
-            $ sharp_name_HACK ( toContents f )
+            $ no_sharp_name_HACK ( toContents f )
            ++ map ( \ arg -> mkel "arg" $ toContents arg ) args
 
+no_sharp_name_HACK e = e
 
 sharp_name_HACK e = case e of
     [ CElem ( Elem (N "sharp") [] cs ) () ] -> 
