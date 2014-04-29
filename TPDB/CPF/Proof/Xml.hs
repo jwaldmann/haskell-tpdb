@@ -147,7 +147,9 @@ instance XmlContent DpProof where
     SemLabProc {} -> rmkel "semlabProc" $ concat
       [ toContents $ slpModel p
       , toContents $ slpDps p
-      , toContents $ symbolize $ slpTrs p
+      , case slpTrs p of
+          DPS rules -> rmkel "trs" $ rmkel "rules" $ rules >>= toContents
+
       , toContents $ slpDpProof p
       ]
 
@@ -224,6 +226,7 @@ instance XmlContent Value where
 
    toContents v = case v of
       Polynomial p -> toContents p
+      ArithFunction f -> toContents f
 
 instance XmlContent Polynomial where
    parseContents = error "parseContents not implemented"

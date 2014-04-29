@@ -78,7 +78,7 @@ data DpProof = PIsEmpty
 
              | SemLabProc { slpModel   :: Model
                           , slpDps     :: DPS
-                          , slpTrs     :: TRS Identifier Identifier
+                          , slpTrs     :: DPS
                           , slpDpProof :: DpProof
                           }
    deriving ( Typeable )
