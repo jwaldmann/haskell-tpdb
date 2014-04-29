@@ -62,10 +62,9 @@ instance XmlContent CertificationProblemInput where
    parseContents = error "parseContents not implemented"
 
    toContents i = case i of
-      TrsInput {} -> rmkel "trsInput" $ toContents ( trsinput_trs i )
+      TrsInput {} -> rmkel "trsInput" $ toContents ( symbolize $ trsinput_trs i )
 
-instance ( Typeable v, Typeable c, XmlContent v , XmlContent c  ) 
-        => XmlContent ( T.TRS v c ) where
+instance XmlContent ( T.TRS Identifier Symbol ) where
    parseContents = error "parseContents not implemented"
 
    toContents s = rmkel "trs" 
@@ -86,13 +85,6 @@ instance XmlContent Proof where
    toContents p = case p of
        TrsTerminationProof p -> toContents p
 
-{-
-instance ( Typeable i , XmlContent i ) => XmlContent ( Sharp i ) where
-   toContents s = case s of
-       Plain p -> toContents p
-       Sharp q -> rmkel "sharp" $ toContents  q
-       -}
-
 instance XmlContent DPS where
    parseContents = error "parseContents not implemented"
 
@@ -110,14 +102,18 @@ instance XmlContent TrsTerminationProof where
           , toContents $ dptrans_dpProof p
           ]
       StringReversal {} -> rmkel "stringReversal" $ concat
-          [ toContents $ trs p
+          [ toContents $ symbolize $ trs p
           , toContents $ trsTerminationProof p
           ]
       RuleRemoval {} -> rmkel "ruleRemoval" $ concat
           [ toContents $ rr_orderingConstraintProof p
-          , toContents $ trs p
+          , toContents $ symbolize $ trs p
           , toContents $ trsTerminationProof p
           ]
+
+symbolize trs = 
+    ( fmap (fmap SymName) trs )
+    { T.signature = map SymName $ T.signature trs }
 
 instance XmlContent Model where
   parseContents = error "parseContents not implemented"
@@ -143,8 +139,21 @@ instance XmlContent DpProof where
       Just (DPS ur) -> rmkel "redPairUrProc" $ concat
         [ toContents $ rppOrderingConstraintProof p
         , toContents $ rppDps p
-        , toContents $ rppDpProof p
         , rmkel "usableRules" $ rmkel "rules" $ concatMap toContents ur
+        , toContents $ rppDpProof p
+        ]
+    DepGraphProc cs -> rmkel "depGraphProc" $ concat $ map toContents cs
+
+instance XmlContent DepGraphComponent where
+    toContents dgc = rmkel "component" $ concat $
+        [ {- rmkel "dps" $ -} toContents $ dgcDps dgc
+        , rmkel "realScc" 
+           -- $ toContents $ dgcRealScc dgc
+           -- NO, Bool is encoded as text, not as attribute
+            [ nospaceString $ map toLower $ show $ dgcRealScc dgc ]
+        ] ++ 
+        [ {- rmkel "dpProof" $ -} toContents $ dgcDpProof dgc
+        | dgcRealScc dgc
         ]
 
 instance XmlContent OrderingConstraintProof where
@@ -247,10 +256,12 @@ instance XmlContent Exotic where
        E_Integer i -> rmkel "integer" [ nospaceString $ show i ]
        Plus_Infinite -> rmkel "plusInfinity" []
 
+-- see remark in TPDB.Data.Xml (sharp_name_HACK)
+
 instance XmlContent Symbol where
   parseContents = error "parseContents not implemented"
 
-  toContents (SymName name) = rmkel "name"  $ toContents name
+  toContents (SymName id) = rmkel "name" [nospaceString $ show id]
   toContents (SymSharp sym) = rmkel "sharp" $ toContents sym
   toContents (SymLabel sym label) = rmkel "labeledSymbol" 
                                   $ toContents sym ++ (toContents label)
