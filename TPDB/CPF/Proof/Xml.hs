@@ -119,10 +119,10 @@ instance XmlContent Model where
   parseContents = error "parseContents not implemented"
 
   toContents model = rmkel "model" $ case model of
-    FiniteModel carrierSize interpret ->
+    FiniteModel carrierSize interprets ->
       rmkel "finiteModel" $ concat
         [ rmkel "carrierSize" [ nospaceString $ show carrierSize ]
-        , toContents interpret
+        , concatMap toContents interprets
         ]
 
 instance XmlContent DpProof where

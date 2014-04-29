@@ -65,7 +65,7 @@ data TrsTerminationProof
                       }  
    deriving ( Typeable )
 
-data Model = FiniteModel Int Interpret
+data Model = FiniteModel Int [Interpret]
    deriving ( Typeable )
        
 data DpProof = PIsEmpty  
