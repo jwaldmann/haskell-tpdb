@@ -145,13 +145,15 @@ instance XmlContent DpProof where
     DepGraphProc cs -> rmkel "depGraphProc" $ concat $ map toContents cs
 
 instance XmlContent DepGraphComponent where
-    toContents dgc = rmkel "component" $ concat
+    toContents dgc = rmkel "component" $ concat $
         [ {- rmkel "dps" $ -} toContents $ dgcDps dgc
         , rmkel "realScc" 
            -- $ toContents $ dgcRealScc dgc
            -- NO, Bool is encoded as text, not as attribute
             [ nospaceString $ map toLower $ show $ dgcRealScc dgc ]
-        , {- rmkel "dpProof" $ -} toContents $ dgcDpProof dgc
+        ] ++ 
+        [ {- rmkel "dpProof" $ -} toContents $ dgcDpProof dgc
+        | dgcRealScc dgc
         ]
 
 instance XmlContent OrderingConstraintProof where

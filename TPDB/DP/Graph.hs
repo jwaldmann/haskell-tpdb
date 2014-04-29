@@ -20,18 +20,21 @@ import Control.Monad.State.Strict
 
 
 -- | DP problems for strongly connected components, 
--- topologically sorted
+-- topologically sorted, with CyclicComponents in Right,
+-- others in Left.
 components s = do 
     let es = M.fromListWith (++) 
            $ do (p,q) <- edges s ; return (p, [q])
         key = M.fromList 
             $ zip (filter strict $ rules s) [0.. ]
-    CyclicSCC vs <- stronglyConnComp $ do
-        (p, qs) <- M.toList es
+    comp <- reverse $ stronglyConnComp $ do
+        p <- M.keys key
+        let qs = M.findWithDefault [] p es
         return (p, key M.! p, map (key M.!) qs )
-    return $ s { rules = vs 
-                 ++ filter (not . strict) (rules s) }
-
+    return $ case comp of
+        CyclicSCC vs -> Right $ s { rules = vs 
+                 ++ filter (not . strict) (rules s) } 
+        AcyclicSCC v -> Left v
 
 -- | edges of the estimated dependency graph
 edges s = do
