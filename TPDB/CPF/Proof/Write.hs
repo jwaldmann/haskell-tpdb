@@ -2,7 +2,7 @@
 
 -- | from internal representation to XML, and back
 
-module TPDB.CPF.Proof.Xml where
+module TPDB.CPF.Proof.Write where
 
 import TPDB.CPF.Proof.Type
 import qualified TPDB.Data as T
