@@ -15,6 +15,7 @@ import Data.Typeable
 import Control.Monad ( guard )
 
 import Data.Hashable
+import Data.Function (on)
 
 data Identifier = 
      Identifier { _identifier_hash :: Int
@@ -62,6 +63,9 @@ data RS s r =
         , separate :: Bool -- ^ if True, write comma between rules
          }
    deriving ( Typeable )
+
+instance Eq r => Eq (RS s r) where
+    (==) = (==) `on` rules
 
 strict_rules sys = 
     do u <- rules sys ; guard $ strict u ; return ( lhs u, rhs u )
