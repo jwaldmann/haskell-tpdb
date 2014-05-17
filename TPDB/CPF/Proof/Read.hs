@@ -24,7 +24,7 @@ the function produces something like
                           }  
 -}
 
-readCP :: FilePath -> IO [ CertificationProblem ]
+readCP :: String -> IO [ CertificationProblem ]
 readCP s = runX ( readString [] s >>> getCP )
 
 getCP = atTag "certificationProblem" >>> proc x -> do
@@ -34,7 +34,7 @@ getCP = atTag "certificationProblem" >>> proc x -> do
 
 getInput = atTag "input" >>> proc x -> do
     trsI <- getTrsInput <<< getChild "trsInput" -< x
-    returnA -< TrsInput $ RS { rules = trsI }
+    returnA -< TrsInput $ RS { rules = trsI, separate = False }
 
 getTrsInput = proc x -> do
     sys <- getTrs <<< getChild "trs" -< x
@@ -44,8 +44,13 @@ getTrs = proc x -> do
     str <- getRules Strict <<< getChild "rules" -< x
     returnA -< str
 
-getProof = atTag "trsTerminationProof" >>> proc x -> do
+getProof = getTrsTerminationProof <+> getTrsNonterminationProof
+
+getTrsTerminationProof = atTag "trsTerminationProof" >>> proc x -> do
     returnA -< TrsTerminationProof undefined
+
+getTrsNonterminationProof = atTag "trsNonterminationProof" >>> proc x -> do
+    returnA -< TrsNonterminationProof undefined
 
 
 getRules str = proc x -> do

@@ -38,12 +38,15 @@ data CertificationProblemInput
    deriving ( Typeable )      
 
 data Proof = TrsTerminationProof TrsTerminationProof
-           --  | TrsNonterminationProof  
+           | TrsNonterminationProof TrsNonterminationProof
    deriving ( Typeable )
 
 data DPS = forall s . ( XmlContent s , Typeable s ) 
         => DPS [ Rule (Term Identifier s) ]
    deriving ( Typeable )
+
+data TrsNonterminationProof = TrsNonterminationProofFIXME ()
+    deriving ( Typeable )
 
 data TrsTerminationProof 
      = RIsEmpty
