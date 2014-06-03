@@ -5,10 +5,12 @@ import TPDB.Plain.Read
 import TPDB.XTC.Read
 import TPDB.Convert
 
-import System.FilePath.Posix ( splitExtension )
+import System.FilePath.Posix ( takeExtension )
 
 -- | read input from file with given name.
 -- can have extension .srs, .trs, .xml.
+-- unknown extension is considered as .xml, because of 
+-- http://starexec.forumotion.com/t60-restore-file-extension-for-renamed-benchmarks
 
 get :: FilePath 
          -> IO ( Either (TRS Identifier Identifier) 
@@ -19,9 +21,7 @@ get f = do
         Right x -> return x 
         Left err -> error err
 
-getE f = do
-    let ( base, ext ) = splitExtension f    
-    case ext of                     
+getE f = case takeExtension f of
       ".srs" -> do
           s <- readFile f    
           case srs s of
@@ -32,7 +32,7 @@ getE f = do
           case TPDB.Plain.Read.trs s of
               Left err -> return $ Left err
               Right t -> return $ Right $ Left t 
-      ".xml" -> do
+      _ -> do
           ps <- readProblems f
           case ps of 
               [ p ] -> return $ Right $ Left $ TPDB.Data.trs p
