@@ -33,25 +33,28 @@ getCP = atTag "certificationProblem" >>> proc x -> do
     returnA -< CertificationProblem { input = inp, proof = pro }
 
 getInput = atTag "input" >>> proc x -> do
-    trsI <- getTrsInput <<< getChild "trsInput" -< x
+    trsI <- getTrsInput <<< getChild "trsInput" -< x    
     returnA -< TrsInput $ RS { rules = trsI, separate = False }
 
 getTrsInput = proc x -> do
     sys <- getTrs <<< getChild "trs" -< x
-    returnA -< sys
+    rels <- listA ( getTrsWith Weak <<< getChild "relativeRules" ) -< x
+    returnA -< sys ++ concat rels
 
-getTrs = proc x -> do
-    str <- getRules Strict <<< getChild "rules" -< x
+getTrs = getTrsWith Strict
+
+getTrsWith s = proc x -> do
+    str <- getRules s <<< getChild "rules" -< x
     returnA -< str
 
-getProof = getTrsTerminationProof <+> getTrsNonterminationProof
+getProof = getDummy "trsTerminationProof" ( TrsTerminationProof undefined )
+       <+> getDummy "trsNonTerminationProof" ( TrsNonterminationProof undefined )
+       <+> getDummy "relativeTerminationProof" ( RelativeTerminationProof undefined )
+       <+> getDummy "relativeNonTerminationProof" ( RelativeNonterminationProof undefined )
+       <+> getDummy "complexityProof" ( ComplexityProof undefined )
 
-getTrsTerminationProof = atTag "trsTerminationProof" >>> proc x -> do
-    returnA -< TrsTerminationProof undefined
-
-getTrsNonterminationProof = atTag "trsNonterminationProof" >>> proc x -> do
-    returnA -< TrsNonterminationProof undefined
-
+getDummy t c = atTag t >>> proc x -> do
+    returnA -< c 
 
 getRules str = proc x -> do
     returnA <<< listA ( getRule str  <<< getChild "rule" ) -< x

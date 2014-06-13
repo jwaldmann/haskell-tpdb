@@ -35,15 +35,37 @@ data CertificationProblemInput
       -- ^ this is actually not true, since instead of copying from XTC,
       -- CPF format repeats the definition of TRS,
       -- and it's a different one (relative rules are extra)
+    | ComplexityInput { trsinput_trs :: TRS Identifier Identifier
+                      , complexityMeasure :: ComplexityMeasure
+                      , complexityClass :: ComplexityClass      
+                      }
    deriving ( Typeable )      
 
 data Proof = TrsTerminationProof TrsTerminationProof
            | TrsNonterminationProof TrsNonterminationProof
+           | RelativeTerminationProof TrsTerminationProof
+           | RelativeNonterminationProof TrsNonterminationProof
+           | ComplexityProof ComplexityProof
    deriving ( Typeable )
 
 data DPS = forall s . ( XmlContent s , Typeable s ) 
         => DPS [ Rule (Term Identifier s) ]
    deriving ( Typeable )
+
+
+
+data ComplexityProof = ComplexityProofFIXME ()
+    deriving ( Typeable )
+
+data ComplexityMeasure = ComplexityMeasureFIXME ()
+    deriving ( Typeable )
+
+data ComplexityClass = 
+     ComplexityClass { polynomial :: Int } 
+     -- ^ it seems the degree must always be given in CPF,
+     -- although the category spec also allows "POLY"
+     -- http://cl-informatik.uibk.ac.at/users/georg/cbr/competition/rules.php
+    deriving ( Eq, Typeable )
 
 data TrsNonterminationProof = TrsNonterminationProofFIXME ()
     deriving ( Typeable )
