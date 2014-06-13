@@ -164,7 +164,7 @@ instance XmlContent DepGraphComponent where
     toContents dgc = rmkel "component" $ concat $
         [ {- rmkel "dps" $ -} toContents $ dgcDps dgc
         , rmkel "realScc" 
-           -- $ toContents $ dgcRealScc dgc
+           --  $ toContents $ dgcRealScc dgc
            -- NO, Bool is encoded as text, not as attribute
             [ nospaceString $ map toLower $ show $ dgcRealScc dgc ]
         ] ++ 
