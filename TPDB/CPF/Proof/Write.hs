@@ -63,6 +63,9 @@ instance XmlContent CertificationProblemInput where
 
    toContents i = case i of
       TrsInput {} -> rmkel "trsInput" $ toContents ( symbolize $ trsinput_trs i )
+      ComplexityInput {} -> rmkel "complexityInput" $ concat
+          [ rmkel "trsInput" $ toContents $ symbolize $ trsinput_trs i
+          ]
 
 instance XmlContent ( T.TRS Identifier Symbol ) where
    parseContents = error "parseContents not implemented"

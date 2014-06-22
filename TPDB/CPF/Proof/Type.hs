@@ -57,11 +57,13 @@ data DPS = forall s . ( XmlContent s , Typeable s )
 data ComplexityProof = ComplexityProofFIXME ()
     deriving ( Typeable )
 
-data ComplexityMeasure = ComplexityMeasureFIXME ()
+data ComplexityMeasure 
+     = DerivationalComplexity
+     | RuntimeComplexity
     deriving ( Typeable )
 
 data ComplexityClass = 
-     ComplexityClass { polynomial :: Int } 
+     ComplexityClassPolynomial { degree :: Int } 
      -- ^ it seems the degree must always be given in CPF,
      -- although the category spec also allows "POLY"
      -- http://cl-informatik.uibk.ac.at/users/georg/cbr/competition/rules.php
