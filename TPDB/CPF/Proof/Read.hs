@@ -28,7 +28,9 @@ the function produces something like
 -}
 
 readCP :: String -> IO [ CertificationProblem ]
-readCP s = runX ( X.withTraceLevel 0 $ readString [] s >>> getCP )
+readCP = readCP_with_tracelevel 0
+
+readCP_with_tracelevel l s = runX ( X.withTraceLevel l $ readString [] s >>> getCP )
 
 getCP = atTag "certificationProblem" >>> proc x -> do
     inp <- getInput <<< getChild "input" -< x
@@ -73,9 +75,9 @@ getTrsWith s = proc x -> do
     returnA -< str
 
 getProof = getDummy "trsTerminationProof" ( TrsTerminationProof undefined )
-       <+> getDummy "trsNonTerminationProof" ( TrsNonterminationProof undefined )
+       <+> getDummy "trsNonterminationProof" ( TrsNonterminationProof undefined )
        <+> getDummy "relativeTerminationProof" ( RelativeTerminationProof undefined )
-       <+> getDummy "relativeNonTerminationProof" ( RelativeNonterminationProof undefined )
+       <+> getDummy "relativeNonterminationProof" ( RelativeNonterminationProof undefined )
        <+> getDummy "complexityProof" ( ComplexityProof undefined )
 
 getDummy t c = atTag t >>> proc x -> do
