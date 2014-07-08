@@ -14,7 +14,7 @@ mkel name cs = CElem ( Elem (N name) [] cs ) ()
 rmkel name cs = return $ mkel name cs
 
 nospaceString :: String -> Content ()
-nospaceString s = CString False s ()
+nospaceString s = CString False (escape s) ()
 
 instance Typeable t => HTypeable t where 
     toHType x = let cs = show ( typeOf x ) in Prim cs cs
