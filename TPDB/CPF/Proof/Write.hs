@@ -12,7 +12,7 @@ import qualified Text.XML.HaXml.Pretty as P
 
 import Text.XML.HaXml.Types (QName (..) )
 import Text.XML.HaXml.XmlContent.Haskell hiding ( element, many )
-import Text.XML.HaXml.Types ( EncodingDecl(..), emptyST, XMLDecl(..) )
+import Text.XML.HaXml.Types ( EncodingDecl(..), emptyST, XMLDecl(..), Misc (PI) )
 
 import TPDB.Xml 
 import TPDB.Data.Xml 
@@ -30,7 +30,8 @@ import Data.Ratio
 tox :: CertificationProblem -> Document ()
 tox p = 
     let xd = XMLDecl "1.0" ( Just $ EncodingDecl "UTF-8" ) Nothing 
-        pro = Prolog ( Just xd ) [] Nothing []
+        style = PI ("xml-stylesheet", "type=\"text/xsl\" href=\"cpfHTML.xsl\"")
+        pro = Prolog ( Just xd ) [] Nothing [style]
         [ CElem e _ ] = toContents p
     in  Document pro emptyST e []
 
