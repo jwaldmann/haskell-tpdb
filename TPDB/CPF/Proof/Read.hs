@@ -32,19 +32,20 @@ readCP = readCP_with_tracelevel 0
 
 readCP_with_tracelevel l s = runX ( X.withTraceLevel l $ readString [] s >>> getCP )
 
-getCP = atTag "certificationProblem" >>> proc x -> do
+getCP = getChild "certificationProblem" >>> proc x -> do
     inp <- getInput <<< getChild "input" -< x
     pro <- getProof <<< getChild "proof" -< x
     ver <- getText <<< gotoChild "cpfVersion" -< x
-    returnA -< CertificationProblem { input = inp, proof = pro, cpfVersion = "2.2" }
+    returnA -< CertificationProblem 
+        { input = inp, proof = pro, cpfVersion = ver, origin = ignoredOrigin }
 
 getInput = getTerminationInput <+> getComplexityInput
 
-getTerminationInput = atTag "input" >>> proc x -> do
+getTerminationInput = hasName "input" >>> proc x -> do
     trsI <- getTrsInput <<< getChild "trsInput" -< x    
     returnA -< TrsInput $ RS { rules = trsI, separate = False }
 
-getComplexityInput = atTag "input" >>> proc x -> do
+getComplexityInput = hasName "input" >>> proc x -> do
     y <- getChild "complexityInput" -< x
     trsI <- getTrsInput <<< getChild "trsInput" -< y
     cm <- getComplexityMeasure -< y
@@ -80,7 +81,8 @@ getProof = getDummy "trsTerminationProof" ( TrsTerminationProof undefined )
        <+> getDummy "relativeNonterminationProof" ( RelativeNonterminationProof undefined )
        <+> getDummy "complexityProof" ( ComplexityProof undefined )
 
-getDummy t c = atTag t >>> proc x -> do
+getDummy t c = proc x -> do 
+    getChild t -< x
     returnA -< c 
 
 getRules str = proc x -> do
@@ -111,5 +113,5 @@ gotoChild tag = proc x -> do
 getChild tag = proc x -> do
     returnA <<< hasName tag <<< isElem <<< getChildren -< x
 
-atTag tag = deep (isElem >>> hasName tag)
+
 

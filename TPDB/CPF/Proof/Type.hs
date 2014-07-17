@@ -1,4 +1,6 @@
-{-# OPTIONS -fglasgow-exts #-}
+{-# language StandaloneDeriving #-}
+{-# language ExistentialQuantification #-}
+{-# language DeriveDataTypeable #-}
 
 -- | internal representation of CPF termination proofs,
 -- see <http://cl-informatik.uibk.ac.at/software/cpf/>
@@ -23,12 +25,17 @@ data CertificationProblem =
                           , proof :: Proof 
                           , origin :: Origin  
                           }  
-   deriving ( Typeable )
+   deriving ( Typeable, Eq )
 
-data Origin = ProofOrigin Tool 
-    deriving Typeable
-data Tool = Tool { name :: String , version :: String } 
-    deriving Typeable
+data Origin = ProofOrigin { tool :: Tool }
+    deriving ( Typeable, Eq )
+
+ignoredOrigin = ProofOrigin { tool = Tool "ignored" "ignored"  }
+
+data Tool = Tool { name :: String 
+                 , version :: String
+                 } 
+    deriving ( Typeable, Eq )
 
 data CertificationProblemInput 
     = TrsInput { trsinput_trs :: TRS Identifier Identifier }
@@ -39,38 +46,39 @@ data CertificationProblemInput
                       , complexityMeasure :: ComplexityMeasure
                       , complexityClass :: ComplexityClass      
                       }
-   deriving ( Typeable )      
+   deriving ( Typeable, Eq )      
 
 data Proof = TrsTerminationProof TrsTerminationProof
            | TrsNonterminationProof TrsNonterminationProof
            | RelativeTerminationProof TrsTerminationProof
            | RelativeNonterminationProof TrsNonterminationProof
            | ComplexityProof ComplexityProof
-   deriving ( Typeable )
+   deriving ( Typeable, Eq )
 
-data DPS = forall s . ( XmlContent s , Typeable s ) 
+data DPS = forall s . ( XmlContent s , Typeable s, Eq s ) 
         => DPS [ Rule (Term Identifier s) ]
    deriving ( Typeable )
 
+instance Eq DPS where x == y = error "instance Eq DPS"
 
 
 data ComplexityProof = ComplexityProofFIXME ()
-    deriving ( Typeable )
+    deriving ( Typeable, Eq )
 
 data ComplexityMeasure 
      = DerivationalComplexity
      | RuntimeComplexity
-    deriving ( Typeable )
+    deriving ( Typeable, Eq )
 
 data ComplexityClass = 
      ComplexityClassPolynomial { degree :: Int } 
      -- ^ it seems the degree must always be given in CPF,
      -- although the category spec also allows "POLY"
      -- http://cl-informatik.uibk.ac.at/users/georg/cbr/competition/rules.php
-    deriving ( Eq, Typeable )
+    deriving ( Typeable, Eq )
 
 data TrsNonterminationProof = TrsNonterminationProofFIXME ()
-    deriving ( Typeable )
+    deriving ( Typeable, Eq )
 
 data TrsTerminationProof 
      = RIsEmpty
@@ -90,10 +98,10 @@ data TrsTerminationProof
      | StringReversal { trs :: TRS Identifier Identifier
                       , trsTerminationProof :: TrsTerminationProof  
                       }  
-   deriving ( Typeable )
+   deriving ( Typeable, Eq )
 
 data Model = FiniteModel Int [Interpret]
-   deriving ( Typeable )
+   deriving ( Typeable, Eq )
        
 data DpProof = PIsEmpty  
              | RedPairProc { rppOrderingConstraintProof :: OrderingConstraintProof
@@ -112,53 +120,53 @@ data DpProof = PIsEmpty
                           , ulpTrs :: DPS
                           , ulpDpProof :: DpProof
                           }
-   deriving ( Typeable )
+   deriving ( Typeable, Eq )
 
 data DepGraphComponent =
      DepGraphComponent { dgcRealScc :: Bool
                        , dgcDps :: DPS
                        , dgcDpProof :: DpProof
                        }
-   deriving ( Typeable )
+   deriving ( Typeable, Eq )
 
 data OrderingConstraintProof = OCPRedPair RedPair
-                             deriving ( Typeable )
+                             deriving ( Typeable, Eq )
 
 data RedPair = RPInterpretation Interpretation
              | RPPathOrder      PathOrder
-             deriving ( Typeable )
+             deriving ( Typeable, Eq )
 
 data Interpretation =
      Interpretation { interpretation_type :: Interpretation_Type
                     , interprets :: [ Interpret  ]
                     }
-   deriving ( Typeable )
+   deriving ( Typeable, Eq )
 
 data Interpretation_Type = 
    Matrix_Interpretation { domain :: Domain, dimension :: Int
                          , strictDimension :: Int
                          }
-   deriving ( Typeable )
+   deriving ( Typeable, Eq )
 
 data Domain = Naturals 
             | Rationals Rational
             | Arctic Domain
             | Tropical Domain
-   deriving ( Typeable )
+   deriving ( Typeable, Eq )
 
 data Interpret = Interpret 
     { symbol :: Symbol , arity :: Int , value :: Value }
-   deriving ( Typeable )
+   deriving ( Typeable, Eq )
 
 data Value = Polynomial    Polynomial
            | ArithFunction ArithFunction
-   deriving ( Typeable )
+   deriving ( Typeable, Eq )
 
 data Polynomial = Sum [ Polynomial ]
                 | Product [ Polynomial ]
                 | Polynomial_Coefficient Coefficient
                 | Polynomial_Variable String
-   deriving ( Typeable )
+   deriving ( Typeable, Eq )
 
 data ArithFunction = AFNatural  Integer
                    | AFVariable Integer
@@ -167,21 +175,23 @@ data ArithFunction = AFNatural  Integer
                    | AFMin      [ArithFunction]
                    | AFMax      [ArithFunction]
                    | AFIfEqual  ArithFunction ArithFunction ArithFunction ArithFunction
-                   deriving ( Typeable )
+                   deriving ( Typeable, Eq )
 
 data Symbol = SymName  Identifier
             | SymSharp Symbol
             | SymLabel Symbol Label
-            deriving ( Typeable )
+            deriving ( Typeable, Eq )
 
 data Label = LblNumber [Integer]
            | LblSymbol [Symbol]
-           deriving ( Typeable )
+           deriving ( Typeable, Eq )
 
 data Coefficient = Vector [ Coefficient ]
            | Matrix [ Coefficient ]
-           | forall a . XmlContent a => Coefficient_Coefficient a
+           | forall a . (Eq a, XmlContent a ) => Coefficient_Coefficient a
    deriving ( Typeable )
+
+instance Eq Coefficient where x == y = error "instance Eq Coefficient"
 
 data Exotic = Minus_Infinite | E_Integer Integer | E_Rational Rational | Plus_Infinite
    deriving Typeable
@@ -189,17 +199,17 @@ data Exotic = Minus_Infinite | E_Integer Integer | E_Rational Rational | Plus_In
 class ToExotic a where toExotic :: a -> Exotic
 
 data PathOrder = PathOrder [PrecedenceEntry] [ArgumentFilterEntry]
-               deriving Typeable
+               deriving ( Typeable, Eq )
 
 data PrecedenceEntry = PrecedenceEntry { peSymbol     :: Symbol
                                        , peArity      :: Int
                                        , pePrecedence :: Integer
                                        }
-                     deriving Typeable
+                     deriving ( Typeable, Eq )
 
 data ArgumentFilterEntry = 
      ArgumentFilterEntry { afeSymbol :: Symbol
                          , afeArity  :: Int
                          , afeFilter :: Either Int [Int]
                          }
-     deriving Typeable
+     deriving ( Typeable, Eq )

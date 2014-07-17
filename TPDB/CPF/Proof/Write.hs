@@ -86,8 +86,14 @@ instance ( Typeable t, XmlContent t  )
 instance XmlContent Proof where
    parseContents = error "parseContents not implemented"
 
-   toContents p = case p of
-       TrsTerminationProof p -> toContents p
+   toContents p = 
+     let missing t = rmkel t $ rmkel "missing-toContents-instance" [] 
+     in  case p of
+       TrsTerminationProof p -> missing "TrsTerminationProof"
+       TrsNonterminationProof p -> missing "TrsNonterminationProof"
+       RelativeTerminationProof p -> missing "RelativeTerminationProof"
+       RelativeNonterminationProof p -> missing "RelativeNonterminationProof"
+       ComplexityProof p -> missing "ComplexityProof"
 
 instance XmlContent DPS where
    parseContents = error "parseContents not implemented"
