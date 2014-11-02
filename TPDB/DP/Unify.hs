@@ -1,4 +1,4 @@
-module TPDB.DP.Unify ( mgu, unifies, apply, times ) where
+module TPDB.DP.Unify ( mgu, match, unifies, apply, times ) where
 
 import TPDB.Data
 import qualified Data.Map as M
@@ -8,6 +8,25 @@ import Data.Maybe (isJust)
 type Substitution v c = M.Map v (Term v c)
 
 unifies t1 t2 = isJust $ mgu t1 t2
+
+-- | view variables as symbols
+pack :: Term v c -> Term any (Either v c)
+pack ( Var v ) = Node ( Left v ) []
+pack ( Node f args ) = Node ( Right f ) ( map pack args )
+
+unpack :: Term any (Either v c) -> Term v c
+unpack ( Node ( Left v ) [] ) = Var v
+unpack ( Node ( Right f ) args ) = Node f ( map unpack args )
+
+-- | will only bind variables in the left side
+match :: ( Ord v, Ord w, Eq c )
+      => Term v c
+      -> Term w c
+      -> Maybe ( M.Map v ( Term w c ) )
+match l r = do
+    u <- mgu ( fmap Right l ) ( pack r )
+    return $ M.map unpack  u
+
 
 -- | naive implementation (worst case exponential)
 mgu
