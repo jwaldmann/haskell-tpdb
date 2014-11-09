@@ -18,8 +18,10 @@ import Data.Hashable
 import Data.Function (on)
 
 data Identifier = 
-     Identifier { _identifier_hash :: Int
-                , name :: String , arity :: Int }
+     Identifier { _identifier_hash :: ! Int
+                , name :: ! String 
+                , arity :: Int 
+                }
     deriving ( Eq, Ord, Typeable )
 
 instance Hashable Identifier where
