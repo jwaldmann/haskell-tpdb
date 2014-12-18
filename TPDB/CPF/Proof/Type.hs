@@ -194,7 +194,7 @@ data Coefficient = Vector [ Coefficient ]
 instance Eq Coefficient where x == y = error "instance Eq Coefficient"
 
 data Exotic = Minus_Infinite | E_Integer Integer | E_Rational Rational | Plus_Infinite
-   deriving Typeable
+   deriving ( Typeable, Eq )
 
 class ToExotic a where toExotic :: a -> Exotic
 
