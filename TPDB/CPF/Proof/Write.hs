@@ -89,7 +89,7 @@ instance XmlContent Proof where
    toContents p = 
      let missing t = rmkel t $ rmkel "missing-toContents-instance" [] 
      in  case p of
-       TrsTerminationProof p -> missing "TrsTerminationProof"
+       TrsTerminationProof p -> toContents p
        TrsNonterminationProof p -> missing "TrsNonterminationProof"
        RelativeTerminationProof p -> missing "RelativeTerminationProof"
        RelativeNonterminationProof p -> missing "RelativeNonterminationProof"
