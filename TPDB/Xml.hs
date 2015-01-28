@@ -10,6 +10,9 @@ import qualified Text.XML.HaXml.Pretty as P
 
 import Data.Typeable
 
+import Control.Monad
+import Control.Applicative
+       
 mkel name cs = CElem ( Elem (N name) [] cs ) ()
 rmkel name cs = return $ mkel name cs
 
@@ -34,6 +37,9 @@ instance Functor CParser where
     fmap f (CParser p) = CParser $ \ cs ->
         do ( x, cs' ) <- p cs ; return ( f x, cs' )
 
+instance Applicative CParser where
+    pure = return ; (<*>) = ap
+         
 instance Monad CParser where
     return x = CParser $ \ cs -> return ( x, cs )
     CParser p >>= f = CParser $ \ cs0 -> 
