@@ -32,9 +32,13 @@ header l =
         [ CElem e _ ] =  l
     in  Document pro emptyST e []
 
-main = do
-    -- print $ P.document
-    -- putStrLn $ renderStyle (Style LeftMode undefined undefined ) $ P.document
-    -- BS.putStrLn $ BSP.document
+main =  do
+    -- print $ P.document $ double 132
+
+    let s = (Style LeftMode undefined undefined )    
+    -- putStrLn $ renderStyle s $ P.document $ double 132
+
+    -- BS.putStrLn $ BSP.document $ double 132
+
     TP.displayIO stdout $ TP.renderCompact $ TXP.document
             $  double 132
