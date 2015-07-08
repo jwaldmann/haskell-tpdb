@@ -17,6 +17,8 @@ import Control.Monad ( guard )
 import Data.Hashable
 import Data.Function (on)
 
+import qualified Data.Set as S 
+
 data Identifier = 
      Identifier { _identifier_hash :: ! Int
                 , name :: ! String 
@@ -66,8 +68,8 @@ data RS s r =
          }
    deriving ( Typeable )
 
-instance Eq r => Eq (RS s r) where
-    (==) = (==) `on` rules
+instance Ord r => Eq (RS s r) where
+    (==) = (==) `on` (S.toList . S.fromList . rules)
 
 strict_rules sys = 
     do u <- rules sys ; guard $ strict u ; return ( lhs u, rhs u )
