@@ -20,17 +20,17 @@ instance ( Pretty v, Pretty s ) => Pretty ( Term v s ) where
         Var v -> pretty v
         Node f xs -> case xs of
             [] -> pretty f 
-            _  -> pretty f <+> parens ( fsep $ punctuate comma $ map pretty xs )
+            _  -> pretty f <+> ( parens $ fsep $ punctuate comma $ map pretty xs )
 
 instance PrettyTerm a => Pretty ( Rule a ) where
-    pretty u = hsep [ prettyTerm $ lhs u
-                    , case relation u of 
+    pretty u = sep [ prettyTerm $ lhs u
+                   , ( case relation u of 
                          Strict -> "->" 
                          Weak -> "->="
-                         Equal -> "="
-                    -- FIXME: implement "top" annotation
-                    , prettyTerm $ rhs u
-                    ]
+                         Equal -> "=" 
+                   -- FIXME: implement "top" annotation
+                     ) <+> prettyTerm ( rhs u )
+                   ]
 
 class PrettyTerm a where 
     prettyTerm :: a -> Doc
@@ -58,10 +58,10 @@ instance ( Pretty s, Pretty r ) => Pretty ( Problem s r ) where
        [ pretty $ trs p 
        , case strategy p of  
              Nothing -> empty
-             Just s -> fsep [ "strategy"
+             Just s -> sep [ "strategy"
                             , fromString ( show s ) ]
        , case startterm p of  
              Nothing -> empty
-             Just s -> fsep [ "startterm"
+             Just s -> sep [ "startterm"
                             , fromString ( show s ) ] 
        ]

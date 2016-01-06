@@ -3,7 +3,7 @@ module TPDB.Pretty
 ( Doc, SimpleDoc
 , render, renderCompact, displayIO
 , Pretty (..)
-, fsep , hsep, vsep, vcat, hcat
+, fsep, sep, hsep, vsep, vcat, hcat
 , parens, brackets, angles, braces, enclose
 , punctuate, comma, nest
 , empty, text
@@ -13,17 +13,21 @@ module TPDB.Pretty
 where
 
 import Text.PrettyPrint.Leijen.Text 
-    hiding ( text, (<+>), vcat )
+    hiding ( text, (<+>), vcat, hcat, vsep, hsep, sep, parens )
 import qualified Text.PrettyPrint.Leijen.Text 
 import Data.String ( fromString )
 
 -- class Pretty a where pretty :: a -> Doc
 
-fsep = fillSep
 ($$) = (<$$>)
-x <+> y = x Text.PrettyPrint.Leijen.Text.<+> align y
-vcat = align . Text.PrettyPrint.Leijen.Text.vcat
-
+x <+> y = x Text.PrettyPrint.Leijen.Text.<+> align (group y)
+vcat = align . Text.PrettyPrint.Leijen.Text.vcat . map group
+hcat = align . Text.PrettyPrint.Leijen.Text.hcat . map group
+vsep = align . Text.PrettyPrint.Leijen.Text.vsep . map group
+hsep = align . Text.PrettyPrint.Leijen.Text.hsep . map group
+fsep = align . Text.PrettyPrint.Leijen.Text.fillSep . map group
+sep = align . Text.PrettyPrint.Leijen.Text.sep . map group
+parens = Text.PrettyPrint.Leijen.Text.parens . group
 render :: Doc -> String
 render = show
 
