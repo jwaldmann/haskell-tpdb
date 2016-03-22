@@ -97,8 +97,49 @@ data TrsTerminationProof
               }
      | StringReversal { trs :: TRS Identifier Identifier
                       , trsTerminationProof :: TrsTerminationProof  
-                      }  
+                      }
+     | Bounds { trs :: TRS Identifier Identifier
+              , bounds_type :: Bounds_Type
+              , bounds_bound :: Int
+              , bounds_finalStates :: [ State ]
+              , bounds_closedTreeAutomaton :: ClosedTreeAutomaton
+              }
    deriving ( Typeable, Eq )
+
+data Bounds_Type = Roof | Match
+  deriving ( Typeable, Eq )
+
+data ClosedTreeAutomaton = ClosedTreeAutomaton
+  { cta_treeAutomaton :: TreeAutomaton
+  , cta_criterion :: Criterion
+  }
+  deriving ( Typeable, Eq )
+
+data Criterion = Compatibility
+  deriving ( Typeable, Eq )
+
+data TreeAutomaton = TreeAutomaton
+  { ta_finalStates :: [ State ]
+  , ta_transitions :: [ Transition ]
+  }
+   deriving ( Typeable, Eq )
+
+data State = State Int
+   deriving ( Typeable, Eq )
+
+data Transition = Transition
+  { transition_lhs :: Transition_Lhs
+  , transition_rhs :: [ State ]
+  }
+  deriving ( Typeable, Eq )
+
+data Transition_Lhs
+  = Transition_Symbol { tr_symbol :: Symbol
+                      , tr_height :: Int
+                      , tr_arguments :: [ State ]
+                      }                    
+  | Transition_Epsilon State
+  deriving ( Typeable, Eq )
 
 data Model = FiniteModel Int [Interpret]
    deriving ( Typeable, Eq )
