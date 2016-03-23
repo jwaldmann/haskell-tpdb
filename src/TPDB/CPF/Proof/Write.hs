@@ -120,10 +120,60 @@ instance XmlContent TrsTerminationProof where
           , toContents $ symbolize $ trs p
           , toContents $ trsTerminationProof p
           ]
+      Bounds {} -> rmkel "bounds" $ concat
+          [ toContents $ symbolize $ trs p
+          , toContents $ bounds_type p
+          , rmkel "bound" $ toContents $ bounds_bound p 
+          , rmkel "finalStates" $ concat
+             $ map toContents $ bounds_finalStates p
+          , toContents $ bounds_closedTreeAutomaton p
+          ]
 
 symbolize trs = 
     ( fmap (fmap SymName) trs )
     { T.signature = map SymName $ T.signature trs }
+
+instance XmlContent Bounds_Type where
+  toContents t = case t of
+    Roof -> rmkel "roof" []
+    Match -> rmkel "match" []
+
+instance XmlContent State where
+  toContents (State s) = rmkel "state"  $ toContents s
+
+instance XmlContent ClosedTreeAutomaton where
+  toContents c = concat
+    [ toContents $ cta_treeAutomaton c
+    , toContents $ cta_criterion c
+    ]
+
+instance XmlContent Criterion where
+  toContents c = case c of
+    Compatibility -> rmkel "compatibility" []
+
+instance XmlContent TreeAutomaton where
+  toContents a = rmkel "treeAutomaton" $ concat
+    [ rmkel "finalStates" $ concat
+       $ map toContents $ ta_finalStates a
+    , rmkel "transitions" $ concat
+       $ map toContents $ ta_transitions a
+    ]
+
+instance XmlContent Transition where
+  toContents t = rmkel "transition" $ concat
+    [ rmkel "lhs" $ toContents $ transition_lhs t
+    , rmkel "rhs" $ concat
+       $ map toContents $ transition_rhs t
+    ]
+
+instance XmlContent Transition_Lhs where
+  toContents s = case s of
+    Transition_Symbol {} -> concat
+      [ toContents $ tr_symbol s
+      , rmkel "height" $ toContents $ tr_height s
+      , concat $ map toContents $ tr_arguments s
+      ]
+    Transition_Epsilon s -> toContents s
 
 instance XmlContent Model where
   parseContents = error "parseContents not implemented"
