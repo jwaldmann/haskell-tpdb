@@ -32,6 +32,8 @@ Library
     parsec, time, containers, HaXml, filepath, hashable, bytestring
   if impl(ghc<7.10)
      build-depends: transformers
+  if impl(ghc<7.10)
+     Extensions: DeriveDataTypeable
   Hs-Source-Dirs: src
   Exposed-Modules:
     TPDB.Data,     TPDB.Data.Term, TPDB.Data.Rule, TPDB.Data.Attributes, TPDB.Data.Xml
