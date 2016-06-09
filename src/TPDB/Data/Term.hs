@@ -26,9 +26,22 @@ positions :: Term v c
           -> [ ( Position, Term v c ) ]
 positions t = ( [], t ) : case t of
     Node c args -> do ( k, arg ) <- zip [ 0 .. ] args
-		      ( p, s   ) <- positions arg
-		      return ( k : p , s )
+                      ( p, s   ) <- positions arg
+                      return ( k : p , s )
     _ -> []
+
+-- FIXME: inefficient implementation (walks the tree),
+-- should store the result in each node instead,
+-- but this would break pattern matching.
+size :: Term v c -> Int
+size t = length $ positions t
+
+depth :: Term v c -> Int
+depth t = case t of
+  Var {} -> 0
+  Node f args -> case args of
+    [] -> 0
+    _  -> 1 + maximum (map depth args)
 
 -- | all positions
 pos :: Term v c 
@@ -62,10 +75,10 @@ leafpos t = do
 {-# inline subterms #-}
 
 subterms :: Term v c 
-	 -> [ Term v c ]
+         -> [ Term v c ]
 subterms t = t : case t of
     Node c args -> do arg <- args
-		      subterms arg
+                      subterms arg
     _ -> []
 
 -- Note: following implementation relies on @subterms@
@@ -93,8 +106,8 @@ rpmap :: ( Position -> c -> d )
      -> Term v d
 rpmap f t = helper [] t where
     helper p ( Node c args ) = Node ( f p c ) $ do
-	     ( k, arg ) <- zip [0..] args
-	     return $ helper ( k : p ) arg
+             ( k, arg ) <- zip [0..] args
+             return $ helper ( k : p ) arg
     helper p ( Var v) = Var v
 
 
@@ -111,7 +124,7 @@ peek_symbol :: Term v c
 peek_symbol t p = 
     case peek t p of
          Node c args -> c
-	 _ -> error "Autolib.TES.Position.peek_symbol called for non-symbol"
+         _ -> error "Autolib.TES.Position.peek_symbol called for non-symbol"
 
 -- | warning: don't check arity
 poke_symbol ::  Term v c 
@@ -120,7 +133,7 @@ poke_symbol ::  Term v c
 poke_symbol t ( p, c ) =  
     case peek t p of
          Node _ args -> poke t ( p, Node c args )
-	 _ -> error "Autolib.TES.Position.poke_symbol called for non-symbol"
+         _ -> error "Autolib.TES.Position.poke_symbol called for non-symbol"
 
 poke :: Term v c 
      -> ( Position , Term v c )

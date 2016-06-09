@@ -8,6 +8,7 @@ module TPDB.XTC.Read where
 -- http://www.haskell.org/haskellwiki/HXT/Practical/
 
 import TPDB.Data
+import TPDB.Data.Attributes
 
 import Text.XML.HXT.Arrow.XmlArrow
 
@@ -56,6 +57,7 @@ getProblem = atTag "problem" >>> proc x -> do
                         , startterm = case stt of
                              [] -> Nothing
                              [x] -> x
+                        , attributes = compute_attributes $ rules rs
                         }
 
 getType = proc x -> do

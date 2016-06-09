@@ -4,12 +4,15 @@ module TPDB.Data
 
 ( module TPDB.Data
 , module TPDB.Data.Term
+, module TPDB.Data.Rule
 )
 
 where
 
 
 import TPDB.Data.Term
+import TPDB.Data.Rule
+import TPDB.Data.Attributes
 
 import Data.Typeable
 import Control.Monad ( guard )
@@ -36,38 +39,19 @@ mk a n = Identifier { _identifier_hash = hash (a,n)
 
 ---------------------------------------------------------------------
 
-data Relation = Strict |  Weak | Equal deriving ( Eq, Ord, Typeable, Show )
-
-data Rule a = Rule { lhs :: a, rhs :: a 
-                   , relation :: Relation
-                   , top :: Bool
-                   }
-    deriving ( Eq, Ord, Typeable )
-
-strict :: Rule a -> Bool
-strict u = case relation u of Strict -> True ; _ -> False
-
-weak :: Rule a -> Bool
-weak u = case relation u of Weak -> True ; _ -> False
-
-equal :: Rule a -> Bool
-equal u = case relation u of Equal -> True ; _ -> False
-
-instance Functor (RS s) where
-    fmap f rs = rs { rules = map (fmap f) $ rules rs }
-
-instance Functor Rule where 
-    fmap f u = u { lhs = f $ lhs u, rhs = f $ rhs u } 
 
 data RS s r = 
      RS { signature :: [ s ] -- ^ better keep order in signature (?)
-         , rules :: [ Rule r ]
+        , rules :: [ Rule r ]
         , separate :: Bool -- ^ if True, write comma between rules
-         }
+        }
    deriving ( Typeable )
 
 instance Eq r => Eq (RS s r) where
     (==) = (==) `on` rules
+
+instance Functor (RS s) where
+    fmap f rs = rs { rules = map (fmap f) $ rules rs }
 
 strict_rules sys = 
     do u <- rules sys ; guard $ strict u ; return ( lhs u, rhs u )
@@ -86,6 +70,7 @@ data Problem v s =
              , strategy :: Maybe Strategy
              -- , metainformation :: Metainformation
              , startterm :: Maybe Startterm  
+             , attributes :: Attributes
              }
 
 data Type = Termination | Complexity
@@ -101,7 +86,7 @@ data Startterm =
 
 ------------------------------------------------------
 
--- | legaca stuff (used in matchbox)
+-- | legacy stuff (used in matchbox)
 
 type TES = TRS Identifier Identifier
 type SES = SRS Identifier
