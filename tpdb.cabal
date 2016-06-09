@@ -1,5 +1,5 @@
 Name: tpdb
-Version: 1.3.0
+Version: 1.3.1
 Author: Alexander Bau, Johannes Waldmann
 Maintainer: Johannes Waldmann
 Category: Logic
@@ -29,12 +29,12 @@ Source-Repository head
 
 Library
   Build-Depends: base==4.*, hxt, wl-pprint-text, text, mtl,
-    parsec, time, containers, HaXml, filepath, hashable
+    parsec, time, containers, HaXml, filepath, hashable, bytestring
   Hs-Source-Dirs: src
   Exposed-Modules:
     TPDB.Data,     TPDB.Data.Term, TPDB.Data.Xml
     -- TPDB.Compress, 
-    TPDB.Convert, TPDB.Input
+    TPDB.Convert, TPDB.Input, TPDB.Input.File, TPDB.Input.Memory
     TPDB.Mirror
     TPDB.DP, TPDB.DP.Graph, TPDB.DP.Transform, TPDB.DP.Unify, TPDB.DP.Usable,  TPDB.DP.TCap,
     TPDB.Pretty, TPDB.Plain.Write,     TPDB.Plain.Read,
@@ -56,19 +56,19 @@ Test-Suite XML
   hs-source-dirs: test 
 
 Test-Suite TRS
-  Build-Depends: base==4.*, tpdb
+  Build-Depends: base==4.*, tpdb, bytestring
   Type: exitcode-stdio-1.0
   main-is: read_print_trs.hs
   hs-source-dirs: test 
 
 Test-Suite TRS_02
-  Build-Depends: base==4.*, tpdb
+  Build-Depends: base==4.*, tpdb, bytestring
   Type: exitcode-stdio-1.0
   main-is: read_print_trs_2.hs
   hs-source-dirs: test 
 
 Test-Suite SRS
-  Build-Depends: base==4.*, tpdb
+  Build-Depends: base==4.*, tpdb, bytestring
   Type: exitcode-stdio-1.0
   main-is: read_print_srs.hs
   hs-source-dirs: test 

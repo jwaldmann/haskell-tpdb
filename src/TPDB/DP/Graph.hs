@@ -1,3 +1,5 @@
+{-# language OverloadedStrings #-}
+
 module TPDB.DP.Graph where
 
 import TPDB.DP.TCap

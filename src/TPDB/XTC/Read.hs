@@ -19,6 +19,11 @@ import Control.Arrow
 import Control.Arrow.ArrowList
 import Control.Arrow.ArrowTree
 
+import qualified Data.ByteString.Lazy as BS
+import qualified Data.ByteString.Lazy.Char8 as C
+import Text.XML.HXT.IO.GetFILE
+import Text.XML.HXT.Arrow.ReadDocument
+
 atTag tag = deep (isElem >>> hasName tag)
 
 getTerm = getVar <+> getFunApp
@@ -101,9 +106,9 @@ getRule str = proc x -> do
     returnA -< Rule { lhs = l, relation = str, rhs = r, top = False }
 
 readProblems :: FilePath -> IO [ Problem Identifier Identifier ]
-readProblems file = do
-    cs <- readFile file
-    runX ( readString [] cs >>> getProblem )
+readProblems file =
+   runX ( readDocument [] file >>> getProblem )
 
-
-
+readProblemsBS :: BS.ByteString -> IO [ Problem Identifier Identifier ]
+readProblemsBS s =
+   runX ( readString [] (C.unpack s) >>> getProblem )

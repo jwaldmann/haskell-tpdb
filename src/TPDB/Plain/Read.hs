@@ -7,10 +7,19 @@ module TPDB.Plain.Read where
 
 import TPDB.Data
 
-import Text.Parsec
+import Text.Parsec (parse)
+
+import qualified Data.ByteString.Lazy as B
+import Data.ByteString.Lazy (ByteString)
+import qualified Data.ByteString.Lazy.Char8 as C
+
+import Text.Parsec.ByteString.Lazy as P
 import Text.Parsec.Token
 import Text.Parsec.Language
 import Text.Parsec.Char
+import Control.Applicative
+-- import Text.Parsec.Combinator
+import Data.Functor.Identity (Identity)
 
 import TPDB.Pretty (pretty)
 import TPDB.Plain.Write ()
@@ -18,33 +27,38 @@ import TPDB.Plain.Write ()
 import Control.Monad ( guard, void )
 import Data.List ( nub )
 
-trs :: String -> Either String ( TRS Identifier Identifier )
+trs :: ByteString -> Either String ( TRS Identifier Identifier )
 trs s = case Text.Parsec.parse reader "input" s of
     Left err -> Left $ show err
     Right t  -> Right t
 
-srs :: String -> Either String ( SRS Identifier )
+srs :: ByteString -> Either String ( SRS Identifier )
 srs s = case Text.Parsec.parse reader "input" s of
     Left err -> Left $ show err
     Right t  -> Right t
 
-type Parser = Parsec String () 
+-- type Parser = Parsec ByteString () 
 
-class Reader a where reader :: Parser a
+class Reader a where reader :: P.Parser a
 
 -- | warning: by definition, {}[] may appear in identifiers
+lexer :: GenTokenParser ByteString () Identity
 lexer = makeTokenParser
-    $ emptyDef
-       { identStart  = alphaNum <|> oneOf "_:!#$%&*+./<=>?@\\^|-~{}[]'"
+    $ LanguageDef
+       { nestedComments = True
+       , opStart        = oneOf ":!#$%&*+./<=>?@\\^|-~"
+       , opLetter       = oneOf ":!#$%&*+./<=>?@\\^|-~"
+       , reservedOpNames = []
+       , caseSensitive  = True
+       , identStart  = alphaNum <|> oneOf "_:!#$%&*+./<=>?@\\^|-~{}[]'"
        , identLetter = alphaNum <|> oneOf "_:!#$%&*+./<=>?@\\^|-~{}[]'"
        , commentLine = "" , commentStart = "" , commentEnd = ""
        , reservedNames = [ "VAR", "THEORY", "STRATEGY", "RULES", "->", "->=" ]
        }
 
-
 instance Reader Identifier where 
     reader = do
-        i <- identifier lexer 
+        i :: String <- identifier lexer 
 	return $ mk 0 i
 
 instance Reader s =>  Reader [s] where
@@ -56,7 +70,7 @@ instance Reader s =>  Reader [s] where
 instance ( Reader v ) => Reader ( Term v Identifier ) where
     reader = do
         f  <- reader 
-        xs <- option [] $ parens lexer $ commaSep lexer reader
+        xs <- ( parens lexer $ commaSep lexer reader ) <|> return []
         return $ Node ( f { arity = length xs } ) xs
 
 instance Reader u => Reader ( Rule u ) where
@@ -79,7 +93,7 @@ data Declaration u
        -- ^ this is super-ugly: a parenthesized, possibly nested, 
        -- possibly comma-separated, list of identifiers or strings
 
-declaration :: Reader u => Bool -> Parser ( Declaration u )
+declaration :: Reader u => Bool -> P.Parser ( Declaration u )
 declaration sep = parens lexer $ 
            do reserved lexer "VAR" ; xs <- many reader 
               return $ Var_Declaration xs
