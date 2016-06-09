@@ -30,6 +30,8 @@ Source-Repository head
 Library
   Build-Depends: base==4.*, hxt, wl-pprint-text, text, mtl,
     parsec, time, containers, HaXml, filepath, hashable, bytestring
+  if impl(ghc<7.10)
+     build-depends: transformers
   Hs-Source-Dirs: src
   Exposed-Modules:
     TPDB.Data,     TPDB.Data.Term, TPDB.Data.Rule, TPDB.Data.Attributes, TPDB.Data.Xml
