@@ -19,7 +19,7 @@ data Attributes = Attributes
   , right_linear :: Bool
   , linear :: Bool
   , max_var_count :: Int
-  , max_var_depth :: Int
+  , max_var_depth :: Int -- ^ value is meaningless if the system has no variables
   }
   deriving Show
 
@@ -55,14 +55,17 @@ compute_attributes us =
        Node f args <- subterms t
        return $ length args
      , total_term_size = sum term_sizes
-     , max_term_size = maximum term_sizes
-     , max_term_depth = maximum term_depths
+     , max_term_size = safe_maximum (-1) term_sizes
+     , max_term_depth = safe_maximum (-1) term_depths
      , left_linear = and $ do vc <- vcs ; (k,(l,r)) <- M.toList vc ; return $ l <= 1
      , right_linear = and $ do vc <- vcs ; (k,(l,r)) <- M.toList vc ; return $ r <= 1
      , linear = and $ do vc <- vcs ; (k,(l,r)) <- M.toList vc ; return $ l == 1 && r == 1 -- FIXME: or (l == r) ?
-     , max_var_count = maximum $ map M.size vcs
-     , max_var_depth = maximum $ map length $ terms >>= varpos
+     , max_var_count = safe_maximum (-1) $ map M.size vcs
+     , max_var_depth = safe_maximum (-1) $ map length $ terms >>= varpos
      }
+
+safe_maximum x [] = x
+safe_maximum x ys = maximum ys
 
 varcount :: Ord v => Rule (Term v c) -> M.Map v (Int,Int)
 varcount u = M.mergeWithKey ( \ k l r -> Just (l,r)) ( M.map ( \k -> (k,0))) (M.map ( \k -> (0,k)))
@@ -72,4 +75,3 @@ varcount_term :: Ord v => Term v c -> M.Map v Int
 varcount_term t = M.fromListWith (+) $ do
   (p, Var v) <- positions t
   return (v, 1)
-  
