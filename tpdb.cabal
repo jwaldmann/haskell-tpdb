@@ -88,3 +88,10 @@ Test-Suite Attributes
   Type: exitcode-stdio-1.0
   main-is: attributes.hs
   hs-source-dirs: test 
+
+Test-Suite XML-Theory
+  Build-Depends: base==4.*, tpdb
+  Type: exitcode-stdio-1.0
+  main-is: read_print_xml_theory.hs
+  hs-source-dirs: test 
+

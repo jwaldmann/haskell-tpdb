@@ -1,3 +1,8 @@
+-- | Data types for rewrite systems and termination problems.
+-- A "bare" term rewrite system (list of rules and relative rules) is @TRS v s@.
+-- A termination problem is @Problem v s@. This contains a rewrite system plus extra
+-- information (strategy, theory, etc.)
+
 {-# language DeriveDataTypeable #-}
 
 module TPDB.Data 
@@ -20,10 +25,10 @@ import Control.Monad ( guard )
 import Data.Hashable
 import Data.Function (on)
 
-data Identifier = 
+data Identifier =
      Identifier { _identifier_hash :: ! Int
-                , name :: ! String 
-                , arity :: Int 
+                , name :: ! String
+                , arity :: Int
                 }
     deriving ( Eq, Ord, Typeable )
 
@@ -40,7 +45,7 @@ mk a n = Identifier { _identifier_hash = hash (a,n)
 ---------------------------------------------------------------------
 
 
-data RS s r = 
+data RS s r =
      RS { signature :: [ s ] -- ^ better keep order in signature (?)
         , rules :: [ Rule r ]
         , separate :: Bool -- ^ if True, write comma between rules
@@ -53,36 +58,44 @@ instance Eq r => Eq (RS s r) where
 instance Functor (RS s) where
     fmap f rs = rs { rules = map (fmap f) $ rules rs }
 
-strict_rules sys = 
+strict_rules sys =
     do u <- rules sys ; guard $ strict u ; return ( lhs u, rhs u )
-weak_rules sys = 
+weak_rules sys =
     do u <- rules sys ; guard $ weak u ; return ( lhs u, rhs u )
-equal_rules sys = 
+equal_rules sys =
     do u <- rules sys ; guard $ equal u ; return ( lhs u, rhs u )
 
 type TRS v s = RS s ( Term v s )
 
 type SRS s = RS s [ s ]
 
-data Problem v s = 
-     Problem { type_ :: Type 
+data Problem v s =
+     Problem { type_ :: Type
              , trs :: TRS v s
              , strategy :: Maybe Strategy
+             , theory :: [ Theorydecl v s ]
              -- , metainformation :: Metainformation
-             , startterm :: Maybe Startterm  
+             , startterm :: Maybe Startterm
              , attributes :: Attributes
              }
 
 data Type = Termination | Complexity
-     deriving Show 
+     deriving Show
 
 data Strategy = Full | Innermost | Outermost
      deriving Show
 
-data Startterm = 
+-- | this is modelled after
+-- https://www.lri.fr/~marche/tpdb/format.html
+data Theorydecl v s
+  = Property Identifier [ s ] -- ^ example: "(AC plus)"
+  | Equations [ Rule (Term v s) ]
+    deriving Typeable
+
+data Startterm =
        Startterm_Constructor_based
        | Startterm_Full
-     deriving Show     
+     deriving Show
 
 ------------------------------------------------------
 
@@ -95,10 +108,10 @@ mknullary s = mk 0 s
 mkunary   s = mk 1 s
 
 from_strict_rules :: Bool -> [(t,t)] -> RS i t
-from_strict_rules sep rs = 
+from_strict_rules sep rs =
     RS { rules = map ( \ (l,r) ->
              Rule { relation = Strict, top = False, lhs = l, rhs = r } ) rs
-       , separate = sep 
+       , separate = sep
        }
 
 with_rules sys rs = sys { rules = rs }

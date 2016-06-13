@@ -1,0 +1,22 @@
+(VAR x y z)
+(THEORY (AC or and))
+(THEORY (C eq neq))
+(RULES
+  eq(x, x) -> true
+  not(eq(x, y)) -> neq(x, y)
+  not(neq(x, y)) -> eq(x, y)
+  not(true) -> false
+  not(false) -> true
+  not(not(x)) -> x
+  not(and(x, y)) -> or(not(x), not(y))
+  not(or(x, y)) -> and(not(x), not(y))
+  neq(x, x) -> false
+  or(and(x, y), z) -> and(or(x, z), or(y, z))
+  or(x, x) -> x
+  or(x, true) -> true
+  or(x, false) -> x
+  and(x, x) -> x
+  and(x, true) -> x
+  and(x, false) -> false
+  and(x, or(x, y)) -> x
+)

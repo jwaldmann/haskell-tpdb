@@ -39,7 +39,7 @@ getFunApp = proc x -> do
     gs <- listA ( getTerm <<< gotoChild "arg" ) -< sub
     let c = mk (length gs) nm
     returnA -< Node c gs
-          
+
 gotoChild tag = proc x -> do
     returnA <<< getChildren <<< getChild tag -< x
 
@@ -53,7 +53,7 @@ getProblem = atTag "problem" >>> proc x -> do
     stt <- listA ( getStartterm <<< getChild "startterm" ) -< x
     returnA -< Problem { trs = rs
                         , TPDB.Data.strategy = st
-                        , type_ = ty 
+                        , type_ = ty
                         , startterm = case stt of
                              [] -> Nothing
                              [x] -> x
