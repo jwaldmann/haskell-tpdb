@@ -54,6 +54,7 @@ data Funcsym = Funcsym
   deriving (Show, Typeable)
 
 data Signature = Signature [ Funcsym ]
+               | HigherOrderSignature
   deriving (Show, Typeable)
 
 data Replacementmap = Replacementmap [Int]

@@ -51,7 +51,7 @@ getProblem = atTag "problem" >>> proc x -> do
     rs <- getTRS <<< getChild "trs" -< x
     st <- getStrategy <<< getChild "strategy" -< x
     stt <- listA ( getStartterm <<< getChild "startterm" ) -< x
-    sig <- getSignature <<< getChild "signature" <<< getChild "trs" -< x
+    sig <- getSignature <<<  getChild "trs" -< x
     returnA -< Problem { trs = rs
                         , TPDB.Data.strategy = st
                         , TPDB.Data.full_signature = sig
@@ -81,7 +81,7 @@ getStartterm = ( proc x -> do
    ) <+> ( proc x -> do returnA -< Nothing )
 
 getTRS = proc x -> do
-    Signature fs <- getSignature <<< getChild "signature" -< x
+    Signature fs <- getSignature -< x
     str <- getRules Strict <<< getChild "rules" -< x
     nostr <- listA ( getRules Weak <<< getChild "relrules" <<< getChild "rules" ) -< x
     -- FIXME: check that symbols are use with correct arity
@@ -90,9 +90,16 @@ getTRS = proc x -> do
                   , separate = False -- for TRS, don't need comma between rules
                   }
 
-getSignature = proc x -> do
+getSignature =
+      ( getFOSignature <<< getChild "signature" )
+  <+> ( getHOSignature <<< getChild "higherOrderSignature" )
+
+getFOSignature = proc x -> do
     fs <- listA ( getFuncsym <<< getChild "funcsym" ) -< x
     returnA -< Signature fs
+
+getHOSignature = proc x -> do
+    returnA -< HigherOrderSignature
 
 getFuncsym = proc x -> do
     nm <- getText <<< gotoChild "name" -< x
