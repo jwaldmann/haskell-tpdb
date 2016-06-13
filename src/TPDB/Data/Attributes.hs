@@ -50,7 +50,7 @@ compute_attributes us =
       vcs = map varcount us
   in Attributes
      { size_of_signature = S.size sig
-     , max_arity = maximum $ do
+     , max_arity = safe_maximum (-1) $ do
        u <- us ; t <- [lhs u, rhs u]
        Node f args <- subterms t
        return $ length args

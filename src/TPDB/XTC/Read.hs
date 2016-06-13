@@ -81,11 +81,13 @@ getStartterm = ( proc x -> do
    ) <+> ( proc x -> do returnA -< Nothing )
 
 getTRS = proc x -> do
-    Signature fs <- getSignature -< x
+    sig <- getSignature -< x
     str <- getRules Strict <<< getChild "rules" -< x
     nostr <- listA ( getRules Weak <<< getChild "relrules" <<< getChild "rules" ) -< x
     -- FIXME: check that symbols are use with correct arity
-    returnA -< RS { signature = do f <- fs ; return $ mk (fs_arity f) (fs_name f)
+    returnA -< RS { signature = case sig of
+                       Signature fs -> do f <- fs ; return $ mk (fs_arity f) (fs_name f)
+                       HigherOrderSignature {} -> []
                   , rules = str ++ concat nostr
                   , separate = False -- for TRS, don't need comma between rules
                   }
