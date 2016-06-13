@@ -51,8 +51,10 @@ getProblem = atTag "problem" >>> proc x -> do
     rs <- getTRS <<< getChild "trs" -< x
     st <- getStrategy <<< getChild "strategy" -< x
     stt <- listA ( getStartterm <<< getChild "startterm" ) -< x
+    sig <- getSignature <<< getChild "signature" <<< getChild "trs" -< x
     returnA -< Problem { trs = rs
                         , TPDB.Data.strategy = st
+                        , TPDB.Data.full_signature = sig
                         , type_ = ty
                         , startterm = case stt of
                              [] -> Nothing
@@ -79,25 +81,31 @@ getStartterm = ( proc x -> do
    ) <+> ( proc x -> do returnA -< Nothing )
 
 getTRS = proc x -> do
-    sig <- getSignature <<< getChild "signature" -< x
+    Signature fs <- getSignature <<< getChild "signature" -< x
     str <- getRules Strict <<< getChild "rules" -< x
     nostr <- listA ( getRules Weak <<< getChild "relrules" <<< getChild "rules" ) -< x
     -- FIXME: check that symbols are use with correct arity
-    th <- listA ( atTag "theory" ) -< x
-    returnA -< case th of
-        [] -> RS { signature = sig
+    returnA -< RS { signature = do f <- fs ; return $ mk (fs_arity f) (fs_name f)
                   , rules = str ++ concat nostr
                   , separate = False -- for TRS, don't need comma between rules
                   }
-        _  -> error $ unwords [ "cannot handle theories" ]
 
 getSignature = proc x -> do
-    returnA <<< listA ( getFuncsym <<< getChild "funcsym" ) -< x
+    fs <- listA ( getFuncsym <<< getChild "funcsym" ) -< x
+    returnA -< Signature fs
 
 getFuncsym = proc x -> do
     nm <- getText <<< gotoChild "name" -< x
-    ar <- getText <<< gotoChild "arity" -< x
-    returnA -< mk (read ar) nm
+    ar <- getRead <<< gotoChild "arity" -< x
+    th <- listA ( getRead <<< gotoChild "theory" ) -< x
+    rm <- listA ( listA (getRead <<< gotoChild "entry") <<< gotoChild "replacementmap" ) -< x
+    returnA -< Funcsym  { fs_name = nm
+                        , fs_arity = ar
+                        , fs_theory = case th of [] -> Nothing ; [t] -> Just t
+                        , fs_replacementmap = case rm of [] -> Nothing ; [r] -> Just (Replacementmap r)
+                        }
+
+getRead = proc x -> do s <- getText -< x ; returnA -< read s
 
 getRules str = proc x -> do
     returnA <<< listA ( getRule str  <<< getChild "rule" ) -< x

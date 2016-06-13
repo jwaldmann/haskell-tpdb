@@ -44,6 +44,23 @@ mk a n = Identifier { _identifier_hash = hash (a,n)
 
 ---------------------------------------------------------------------
 
+-- | according to XTC spec
+data Funcsym = Funcsym
+  { fs_name :: String -- ^ should be Text
+  , fs_arity :: Int
+  , fs_theory :: Maybe Theory
+  , fs_replacementmap :: Maybe Replacementmap
+  }
+  deriving (Show, Typeable)
+
+data Signature = Signature [ Funcsym ]
+  deriving (Show, Typeable)
+
+data Replacementmap = Replacementmap [Int]
+  deriving (Show, Typeable)
+
+---------------------------------------------------------------------
+
 
 data RS s r =
      RS { signature :: [ s ] -- ^ better keep order in signature (?)
@@ -73,7 +90,7 @@ data Problem v s =
      Problem { type_ :: Type
              , trs :: TRS v s
              , strategy :: Maybe Strategy
-             , theory :: [ Theorydecl v s ]
+             , full_signature :: Signature
              -- , metainformation :: Metainformation
              , startterm :: Maybe Startterm
              , attributes :: Attributes
@@ -88,9 +105,12 @@ data Strategy = Full | Innermost | Outermost
 -- | this is modelled after
 -- https://www.lri.fr/~marche/tpdb/format.html
 data Theorydecl v s
-  = Property Identifier [ s ] -- ^ example: "(AC plus)"
+  = Property Theory [ s ] -- ^ example: "(AC plus)"
   | Equations [ Rule (Term v s) ]
     deriving Typeable
+
+data Theory = A | C | AC
+  deriving (Eq, Ord, Read, Show, Typeable)
 
 data Startterm =
        Startterm_Constructor_based

@@ -22,7 +22,7 @@ getFunApp = proc x -> do
     gs <- listA ( getTerm <<< gotoChild "arg" ) -< sub
     let c = Identifier { arity = length gs , name = nm }
     returnA -< Node c gs
-          
+
 gotoChild tag = proc x -> do
     returnA <<< getChildren <<< getChild tag -< x
 

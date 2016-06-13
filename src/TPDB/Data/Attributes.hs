@@ -4,7 +4,7 @@ module TPDB.Data.Attributes where
 
 import TPDB.Data.Term
 import TPDB.Data.Rule
-import TPDB.Pretty 
+import TPDB.Pretty
 
 import qualified Data.Set as S
 import qualified Data.Map.Strict as M
