@@ -21,6 +21,7 @@ data Attributes = Attributes
   , max_var_count :: Int
   , max_var_depth :: Int
   }
+  deriving Show
 
 instance Pretty Attributes where
   pretty a = "Attributes" <+> braces ( fsep $ punctuate comma
@@ -35,7 +36,7 @@ instance Pretty Attributes where
        , "max_var_count =" <+> pretty (max_var_count a)
        , "max_var_depth =" <+> pretty (max_var_depth a)
        ] )
-  
+
 
 compute_attributes
   :: (Ord v, Ord c)
