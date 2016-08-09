@@ -1,7 +1,7 @@
-module TPDB.Pretty 
+module TPDB.Pretty
 
 ( Doc, SimpleDoc
-, render, renderCompact, displayIO
+, render, renderCompact, renderWide, renderPretty, displayIO
 , Pretty (..)
 , fsep, sep, hsep, vsep, vcat, hcat
 , parens, brackets, angles, braces, enclose
@@ -12,22 +12,22 @@ module TPDB.Pretty
 
 where
 
-import Text.PrettyPrint.Leijen.Text 
+import Text.PrettyPrint.Leijen.Text
     hiding ( text, (<+>), vcat, hcat, vsep, hsep, sep, parens )
-import qualified Text.PrettyPrint.Leijen.Text 
+import qualified Text.PrettyPrint.Leijen.Text
 import Data.String ( fromString )
 
 -- class Pretty a where pretty :: a -> Doc
 
 ($$) = (<$$>)
-x <+> y = x Text.PrettyPrint.Leijen.Text.<+> align (group y)
-vcat = align . Text.PrettyPrint.Leijen.Text.vcat . map group
-hcat = align . Text.PrettyPrint.Leijen.Text.hcat . map group
-vsep = align . Text.PrettyPrint.Leijen.Text.vsep . map group
-hsep = align . Text.PrettyPrint.Leijen.Text.hsep . map group
-fsep = align . Text.PrettyPrint.Leijen.Text.fillSep . map group
-sep = align . Text.PrettyPrint.Leijen.Text.sep . map group
-parens = Text.PrettyPrint.Leijen.Text.parens . group
+x <+> y = x Text.PrettyPrint.Leijen.Text.<+> align y
+vcat = align . Text.PrettyPrint.Leijen.Text.vcat
+hcat = align . Text.PrettyPrint.Leijen.Text.hcat
+vsep = align . Text.PrettyPrint.Leijen.Text.vsep
+hsep = align . Text.PrettyPrint.Leijen.Text.hsep
+fsep = align . Text.PrettyPrint.Leijen.Text.fillSep
+sep = align . Text.PrettyPrint.Leijen.Text.sep
+parens = Text.PrettyPrint.Leijen.Text.parens
 render :: Doc -> String
 render = show
 
