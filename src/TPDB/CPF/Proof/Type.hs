@@ -1,6 +1,7 @@
 {-# language StandaloneDeriving #-}
 {-# language ExistentialQuantification #-}
 {-# language DeriveDataTypeable #-}
+{-# language OverloadedStrings #-}
 
 -- | internal representation of CPF termination proofs,
 -- see <http://cl-informatik.uibk.ac.at/software/cpf/>
@@ -15,7 +16,9 @@ module TPDB.CPF.Proof.Type
 where
 
 import TPDB.Data
+import TPDB.Plain.Write ()
 import Data.Typeable
+import TPDB.Pretty
 
 import Text.XML.HaXml.XmlContent.Haskell hiding ( text )
 
@@ -52,6 +55,23 @@ data CertificationProblemInput
                       }
    deriving ( Typeable, Eq )      
 
+instance Pretty CertificationProblemInput where
+  pretty cpi = case cpi of
+    TrsInput { } ->
+      "TrsInput" <+> vcat [ "trs" <+> pretty (trsinput_trs cpi) ]
+    ComplexityInput { } ->
+      "ComplexityInput" <+> vcat
+         [ "trs" <+> pretty (trsinput_trs cpi)
+         , "measure" <+> text (show $ complexityMeasure cpi )
+         , "class"   <+> text (show $ complexityClass   cpi )
+         ]
+    ACRewriteSystem { } ->
+      "ACRewritesystem" <+> vcat
+         [ "trs" <+> pretty (trsinput_trs cpi)
+         , "asymbols" <+> text (show $ asymbols cpi )
+         , "csymbols" <+> text (show $ csymbols cpi )
+         ]
+
 data Proof = TrsTerminationProof TrsTerminationProof
            | TrsNonterminationProof TrsNonterminationProof
            | RelativeTerminationProof TrsTerminationProof
@@ -73,14 +93,14 @@ data ComplexityProof = ComplexityProofFIXME ()
 data ComplexityMeasure 
      = DerivationalComplexity
      | RuntimeComplexity
-    deriving ( Typeable, Eq )
+    deriving ( Typeable, Eq, Show )
 
 data ComplexityClass = 
      ComplexityClassPolynomial { degree :: Int } 
      -- ^ it seems the degree must always be given in CPF,
      -- although the category spec also allows "POLY"
      -- http://cl-informatik.uibk.ac.at/users/georg/cbr/competition/rules.php
-    deriving ( Typeable, Eq )
+    deriving ( Typeable, Eq, Show )
 
 data TrsNonterminationProof = TrsNonterminationProofFIXME ()
     deriving ( Typeable, Eq )
