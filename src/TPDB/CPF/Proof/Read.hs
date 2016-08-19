@@ -39,11 +39,27 @@ getCP = getChild "certificationProblem" >>> proc x -> do
     returnA -< CertificationProblem 
         { input = inp, proof = pro, cpfVersion = ver, origin = ignoredOrigin }
 
-getInput = getTerminationInput <+> getComplexityInput
+getInput = getTerminationInput <+> getComplexityInput <+> getACTerminationInput
 
 getTerminationInput = hasName "input" >>> proc x -> do
     trsI <- getTrsInput <<< getChild "trsInput" -< x    
     returnA -< TrsInput $ RS { rules = trsI, separate = False }
+
+getACTerminationInput = hasName "input" >>> proc x -> do
+    acrs <- getChild "acRewriteSystem" -< x
+    trsI <- getTrsInput -< acrs
+    as <- listA getSymbol <<< getChild "Asymbols" -< acrs
+    cs <- listA getSymbol <<< getChild "Csymbols" -< acrs
+    returnA -< ACRewriteSystem
+      { trsinput_trs = RS { rules = trsI, separate = False }
+      , asymbols = as
+      , csymbols = cs
+      }
+
+getSymbol = proc x -> do
+  s <- getText <<< getChild "name" -< x
+  returnA -< mk 0 s
+
 
 getComplexityInput = hasName "input" >>> proc x -> do
     y <- getChild "complexityInput" -< x
@@ -80,6 +96,7 @@ getProof = getDummy "trsTerminationProof" ( TrsTerminationProof undefined )
        <+> getDummy "relativeTerminationProof" ( RelativeTerminationProof undefined )
        <+> getDummy "relativeNonterminationProof" ( RelativeNonterminationProof undefined )
        <+> getDummy "complexityProof" ( ComplexityProof undefined )
+       <+> getDummy "acTerminationProof" ( ACTerminationProof undefined )
 
 getDummy t c = proc x -> do 
     getChild t -< x

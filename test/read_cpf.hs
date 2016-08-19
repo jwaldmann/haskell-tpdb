@@ -5,8 +5,6 @@ import TPDB.Plain.Write
 
 main = do
     s <- readFile "test/236262878.cpf"
-    ps <- CPF.readCP s
-    case ps of
-       [p] -> print $ pretty $ CPF.trsinput_trs $ CPF.input p
-       _ -> print $ length ps
+    [p] <- CPF.readCP_with_tracelevel 0 s
+    print $ pretty $ CPF.trsinput_trs $ CPF.input p
 

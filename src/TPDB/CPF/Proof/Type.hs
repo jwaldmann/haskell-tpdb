@@ -46,6 +46,10 @@ data CertificationProblemInput
                       , complexityMeasure :: ComplexityMeasure
                       , complexityClass :: ComplexityClass      
                       }
+    | ACRewriteSystem { trsinput_trs :: TRS Identifier Identifier
+                      , asymbols :: [ Identifier ]
+                      , csymbols :: [ Identifier ]
+                      }
    deriving ( Typeable, Eq )      
 
 data Proof = TrsTerminationProof TrsTerminationProof
@@ -53,6 +57,7 @@ data Proof = TrsTerminationProof TrsTerminationProof
            | RelativeTerminationProof TrsTerminationProof
            | RelativeNonterminationProof TrsNonterminationProof
            | ComplexityProof ComplexityProof
+           | ACTerminationProof ACTerminationProof
    deriving ( Typeable, Eq )
 
 data DPS = forall s . ( XmlContent s , Typeable s, Eq s ) 
@@ -254,3 +259,7 @@ data ArgumentFilterEntry =
                          , afeFilter :: Either Int [Int]
                          }
      deriving ( Typeable, Eq )
+
+data ACTerminationProof = ACTerminationProofFIXME ()
+    deriving ( Typeable, Eq )
+
