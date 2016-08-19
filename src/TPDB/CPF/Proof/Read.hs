@@ -57,7 +57,7 @@ getACTerminationInput = hasName "input" >>> proc x -> do
       }
 
 getSymbol = proc x -> do
-  s <- getText <<< getChild "name" -< x
+  s <- getText <<< gotoChild "name" -< x
   returnA -< mk 0 s
 
 
