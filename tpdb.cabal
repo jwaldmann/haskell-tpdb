@@ -106,3 +106,9 @@ Test-Suite CPF-AC
   main-is: read_cpf.hs
   hs-source-dirs: test 
 
+Test-Suite Parse-AC
+  Build-Depends: base==4.*, tpdb
+  Type: exitcode-stdio-1.0
+  main-is: parse_ac.hs
+  hs-source-dirs: test 
+
