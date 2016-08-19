@@ -100,3 +100,9 @@ Test-Suite XML-Theory
   main-is: read_print_xml_theory.hs
   hs-source-dirs: test 
 
+Test-Suite CPF-AC
+  Build-Depends: base==4.*, tpdb
+  Type: exitcode-stdio-1.0
+  main-is: read_cpf.hs
+  hs-source-dirs: test 
+
