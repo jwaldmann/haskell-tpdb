@@ -118,3 +118,9 @@ Test-Suite read-cpf
   main-is: read_cpf.hs
   hs-source-dirs: test 
 
+Test-Suite read-complex
+  Build-Depends: base==4.*, tpdb
+  Type: exitcode-stdio-1.0
+  main-is: read_complex.hs
+  hs-source-dirs: test 
+

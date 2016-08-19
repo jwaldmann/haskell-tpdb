@@ -58,7 +58,7 @@ getProblem = atTag "problem" >>> proc x -> do
                         , type_ = ty
                         , startterm = case stt of
                              [] -> Nothing
-                             [x] -> x
+                             [x] -> Just x
                         , attributes = compute_attributes $ rules rs
                         }
 
@@ -70,15 +70,17 @@ getType = proc x -> do
 getStrategy = proc x -> do
     cs <- getText <<< getChildren -< x
     returnA -< case cs of
-        "FULL" -> Just Full
+        "FULL"      -> Just Full
+        "INNERMOST" -> Just Innermost
+        "OUTERMOST" -> Just Outermost
 
 getStartterm = ( proc x -> do
         getChild "constructor-based" -< x
-        returnA -< Just Startterm_Constructor_based
+        returnA -< Startterm_Constructor_based
    ) <+>  ( proc x -> do
         getChild "full" -< x
-        returnA -< Just Startterm_Full
-   ) <+> ( proc x -> do returnA -< Nothing )
+        returnA -< Startterm_Full
+   ) 
 
 getTRS = proc x -> do
     sig <- getSignature -< x
