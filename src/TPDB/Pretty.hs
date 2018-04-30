@@ -7,7 +7,7 @@ module TPDB.Pretty
 , displayIO
 , fsep, sep, hsep, vsep, vcat, hcat
 , parens, brackets, angles, braces, enclose
-, punctuate, comma, nest
+, punctuate, comma, nest, list, tupled
   , module Data.Monoid, empty
 , text
 , (<+>), ($$)
@@ -18,6 +18,7 @@ where
 import Data.Text.Prettyprint.Doc
   ( Doc, Pretty(..), comma
   , punctuate,align, parens, braces, angles, brackets, nest, enclose
+  , list, tupled
   )
 import qualified Data.Text.Prettyprint.Doc as D
 import qualified Data.Text.Prettyprint.Doc.Render.Text as T
