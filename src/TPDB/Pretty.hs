@@ -39,10 +39,12 @@ hsep = align . D.hsep
 fsep = align . D.fillSep
 sep = align . D.sep
 
-render = T.renderLazy
-renderPretty = D.layoutPretty
+render = T.renderLazy . renderPretty
+
+renderPretty = D.layoutPretty D.defaultLayoutOptions
 renderCompact = D.layoutCompact
-renderWide = D.layoutCompact
+renderWide = D.layoutSmart $ D.LayoutOptions { D.layoutPageWidth = D.Unbounded }
+
 displayIO = T.renderIO
 
 
