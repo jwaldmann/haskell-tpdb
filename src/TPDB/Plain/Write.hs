@@ -32,9 +32,6 @@ instance PrettyTerm a => Pretty ( Rule a ) where
                      ) <+> prettyTerm ( rhs u )
                    ]
 
-class PrettyTerm a where 
-    prettyTerm :: a -> Doc
-
 instance Pretty s => PrettyTerm [s] where    
     prettyTerm xs = hsep $ map pretty xs
 

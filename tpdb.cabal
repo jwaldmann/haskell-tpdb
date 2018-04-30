@@ -1,5 +1,5 @@
 Name: tpdb
-Version: 1.5.0
+Version: 1.5.2
 Author: Alexander Bau, Johannes Waldmann
 Maintainer: Johannes Waldmann
 Category: Logic
@@ -28,9 +28,9 @@ Source-Repository head
 --   test/3.15.xml, test/33.trs ,  test/z001.srs
 
 Library
-  Build-Depends: base==4.*, hxt, wl-pprint-text >= 1.2, text, mtl,
-    xml-hamlet, xml-conduit, data-default,
-    parsec, time, containers, HaXml, filepath, hashable, bytestring
+  Build-Depends: base==4.*, hxt, prettyprinter, text, mtl,
+    HaXml, xml-hamlet, xml-conduit, data-default,
+    parsec, time, containers, filepath, hashable, bytestring
   if impl(ghc<7.10)
      build-depends: transformers
   if impl(ghc<7.10)

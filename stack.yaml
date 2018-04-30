@@ -1,18 +1,10 @@
-resolver: nightly-2016-07-05
+resolver: lts-11.6
 
 packages:
 - .
-- location:
-    git: https://github.com/jwaldmann/wl-pprint-text
-    commit: b6bd8ddc33925b4ead089bc6573db0e4b6e2ab4d
 
-# Dependency packages to be pulled from upstream that are not in the resolver
-# (e.g., acme-missiles-0.3)
 extra-deps:
-- HaXml-1.25.3
 
-# Override default flag values for local packages and extra-deps
 flags: {}
 
-# Extra package databases containing global packages
 extra-package-dbs: []

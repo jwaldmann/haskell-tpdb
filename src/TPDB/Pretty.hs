@@ -1,62 +1,65 @@
+{-# language NoMonomorphismRestriction #-}
+
 module TPDB.Pretty
 
-( Doc, SimpleDoc
-, render, renderCompact, renderWide, renderPretty, displayIO
-, Pretty (..)
+( Doc
+, render, renderWide, renderCompact, renderPretty
+, displayIO
+, Pretty (..), PrettyTerm (..)
 , fsep, sep, hsep, vsep, vcat, hcat
 , parens, brackets, angles, braces, enclose
 , punctuate, comma, nest
-, empty, text
-, (<>), (<+>), ($$)
+  , module Data.Monoid, empty
+, text
+, (<+>), ($$)
 )
 
 where
 
-import Text.PrettyPrint.Leijen.Text
-    hiding ( text, (<+>), vcat, hcat, vsep, hsep, sep, parens )
-import qualified Text.PrettyPrint.Leijen.Text
+import Data.Text.Prettyprint.Doc
+  (Pretty(..), comma
+  , punctuate,align, parens, braces, angles, brackets, nest, enclose
+  )
+import qualified Data.Text.Prettyprint.Doc as D
+import qualified Data.Text.Prettyprint.Doc.Render.Text as T
+
 import Data.String ( fromString )
+import Data.Monoid (mempty, (<>))
+
+type Doc = D.Doc ()
+
+empty :: D.Doc ann 
+empty = mempty
 
 -- class Pretty a where pretty :: a -> Doc
 
-($$) = (<$$>)
-x <+> y = x Text.PrettyPrint.Leijen.Text.<+> align y
-vcat = align . Text.PrettyPrint.Leijen.Text.vcat
-hcat = align . Text.PrettyPrint.Leijen.Text.hcat
-vsep = align . Text.PrettyPrint.Leijen.Text.vsep
-hsep = align . Text.PrettyPrint.Leijen.Text.hsep
-fsep = align . Text.PrettyPrint.Leijen.Text.fillSep
-sep = align . Text.PrettyPrint.Leijen.Text.sep
-parens = Text.PrettyPrint.Leijen.Text.parens
-render :: Doc -> String
-render = show
+class PrettyTerm a where 
+    prettyTerm :: a -> D.Doc ann
 
-text :: String -> Doc
+x $$ y = D.vcat [x,y]
+x <+> y = x D.<+> align y
+vcat = align . D.vcat
+hcat = align . D.hcat
+vsep = align . D.vsep
+hsep = align . D.hsep
+fsep = align . D.fillSep
+sep = align . D.sep
+
+render = T.renderLazy
+renderPretty = D.layoutPretty
+renderCompact = D.layoutCompact
+renderWide = D.layoutCompact
+displayIO = T.renderIO
+
+
+text :: String -> D.Doc ann
 text = fromString
-
-{-
-
-instance Pretty Int where pretty = text . show
-
-instance ( Pretty a, Pretty b ) => Pretty (a,b) where
-    pretty (x,y) = parens $ fsep $ punctuate comma [ pretty x, pretty y ]
-
-instance ( Pretty a, Pretty b, Pretty c ) => Pretty (a,b,c) where
-    pretty (x,y,z) = parens $ fsep $ punctuate comma [ pretty x, pretty y, pretty z ]
--}
 
 instance ( Pretty a, Pretty b, Pretty c, Pretty d ) => Pretty (a,b,c,d) where
     pretty (x,y,z,u) = parens $ fsep $ punctuate comma [ pretty x, pretty y, pretty z, pretty u ]
 
-{-
-instance Pretty a => Pretty [a]  where
-    pretty xs = brackets $ fsep $ punctuate comma $ map pretty xs
-
-instance Pretty a => Pretty (Maybe a) where
-    pretty m = case m of
-        Nothing -> text "Nothing"
-        Just x -> text "Just" <+> pretty x -- FIXME: parens missing
--}
+-- | WARNING: there is  instance Pretty a => Pretty (Maybe a) in the back-end
+-- but its spec is "Ignore Nothings, print Just contents"
 
 instance ( Pretty a, Pretty b ) => Pretty (Either a b) where
     pretty (Left x) = text "Left" <+> parens (pretty x)
