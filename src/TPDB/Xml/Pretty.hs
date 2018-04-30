@@ -36,12 +36,15 @@ import Data.List (intersperse)
 --import Char (isSpace)
 
 -- import Text.PrettyPrint.HughesPJ
-import TPDB.Pretty hiding ( text )
+import TPDB.Pretty hiding ( text, Doc )
+import qualified TPDB.Pretty as P
 
 import Text.XML.HaXml.Types
 import Text.XML.HaXml.Namespaces
 
 import Data.String ( fromString )
+
+type Doc = P.Doc ()
 
 text = fromString
 

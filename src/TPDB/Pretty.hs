@@ -2,10 +2,9 @@
 
 module TPDB.Pretty
 
-( Doc
+( Doc, Pretty (..)
 , render, renderWide, renderCompact, renderPretty
 , displayIO
-, Pretty (..), PrettyTerm (..)
 , fsep, sep, hsep, vsep, vcat, hcat
 , parens, brackets, angles, braces, enclose
 , punctuate, comma, nest
@@ -17,7 +16,7 @@ module TPDB.Pretty
 where
 
 import Data.Text.Prettyprint.Doc
-  (Pretty(..), comma
+  ( Doc, Pretty(..), comma
   , punctuate,align, parens, braces, angles, brackets, nest, enclose
   )
 import qualified Data.Text.Prettyprint.Doc as D
@@ -26,15 +25,10 @@ import qualified Data.Text.Prettyprint.Doc.Render.Text as T
 import Data.String ( fromString )
 import Data.Monoid (mempty, (<>))
 
-type Doc = D.Doc ()
-
-empty :: D.Doc ann 
+empty :: Doc ann 
 empty = mempty
 
 -- class Pretty a where pretty :: a -> Doc
-
-class PrettyTerm a where 
-    prettyTerm :: a -> D.Doc ann
 
 x $$ y = D.vcat [x,y]
 x <+> y = x D.<+> align y

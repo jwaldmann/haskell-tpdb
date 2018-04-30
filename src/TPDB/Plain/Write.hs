@@ -22,6 +22,9 @@ instance ( Pretty v, Pretty s ) => Pretty ( Term v s ) where
             [] -> pretty f 
             _  -> pretty f <+> ( parens $ fsep $ punctuate comma $ map pretty xs )
 
+class PrettyTerm a where 
+    prettyTerm :: a -> Doc ann
+
 instance PrettyTerm a => Pretty ( Rule a ) where
     pretty u = sep [ prettyTerm $ lhs u
                    , ( case relation u of 
