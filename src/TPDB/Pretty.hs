@@ -11,6 +11,7 @@ module TPDB.Pretty
   , module Data.Monoid, empty
 , text
 , (<+>), ($$)
+, indent, nest, hang
 )
 
 where
@@ -19,6 +20,7 @@ import Data.Text.Prettyprint.Doc
   ( Doc, Pretty(..), comma
   , punctuate,align, parens, braces, angles, brackets, nest, enclose
   , list, tupled
+  , indent, nest, hang
   )
 import qualified Data.Text.Prettyprint.Doc as D
 import qualified Data.Text.Prettyprint.Doc.Render.Text as T
@@ -45,7 +47,6 @@ render = T.renderLazy . renderPretty
 renderPretty = D.layoutPretty D.defaultLayoutOptions
 renderCompact = D.layoutCompact
 renderWide = D.layoutSmart $ D.LayoutOptions { D.layoutPageWidth = D.Unbounded }
-
 displayIO = T.renderIO
 
 
