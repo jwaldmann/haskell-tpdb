@@ -1,22 +1,30 @@
-{-# language Arrows, NoMonomorphismRestriction, PatternSignatures #-}
+{-# language Arrows, NoMonomorphismRestriction, PatternSignatures, OverloadedStrings #-}
 
 module TPDB.CPF.Proof.Read where
 
 import TPDB.CPF.Proof.Type 
 import TPDB.Data
 
+{-
 import Text.XML.HXT.Arrow.XmlArrow
-
 import Text.XML.HXT.Arrow.XmlState ( runX )
 import Text.XML.HXT.Arrow.ReadDocument ( readString )
 import Text.XML.HXT.Arrow.XmlOptions ( a_validate )
 import Text.XML.HXT.DOM.XmlKeywords (v_0)
+
 import Control.Arrow
 import Control.Arrow.ArrowList
 import Control.Arrow.ArrowTree
 
 import qualified TPDB.CPF.Proof.Write as W -- for testing
 import qualified Text.XML.HXT.Arrow.XmlState as X 
+
+-}
+
+import qualified Text.XML as X
+import Text.XML.Cursor
+import qualified Data.Text.Lazy as T
+import Control.Monad.Catch
 
 {- | dangerous: 
 not all constructor arguments will be set.
@@ -27,10 +35,20 @@ the function produces something like
                           }  
 -}
 
-readCP :: String -> IO [ CertificationProblem ]
-readCP = readCP_with_tracelevel 0
+readCP :: T.Text -> Either SomeException [CertificationProblem]
+readCP t = ( fromDoc . fromDocument ) <$> X.parseText X.def t
 
-readCP_with_tracelevel l s = runX ( X.withTraceLevel l $ readString [] s >>> getCP )
+
+fromDoc :: Cursor -> [ CertificationProblem ]
+fromDoc c = child c >>= element "certificationProblem" >>= child >>= \ c -> 
+  ( CertificationProblem
+     <$> (element "input" c >>= getInput)
+     <*> (element "cpfVersion" c >>= content )
+     <*> (element "proof" c >>= getProof)
+     <*> (element "origin" c >>= return [ignoredOrigin] )
+  )
+
+
 
 getCP = getChild "certificationProblem" >>> proc x -> do
     inp <- getInput <<< getChild "input" -< x

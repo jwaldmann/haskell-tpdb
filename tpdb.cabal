@@ -29,7 +29,7 @@ Source-Repository head
 
 Library
   Build-Depends: base==4.*, hxt, prettyprinter, text, mtl,
-    HaXml, xml-hamlet, xml-conduit, data-default,
+    xml-hamlet, xml-conduit, data-default,
     parsec, time, containers, filepath, hashable, bytestring
   if impl(ghc<7.10)
      build-depends: transformers
