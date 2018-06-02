@@ -25,19 +25,21 @@ import qualified Data.ByteString.Lazy.Char8 as C
 import Text.XML.HXT.IO.GetFILE
 import Text.XML.HXT.Arrow.ReadDocument
 
+import Data.String
+
 atTag tag = deep (isElem >>> hasName tag)
 
 getTerm = getVar <+> getFunApp
 
 getVar = proc x -> do
     nm <- getText <<< getChildren <<< hasName "var" -< x
-    returnA -< Var $ mk 0 nm
+    returnA -< Var $ mk 0 $ fromString nm
 
 getFunApp = proc x -> do
     sub <- hasName "funapp" -< x
     nm <- getText <<< gotoChild "name" -< sub
     gs <- listA ( getTerm <<< gotoChild "arg" ) -< sub
-    let c = mk (length gs) nm
+    let c = mk (length gs) $ fromString nm
     returnA -< Node c gs
 
 gotoChild tag = proc x -> do
@@ -88,7 +90,7 @@ getTRS = proc x -> do
     nostr <- listA ( getRules Weak <<< getChild "relrules" <<< getChild "rules" ) -< x
     -- FIXME: check that symbols are use with correct arity
     returnA -< RS { signature = case sig of
-                       Signature fs -> do f <- fs ; return $ mk (fs_arity f) (fs_name f)
+                       Signature fs -> do f <- fs ; return $ mk (fs_arity f) (fromString $ fs_name f)
                        HigherOrderSignature {} -> []
                   , rules = str ++ concat nostr
                   , separate = False -- for TRS, don't need comma between rules

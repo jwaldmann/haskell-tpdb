@@ -24,10 +24,11 @@ import Control.Monad ( guard )
 
 import Data.Hashable
 import Data.Function (on)
+import qualified Data.Text as T
 
 data Identifier =
      Identifier { _identifier_hash :: ! Int
-                , name :: ! String
+                , name :: ! T.Text
                 , arity :: Int
                 }
     deriving ( Eq, Ord, Typeable )
@@ -35,9 +36,9 @@ data Identifier =
 instance Hashable Identifier where
     hashWithSalt s i = hash (s, _identifier_hash i)
 
-instance Show Identifier where show = name
+instance Show Identifier where show = show . name
 
-mk :: Int -> String -> Identifier
+mk :: Int -> T.Text -> Identifier
 mk a n = Identifier { _identifier_hash = hash (a,n)
                     , arity = a, name = n }
 

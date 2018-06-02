@@ -1,4 +1,4 @@
-{-# language Arrows, NoMonomorphismRestriction, PatternSignatures, OverloadedStrings #-}
+{-# language Arrows, NoMonomorphismRestriction, PatternSignatures, OverloadedStrings, LambdaCase #-}
 
 module TPDB.CPF.Proof.Read where
 
@@ -24,6 +24,7 @@ import qualified Text.XML.HXT.Arrow.XmlState as X
 import qualified Text.XML as X
 import Text.XML.Cursor
 import qualified Data.Text.Lazy as T
+import qualified Data.Text.Lazy.IO as T
 import Control.Monad.Catch
 
 {- | dangerous: 
@@ -38,46 +39,44 @@ the function produces something like
 readCP :: T.Text -> Either SomeException [CertificationProblem]
 readCP t = ( fromDoc . fromDocument ) <$> X.parseText X.def t
 
+readFile :: FilePath -> IO CertificationProblem
+readFile f = do
+  doc  <- X.readFile X.def f
+  case fromDoc $ fromDocument doc of
+    [cp] -> return cp
+    [] -> error "input contains no certification problem"
+    _ -> error "input contains more than one certification problems"
 
 fromDoc :: Cursor -> [ CertificationProblem ]
-fromDoc c = child c >>= element "certificationProblem" >>= child >>= \ c -> 
+fromDoc c = c $| element "certificationProblem" &/ \ c -> 
   ( CertificationProblem
-     <$> (element "input" c >>= getInput)
-     <*> (element "cpfVersion" c >>= content )
-     <*> (element "proof" c >>= getProof)
-     <*> (element "origin" c >>= return [ignoredOrigin] )
+     <$> (c $/ element "input" &/ getInput )
+     <*> (c $/ element "cpfVersion" &/ content )
+     <*> (c $/ element "proof" &/ getProof)
+     <*> (c $/ element "origin" &/ return [ignoredOrigin] )
   )
 
+getInput = getTerminationInput
+   --  <> getComplexityInput
+   <> getACTerminationInput
 
+getTerminationInput =  element "trsInput" &/ getTrsInput &| 
+   \ i -> TrsInput $ RS { rules = i , separate = False }   
 
-getCP = getChild "certificationProblem" >>> proc x -> do
-    inp <- getInput <<< getChild "input" -< x
-    pro <- getProof <<< getChild "proof" -< x
-    ver <- getText <<< gotoChild "cpfVersion" -< x
-    returnA -< CertificationProblem 
-        { input = inp, proof = pro, cpfVersion = ver, origin = ignoredOrigin }
-
-getInput = getTerminationInput <+> getComplexityInput <+> getACTerminationInput
-
-getTerminationInput = hasName "input" >>> proc x -> do
-    trsI <- getTrsInput <<< getChild "trsInput" -< x    
-    returnA -< TrsInput $ RS { rules = trsI, separate = False }
-
-getACTerminationInput = hasName "input" >>> proc x -> do
-    acrs <- getChild "acRewriteSystem" -< x
-    trsI <- getTrsInput -< acrs
-    as <- listA getSymbol <<< getChild "Asymbols" -< acrs
-    cs <- listA getSymbol <<< getChild "Csymbols" -< acrs
-    returnA -< ACRewriteSystem
-      { trsinput_trs = RS { rules = trsI, separate = False }
+getACTerminationInput c =
+  c $/ element "acRewriteSystem" &/ \ c -> do
+    acrs <- getTrsInput c
+    let as = c $/ element "Asymbols" &/ getSymbol
+        cs = c $/ element "Csymbols" &/ getSymbol
+    return $ ACRewriteSystem
+      { trsinput_trs = RS { rules = acrs, separate = False }
       , asymbols = as
       , csymbols = cs
       }
 
-getSymbol = proc x -> do
-  s <- getText <<< gotoChild "name" -< x
-  returnA -< mk 0 s
+getSymbol = element "name" &/ \ c -> mk 0 <$> content c
 
+{-
 
 getComplexityInput = hasName "input" >>> proc x -> do
     y <- getChild "complexityInput" -< x
@@ -98,55 +97,47 @@ getComplexityClass = proc x -> do
     d <- getText <<< gotoChild "polynomial" -< x
     returnA -< ComplexityClassPolynomial { degree = read d }
 
-getTrsInput = proc x -> do
-    sys <- getTrs <<< getChild "trs" -< x
-    rels <- listA ( getTrsWith Weak <<< getChild "relativeRules" ) -< x
-    returnA -< sys ++ concat rels
+-}
+
+getTrsInput c = c $/ element "trs" &/ \ c ->
+       getTrsWith Strict c
+       -- <> ( element "relativeRules" c $/ getTrsWith Weak )
 
 getTrs = getTrsWith Strict
 
-getTrsWith s = proc x -> do
-    str <- getRules s <<< getChild "rules" -< x
-    returnA -< str
+getTrsWith s = element "rules" &/ getRules s
 
-getProof = getDummy "trsTerminationProof" ( TrsTerminationProof undefined )
-       <+> getDummy "trsNonterminationProof" ( TrsNonterminationProof undefined )
-       <+> getDummy "relativeTerminationProof" ( RelativeTerminationProof undefined )
-       <+> getDummy "relativeNonterminationProof" ( RelativeNonterminationProof undefined )
-       <+> getDummy "complexityProof" ( ComplexityProof undefined )
-       <+> getDummy "acTerminationProof" ( ACTerminationProof undefined )
+getRules :: Relation -> Cursor -> [[ Rule (Term Identifier Identifier) ]]
+getRules s c = return ( c $/ element "rule" &/ getRule s )
 
-getDummy t c = proc x -> do 
-    getChild t -< x
-    returnA -< c 
+getRule :: Relation -> Cursor -> [ Rule (Term Identifier Identifier) ]
+getRule s c =
+  ( \ l r -> Rule {lhs=l,relation=s,rhs=r,top=False})
+    <$> (c $/ element "lhs" &/ getTerm) <*> (c $/ element "rhs" &/ getTerm)
 
-getRules str = proc x -> do
-    returnA <<< listA ( getRule str  <<< getChild "rule" ) -< x
+getProof :: Cursor -> [ Proof ]
+getProof c = c $/
+     (    getDummy "trsTerminationProof" ( TrsTerminationProof undefined )
+       <> getDummy "trsNonterminationProof" ( TrsNonterminationProof undefined )
+       <> getDummy "relativeTerminationProof" ( RelativeTerminationProof undefined )
+       <> getDummy "relativeNonterminationProof" ( RelativeNonterminationProof undefined )
+       <> getDummy "complexityProof" ( ComplexityProof undefined )
+       <> getDummy "acTerminationProof" ( ACTerminationProof undefined )
+     )
 
-getRule str = proc x -> do
-    l <-  getTerm <<< isElem <<< gotoChild "lhs" -< x
-    r <-  getTerm <<< isElem <<< gotoChild "rhs" -< x
-    returnA -< Rule { lhs = l, relation = str, rhs = r, top = False }
+getDummy :: X.Name -> b -> Cursor -> [ b ]
+getDummy t c cursor = cursor $/ element t &/ return [ c]
 
+getTerm :: Cursor -> [ Term Identifier Identifier ]
+getTerm c = getVar c <> getFunApp c
 
-getTerm = getVar <+> getFunApp
+getVar :: Cursor -> [ Term Identifier Identifier ]
+getVar = element "var" &/ \ c -> ( Var . mk 0 ) <$> content c
 
-getVar = proc x -> do
-    nm <- getText <<< getChildren <<< hasName "var" -< x
-    returnA -< Var $ mk 0 nm
-
-getFunApp = proc x -> do
-    sub <- hasName "funapp" -< x
-    nm <- getText <<< gotoChild "name" -< sub
-    gs <- listA ( getTerm <<< gotoChild "arg" ) -< sub
-    let c = mk (length gs) nm
-    returnA -< Node c gs
+getFunApp :: Cursor -> [ Term Identifier Identifier ]
+getFunApp = element "funapp" &/ \ c -> do
+  nm <- c $/ element "name" &/ content
+  let args = c $/ element "arg" &/ getTerm
+      f = mk (length args) $ nm
+  return $ Node f args
           
-gotoChild tag = proc x -> do
-    returnA <<< getChildren <<< getChild tag -< x
-
-getChild tag = proc x -> do
-    returnA <<< hasName tag <<< isElem <<< getChildren -< x
-
-
-

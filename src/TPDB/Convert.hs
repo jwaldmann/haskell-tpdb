@@ -1,3 +1,5 @@
+{-# language OverloadedStrings #-}
+
 module TPDB.Convert where
 
 import TPDB.Data

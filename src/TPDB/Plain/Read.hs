@@ -23,6 +23,8 @@ import Data.Functor.Identity (Identity)
 
 import TPDB.Pretty (pretty)
 import TPDB.Plain.Write ()
+import Data.Text ()
+import Data.String (fromString)
 
 import Control.Monad ( guard, void )
 import Data.List ( nub )
@@ -59,7 +61,7 @@ lexer = makeTokenParser
 instance Reader Identifier where 
     reader = do
         i :: String <- identifier lexer 
-	return $ mk 0 i
+        return $ mk 0 $ fromString i
 
 instance Reader s =>  Reader [s] where
     reader = many reader
@@ -120,13 +122,13 @@ instance Reader ( SRS Identifier ) where
     reader = do 
         many space
         ds <- many $ declaration True
-	return $ make_srs ds
+        return $ make_srs ds
 
 instance Reader ( TRS Identifier Identifier ) where
     reader = do
         many space
         ds <- many $ declaration False
-	return $ make_trs ds
+        return $ make_trs ds
 
 repair_signature_srs sys = 
     let sig = nub $ do u <- rules sys ; lhs u ++ rhs u
@@ -152,9 +154,9 @@ make_trs ds = repair_signature_trs $
 
 repair_variables vars rules = do
     let xform ( Node c [] ) | c `elem` vars = Var c
-	xform ( Node c args ) = Node c ( map xform args )
+        xform ( Node c args ) = Node c ( map xform args )
     rule <- rules  
     return $ rule { lhs = xform $ lhs rule
-		  , rhs = xform $ rhs rule
-		  }
+                  , rhs = xform $ rhs rule
+                  }
 

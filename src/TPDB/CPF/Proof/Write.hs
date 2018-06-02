@@ -1,4 +1,4 @@
-{-# language TypeSynonymInstances, FlexibleContexts, FlexibleInstances, UndecidableInstances, OverlappingInstances, IncoherentInstances, PatternSignatures, DeriveDataTypeable #-}
+{-# language TypeSynonymInstances, FlexibleContexts, FlexibleInstances, UndecidableInstances, OverlappingInstances, IncoherentInstances, PatternSignatures, DeriveDataTypeable, OverloadedStrings #-}
 
 -- | from internal representation to XML, and back
 
@@ -7,14 +7,8 @@ module TPDB.CPF.Proof.Write where
 import TPDB.CPF.Proof.Type
 import qualified TPDB.Data as T
 
-import qualified Text.XML.HaXml.Escape as E
-import qualified Text.XML.HaXml.Pretty as P
-
-import Text.XML.HaXml.Types (QName (..) )
-import Text.XML.HaXml.XmlContent.Haskell hiding ( element, many )
-import Text.XML.HaXml.Types ( EncodingDecl(..), emptyST, XMLDecl(..), Misc (PI) )
-
 import TPDB.Xml 
+import Text.XML
 import TPDB.Data.Xml 
 
 import Data.List ( nub )
@@ -22,18 +16,19 @@ import Data.Char ( toLower )
 import Data.Map (Map)
 import qualified Data.Map as Map
 
+import qualified Data.Text as T
 import qualified Data.Time as T
 import Control.Monad
 import Data.Typeable
 import Data.Ratio
 
-tox :: CertificationProblem -> Document ()
+tox :: CertificationProblem -> Document 
 tox p = 
-    let xd = XMLDecl "1.0" ( Just $ EncodingDecl "UTF-8" ) Nothing 
-        style = PI ("xml-stylesheet", "type=\"text/xsl\" href=\"cpfHTML.xsl\"")
-        pro = Prolog ( Just xd ) [] Nothing [style]
-        [ CElem e _ ] = toContents p
-    in  Document pro emptyST e []
+    let style = Instruction
+          "xml-stylesheet" "type=\"text/xsl\" href=\"cpfHTML.xsl\""
+        pro = Prologue [ MiscInstruction style ] Nothing []
+        [ NodeElement e ] = toContents p
+    in  Document pro e []
 
 instance XmlContent CertificationProblem where
    parseContents = error "parseContents not implemented"
@@ -181,7 +176,7 @@ instance XmlContent Model where
   toContents model = rmkel "model" $ case model of
     FiniteModel carrierSize interprets ->
       rmkel "finiteModel" $ concat
-        [ rmkel "carrierSize" [ nospaceString $ show carrierSize ]
+        [ rmkel "carrierSize"  $ toContents carrierSize
         , concatMap toContents interprets
         ]
 
@@ -226,7 +221,7 @@ instance XmlContent DepGraphComponent where
         , rmkel "realScc" 
            --  $ toContents $ dgcRealScc dgc
            -- NO, Bool is encoded as text, not as attribute
-            [ nospaceString $ map toLower $ show $ dgcRealScc dgc ]
+            $ toContents $ dgcRealScc dgc 
         ] ++ 
         [ {- rmkel "dpProof" $ -} toContents $ dgcDpProof dgc
         | dgcRealScc dgc
@@ -257,8 +252,8 @@ instance XmlContent Interpretation_Type where
 
    toContents t = rmkel "matrixInterpretation" $ concat 
       [ toContents ( domain t )
-      , rmkel "dimension"       [ nospaceString $ show $ dimension t ]
-      , rmkel "strictDimension" [ nospaceString $ show $ strictDimension t ]
+      , rmkel "dimension"       $ toContents $ dimension t 
+      , rmkel "strictDimension" $ toContents $ strictDimension t
       ]
      
 instance XmlContent Domain where
@@ -275,8 +270,8 @@ instance XmlContent Rational where
     parseContents = error "parseContents not implemented"
 
     toContents r = rmkel "rational" 
-        [ mkel "numerator"   [ nospaceString $ show $ numerator   r ]
-        , mkel "denominator" [ nospaceString $ show $ denominator r ]
+        [ mkel "numerator"   $ toContents $ numerator   r 
+        , mkel "denominator" $ toContents $ denominator r 
         ]
 
 instance XmlContent Interpret  where
@@ -284,7 +279,7 @@ instance XmlContent Interpret  where
 
    toContents i = rmkel "interpret" $ concat
                     [ toContents $ symbol i
-                    , rmkel "arity" [ nospaceString $ show $ arity i ]
+                    , rmkel "arity" $ toContents $ arity i 
                     , toContents $ value i
                     ]
 
@@ -308,8 +303,8 @@ instance XmlContent ArithFunction where
   parseContents = error "parseContents not implemented"
 
   toContents af = rmkel "arithFunction" $ case af of
-    AFNatural  n      -> rmkel "natural"  [ nospaceString $ show n ]
-    AFVariable n      -> rmkel "variable" [ nospaceString $ show n ]
+    AFNatural  n      -> rmkel "natural"  $ toContents n 
+    AFVariable n      -> rmkel "variable" $ toContents n 
     AFSum     afs     -> rmkel "sum"      $ concatMap toContents afs
     AFProduct afs     -> rmkel "product"  $ concatMap toContents afs
     AFMin     afs     -> rmkel "min"      $ concatMap toContents afs
@@ -330,7 +325,7 @@ instance XmlContent Exotic where
 
     toContents e = case e of
        Minus_Infinite -> rmkel "minusInfinity" []
-       E_Integer i -> rmkel "integer" [ nospaceString $ show i ]
+       E_Integer i -> rmkel "integer" $ toContents i
        Plus_Infinite -> rmkel "plusInfinity" []
 
 -- see remark in TPDB.Data.Xml (sharp_name_HACK)
@@ -338,7 +333,7 @@ instance XmlContent Exotic where
 instance XmlContent Symbol where
   parseContents = error "parseContents not implemented"
 
-  toContents (SymName id) = rmkel "name" [nospaceString $ show id]
+  toContents (SymName id) = rmkel "name" $ toContents id
   toContents (SymSharp sym) = rmkel "sharp" $ toContents sym
   toContents (SymLabel sym label) = rmkel "labeledSymbol" 
                                   $ toContents sym ++ (toContents label)
@@ -347,7 +342,7 @@ instance XmlContent Label where
   parseContents = error "parseContents not implemented"
 
   toContents (LblNumber is) = 
-    rmkel "numberLabel" $ map (\i -> mkel "number" [ nospaceString $ show i ]) is
+    rmkel "numberLabel" $ map (\i -> mkel "number" $ toContents i ) is
 
   toContents (LblSymbol ss) = rmkel "symbolLabel" $ concatMap toContents ss
 
@@ -365,8 +360,8 @@ instance XmlContent PrecedenceEntry where
 
   toContents (PrecedenceEntry s a p) = rmkel "statusPrecedenceEntry" $ concat
     [ toContents s
-    , rmkel "arity"      [ nospaceString $ show a ]
-    , rmkel "precedence" [ nospaceString $ show p ]
+    , rmkel "arity"      $ toContents a
+    , rmkel "precedence" $ toContents p
     , rmkel "lex"        [ ]
     ]
 
@@ -375,9 +370,9 @@ instance XmlContent ArgumentFilterEntry where
 
   toContents (ArgumentFilterEntry s a f) = rmkel "argumentFilterEntry" $ concat
     [ toContents s
-    , rmkel "arity"      [ nospaceString $ show a ]
+    , rmkel "arity" $ toContents a
     , case f of 
-        Left i   -> rmkel "collapsing" [ nospaceString $ show i ]
+        Left i   -> rmkel "collapsing" $ toContents i 
         Right is -> rmkel "nonCollapsing" 
-                  $ map (\i -> mkel "position" [ nospaceString $ show i ]) is
+                  $ map (\i -> mkel "position" $ toContents i) is
     ]

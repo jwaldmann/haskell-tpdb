@@ -11,9 +11,10 @@ import TPDB.Pretty
 
 import Data.List ( nub )
 import Data.String ( fromString )
+import qualified Data.Text as T
 
 instance Pretty Identifier where
-    pretty i = fromString $ name i
+    pretty i = pretty $ name i
 
 instance ( Pretty v, Pretty s ) => Pretty ( Term v s ) where
     pretty t = case t of

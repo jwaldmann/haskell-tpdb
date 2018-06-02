@@ -4,7 +4,6 @@ import TPDB.Pretty
 import TPDB.Plain.Write
 
 main = do
-    s <- readFile "test/AC28.cpf"
-    [p] <- CPF.readCP_with_tracelevel 0 s
+    p <- CPF.readFile "test/AC28.cpf"
     print $ pretty $ CPF.input p
 
