@@ -23,9 +23,12 @@ import qualified Text.XML.HXT.Arrow.XmlState as X
 
 import qualified Text.XML as X
 import Text.XML.Cursor
+import qualified Data.Text as DT
 import qualified Data.Text.Lazy as T
 import qualified Data.Text.Lazy.IO as T
 import Control.Monad.Catch
+
+import TPDB.Pretty
 
 {- | dangerous: 
 not all constructor arguments will be set.
@@ -43,47 +46,53 @@ readFile :: FilePath -> IO CertificationProblem
 readFile f = do
   doc  <- X.readFile X.def f
   case fromDoc $ fromDocument doc of
-    [cp] -> return cp
     [] -> error "input contains no certification problem"
-    _ -> error "input contains more than one certification problems"
+    [cp] -> return cp
+    cps -> error $ unlines $
+      ( "input contains " ++ show (length cps) ++ " certification problems" )
+      : map (show . pretty . trsinput_trs . input ) cps
+
+element1 name c =
+  let info = take 100 $ show c
+  in  case element name c of
+        [] -> error $ "missing element " <> show name <> " in " <> info
+        [e] -> [e]
+        _ -> error $ "more than one element " <> show name <> " in " <> info
+
 
 fromDoc :: Cursor -> [ CertificationProblem ]
-fromDoc c = c $| element "certificationProblem" &/ \ c -> 
+fromDoc = element1 "certificationProblem" >=> \ c -> 
   ( CertificationProblem
      <$> (c $/ element "input" &/ getInput )
      <*> (c $/ element "cpfVersion" &/ content )
      <*> (c $/ element "proof" &/ getProof)
-     <*> (c $/ element "origin" &/ return [ignoredOrigin] )
+     <*> (c $/ element "origin" >=> return [ignoredOrigin] )
   )
 
-getInput = getTerminationInput
-   --  <> getComplexityInput
+getInput =  getTerminationInput
+   <> getComplexityInput
    <> getACTerminationInput
 
-getTerminationInput =  element "trsInput" &/ getTrsInput &| 
+getTerminationInput c = c $| element "trsInput" &/ getTrsInput &| 
    \ i -> TrsInput $ RS { rules = i , separate = False }   
 
-getACTerminationInput c =
-  c $/ element "acRewriteSystem" &/ \ c -> do
-    acrs <- getTrsInput c
+getACTerminationInput = element "acRewriteSystem" >=> \ c -> do
     let as = c $/ element "Asymbols" &/ getSymbol
         cs = c $/ element "Csymbols" &/ getSymbol
+    acrs <- getTrsInput c
     return $ ACRewriteSystem
       { trsinput_trs = RS { rules = acrs, separate = False }
       , asymbols = as
       , csymbols = cs
       }
 
-getSymbol = element "name" &/ \ c -> mk 0 <$> content c
+getSymbol = element1 "name" &/ \ c -> mk 0 <$> content c 
 
-{-
-
-getComplexityInput = hasName "input" >>> proc x -> do
-    y <- getChild "complexityInput" -< x
-    trsI <- getTrsInput <<< getChild "trsInput" -< y
-    cm <- getComplexityMeasure -< y
-    cc <- getComplexityClass -< y
-    returnA -< ComplexityInput
+getComplexityInput = element "input" >=> \ c -> do
+    trsI <- c $/ element "complexityInput" &/ element "trsInput" &/ getTrsInput
+    cm <- c $/ getComplexityMeasure 
+    cc <- c $/ getComplexityClass 
+    return $ ComplexityInput
         { trsinput_trs = RS { rules = trsI, separate = False }
         , complexityMeasure = cm
         , complexityClass = cc
@@ -91,32 +100,29 @@ getComplexityInput = hasName "input" >>> proc x -> do
 
 getComplexityMeasure = 
         getDummy "derivationalComplexity" DerivationalComplexity
-    <+> getDummy "runtimeComplexity" RuntimeComplexity
+    <>  getDummy "runtimeComplexity" RuntimeComplexity
 
-getComplexityClass = proc x -> do
-    d <- getText <<< gotoChild "polynomial" -< x
-    returnA -< ComplexityClassPolynomial { degree = read d }
+getComplexityClass = element "polynomial" &/ \ c ->
+  ( \ s -> ComplexityClassPolynomial { degree = read $ DT.unpack s } ) <$> content c
 
--}
 
-getTrsInput c = c $/ element "trs" &/ \ c ->
-       getTrsWith Strict c
-       -- <> ( element "relativeRules" c $/ getTrsWith Weak )
+getTrsInput c =
+     ( c $/ element "trs" &/  getTrsWith Strict )
+  <> ( c $/ element "relativeRules" &/ getTrsWith Weak )
 
 getTrs = getTrsWith Strict
 
-getTrsWith s = element "rules" &/ getRules s
+getTrsWith s =  element1 "rules" >=> \ c ->
+  return ( c $/ ( element "rule" >=> getRule s ) )
 
-getRules :: Relation -> Cursor -> [[ Rule (Term Identifier Identifier) ]]
-getRules s c = return ( c $/ element "rule" &/ getRule s )
 
 getRule :: Relation -> Cursor -> [ Rule (Term Identifier Identifier) ]
-getRule s c =
+getRule s c = 
   ( \ l r -> Rule {lhs=l,relation=s,rhs=r,top=False})
     <$> (c $/ element "lhs" &/ getTerm) <*> (c $/ element "rhs" &/ getTerm)
 
 getProof :: Cursor -> [ Proof ]
-getProof c = c $/
+getProof c = c $|
      (    getDummy "trsTerminationProof" ( TrsTerminationProof undefined )
        <> getDummy "trsNonterminationProof" ( TrsNonterminationProof undefined )
        <> getDummy "relativeTerminationProof" ( RelativeTerminationProof undefined )
@@ -126,16 +132,16 @@ getProof c = c $/
      )
 
 getDummy :: X.Name -> b -> Cursor -> [ b ]
-getDummy t c cursor = cursor $/ element t &/ return [ c]
+getDummy t c cursor = cursor $| element t >=> return [ c]
 
 getTerm :: Cursor -> [ Term Identifier Identifier ]
-getTerm c = getVar c <> getFunApp c
+getTerm = getVar <> getFunApp
 
 getVar :: Cursor -> [ Term Identifier Identifier ]
 getVar = element "var" &/ \ c -> ( Var . mk 0 ) <$> content c
 
 getFunApp :: Cursor -> [ Term Identifier Identifier ]
-getFunApp = element "funapp" &/ \ c -> do
+getFunApp = element "funapp" >=> \ c -> do
   nm <- c $/ element "name" &/ content
   let args = c $/ element "arg" &/ getTerm
       f = mk (length args) $ nm
