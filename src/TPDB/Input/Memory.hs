@@ -8,12 +8,12 @@ import TPDB.Data
 import TPDB.Plain.Read
 import TPDB.XTC.Read
 
-import qualified Data.ByteString.Lazy as B
+import qualified Data.Text.Lazy as T
 import System.FilePath.Posix ( takeExtension )
 
 -- | first argument is file name, second argument is file contents.
 -- first arg. is needed to pick the proper parser (SRS, TRS, XTC)
-get :: String -> B.ByteString
+get :: String -> T.Text
     -> IO (Either String (Either (TRS Identifier Identifier) (SRS Identifier)))
 get f s = case takeExtension f of
       ".srs" -> do
@@ -25,8 +25,5 @@ get f s = case takeExtension f of
               Left err -> return $ Left err
               Right t -> return $ Right $ Left t 
       _ -> do
-          ps <- readProblemsBS s
-          case ps of 
-              [ p ] -> return $ Right $ Left $ TPDB.Data.trs p
-              [] -> return $ Left "no TRS"
-              _ -> return $ Left "more than one TRS"
+          case readProblemT s of
+             Right p -> return $ Right $ Left $ TPDB.Data.trs p

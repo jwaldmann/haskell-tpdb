@@ -28,7 +28,7 @@ Source-Repository head
 --   test/3.15.xml, test/33.trs ,  test/z001.srs
 
 Library
-  Build-Depends: base==4.*, hxt, prettyprinter, text, mtl,
+  Build-Depends: base==4.*,  prettyprinter, text, mtl,
     xml-hamlet, xml-conduit, data-default,
     parsec, time, containers, filepath, hashable, bytestring, exceptions
   Hs-Source-Dirs: src
@@ -59,32 +59,32 @@ Test-Suite XML
   hs-source-dirs: test 
 
 Test-Suite TRS
-  Build-Depends: base==4.*, tpdb, bytestring
+  Build-Depends: base==4.*, tpdb, text
   Type: exitcode-stdio-1.0
   main-is: read_print_trs.hs
   hs-source-dirs: test 
 
 Test-Suite TRS_02
-  Build-Depends: base==4.*, tpdb, bytestring
+  Build-Depends: base==4.*, tpdb, text
   Type: exitcode-stdio-1.0
   main-is: read_print_trs_2.hs
   hs-source-dirs: test 
 
 Test-Suite SRS
-  Build-Depends: base==4.*, tpdb, bytestring
+  Build-Depends: base==4.*, tpdb, text
   Type: exitcode-stdio-1.0
   main-is: read_print_srs.hs
   hs-source-dirs: test 
 
 Test-Suite Speed
            Buildable: false
-  Build-Depends: base==4.*, tpdb, bytestring, pretty
+  Build-Depends: base==4.*, tpdb, text, pretty
   Type: exitcode-stdio-1.0
   main-is: speed.hs
   hs-source-dirs: test 
                   
 Test-Suite Attributes
-  Build-Depends: base==4.*, tpdb, bytestring, pretty
+  Build-Depends: base==4.*, tpdb, text, pretty
   Type: exitcode-stdio-1.0
   main-is: attributes.hs
   hs-source-dirs: test 
@@ -117,5 +117,11 @@ Test-Suite read-complex
   Build-Depends: base==4.*, tpdb
   Type: exitcode-stdio-1.0
   main-is: read_complex.hs
+  hs-source-dirs: test 
+
+Test-Suite read-large
+  Build-Depends: base==4.*, tpdb
+  Type: exitcode-stdio-1.0
+  main-is: read_large.hs
   hs-source-dirs: test 
 

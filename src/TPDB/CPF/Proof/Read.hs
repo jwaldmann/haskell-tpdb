@@ -107,14 +107,12 @@ getComplexityClass = element "polynomial" &/ \ c ->
 
 
 getTrsInput c =
-     ( c $/ element "trs" &/  getTrsWith Strict )
-  <> ( c $/ element "relativeRules" &/ getTrsWith Weak )
+     ( c $/ element "trs" &/  getRulesWith Strict )
+  <> ( c $/ element "relativeRules" &/ getRulesWith Weak )
 
-getTrs = getTrsWith Strict
 
-getTrsWith s =  element1 "rules" >=> \ c ->
+getRulesWith s =  element1 "rules" >=> \ c ->
   return ( c $/ ( element "rule" >=> getRule s ) )
-
 
 getRule :: Relation -> Cursor -> [ Rule (Term Identifier Identifier) ]
 getRule s c = 

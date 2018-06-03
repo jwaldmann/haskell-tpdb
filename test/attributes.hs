@@ -6,6 +6,6 @@ import TPDB.Plain.Write
 import Control.Monad ( forM, void )
 
 main = void $ do
-    [ p ] <- readProblems "test/3.15.xml"
+    p <- readProblemF "test/3.15.xml"
     print $ pretty p
     print $ pretty $ attributes p

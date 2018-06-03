@@ -47,7 +47,7 @@ mk a n = Identifier { _identifier_hash = hash (a,n)
 
 -- | according to XTC spec
 data Funcsym = Funcsym
-  { fs_name :: String -- ^ should be Text
+  { fs_name :: T.Text
   , fs_arity :: Int
   , fs_theory :: Maybe Theory
   , fs_replacementmap :: Maybe Replacementmap
