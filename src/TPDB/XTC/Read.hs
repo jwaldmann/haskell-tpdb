@@ -15,7 +15,7 @@ import qualified Data.Text.Lazy as LT
 import qualified Data.Text.Lazy.IO as LT
 import Data.String
 import Control.Monad.Catch
-
+import Data.Monoid ((<>))
 
 readProblemF :: FilePath -> IO ( Problem Identifier Identifier )
 readProblemF file = do
