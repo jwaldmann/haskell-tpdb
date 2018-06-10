@@ -36,7 +36,7 @@ data Identifier =
 instance Hashable Identifier where
     hashWithSalt s i = hash (s, _identifier_hash i)
 
-instance Show Identifier where show = show . name
+instance Show Identifier where show = T.unpack . name
 
 mk :: Int -> T.Text -> Identifier
 mk a n = Identifier { _identifier_hash = hash (a,n)
