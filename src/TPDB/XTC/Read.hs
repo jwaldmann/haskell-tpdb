@@ -1,6 +1,8 @@
 -- | construct data object from XML tree.
 
-{-# language NoMonomorphismRestriction, PatternSignatures, OverloadedStrings #-}
+{-# language NoMonomorphismRestriction, PatternSignatures, OverloadedStrings
+  , BangPatterns
+#-}
 
 
 module TPDB.XTC.Read (readProblemF, readProblemT ) where
