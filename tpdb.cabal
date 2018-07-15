@@ -1,5 +1,5 @@
 Name: tpdb
-Version: 2.1.0
+Version: 2.1.1
 Author: Alexander Bau, Johannes Waldmann
 Maintainer: Johannes Waldmann
 Category: Logic
@@ -58,6 +58,12 @@ Test-Suite XML
   main-is: read_print_xml.hs
   hs-source-dirs: test 
 
+Test-Suite XML_relative
+  Build-Depends: base==4.*, tpdb
+  Type: exitcode-stdio-1.0
+  main-is: read_print_xml_relative.hs
+  hs-source-dirs: test 
+
 Test-Suite TRS
   Build-Depends: base==4.*, tpdb, text
   Type: exitcode-stdio-1.0
@@ -77,7 +83,7 @@ Test-Suite SRS
   hs-source-dirs: test 
 
 Test-Suite Speed
-           Buildable: false
+  Buildable: False
   Build-Depends: base==4.*, tpdb, text, pretty
   Type: exitcode-stdio-1.0
   main-is: speed.hs

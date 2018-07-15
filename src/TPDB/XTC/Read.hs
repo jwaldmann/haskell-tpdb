@@ -77,13 +77,13 @@ getStartterm =
 
 getTRS c = do
     sig <- getSignature c
-    str <- c $/ element "rules" >=> getRulesWith Strict 
-    let nostr = ( c $/ element "relrules" >=> getRulesWith Weak )
+    let str   = c $/ element "rules" >=> getRulesWith Strict 
+        nostr = c $/ element "rules" &/ ( element "relrules" >=> getRulesWith Weak )
     -- FIXME: check that symbols are use with correct arity
     return $ RS { signature = case sig of
                        Signature fs -> do f <- fs ; return $ mk (fs_arity f) ( fs_name f)
                        HigherOrderSignature {} -> []
-                  , rules = str ++ concat nostr
+                  , rules = concat str ++ concat nostr
                   , separate = False -- for TRS, don't need comma between rules
                   }
 
@@ -107,7 +107,7 @@ getFuncsym c = do
 
 read_content c = (read . ST.unpack) <$> content c
 
-getRulesWith s =  element "rules" >=> \ c ->
+getRulesWith s c =
   return ( c $/ ( element "rule" >=> getRule s ) )
 
 getRule :: Relation -> Cursor -> [ Rule (Term Identifier Identifier) ]
