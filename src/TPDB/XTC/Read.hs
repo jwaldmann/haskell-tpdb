@@ -28,11 +28,12 @@ readProblemF file = do
     ps -> error "input contains more than one XTC problem"
 
 readProblemT :: LT.Text -> Either SomeException (Problem Identifier Identifier)
-readProblemT t = do
-  [p] <- ( getProblem . fromDocument ) <$> Text.XML.parseText Text.XML.def t
-  return p
+readProblemT t = case ( getProblem . fromDocument ) <$> Text.XML.parseText Text.XML.def t of
+  Right [ p ] -> Right p
+  Left ex -> Left ex
 
 
+getProblem :: Cursor -> [ Problem Identifier Identifier ]
 getProblem = element "problem" >=> \ c -> do
     let ! ty = case c $| attribute "type" of
          [ "termination" ] -> Termination
