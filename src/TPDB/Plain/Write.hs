@@ -3,6 +3,7 @@
 
 {-# language FlexibleContexts #-}
 {-# language OverloadedStrings #-}
+{-# language UndecidableInstances #-}
 
 module TPDB.Plain.Write where
 
@@ -11,6 +12,7 @@ import TPDB.Pretty
 
 import Data.List ( nub )
 import Data.String ( fromString )
+import qualified Data.Set as S
 import qualified Data.Text as T
 
 instance Pretty Identifier where
@@ -42,19 +44,22 @@ instance Pretty s => PrettyTerm [s] where
 instance ( Pretty v, Pretty s ) => PrettyTerm ( Term v s ) where
     prettyTerm = pretty
 
-instance ( Pretty s, PrettyTerm r ) => Pretty ( RS s r ) where
+instance ( Pretty s, PrettyTerm r, Variables (RS s r)
+  , Pretty (Var (RS s r)))
+  => Pretty ( RS s r ) where
     pretty sys = vcat 
-        [ parens $ "RULES" <+>
+        [ let vs = S.toList $ variables sys
+	  in if null vs
+	     then empty   
+	     else parens $ "VAR" <+> vcat (map pretty vs)
+	, parens $ "RULES" <+>
           vcat ( ( if separate sys then punctuate comma else id )
                  $ map pretty $ rules sys 
                )
-        -- FIXME: variables are not shown (and it is impossible to compute
-        -- them here, this is actually a TPDB format design error, 
-        -- since variables should be local (per rule), not global)
         -- FIXME: output strategy, theory
         ]
 
-instance ( Pretty s, Pretty r ) => Pretty ( Problem s r ) where
+instance ( Pretty s, Pretty r, Variables (Term s r) ) => Pretty ( Problem s r ) where
     pretty p = vcat
        [ pretty $ trs p 
        , case strategy p of  

@@ -3,7 +3,10 @@
 -- A termination problem is @Problem v s@. This contains a rewrite system plus extra
 -- information (strategy, theory, etc.)
 
-{-# language DeriveDataTypeable #-}
+{-# language DeriveDataTypeable,
+    FlexibleInstances, FlexibleContexts,
+    MultiParamTypeClasses, TypeFamilies
+#-}
 
 module TPDB.Data 
 
@@ -25,6 +28,7 @@ import Control.Monad ( guard )
 import Data.Hashable
 import Data.Function (on)
 import qualified Data.Text as T
+import qualified Data.Set as S
 
 data Identifier =
      Identifier { _identifier_hash :: ! Int
@@ -42,6 +46,17 @@ mk :: Int -> T.Text -> Identifier
 mk a n = Identifier { _identifier_hash = hash (a,n)
                     , arity = a, name = n }
 
+class Ord (Var t) => Variables t where
+  type Var t
+  variables :: t -> S.Set (Var t)
+
+instance Ord v => Variables (Term v c) where
+  type Var (Term v c) = v
+  variables = vars
+
+instance Variables [c] where
+  type Var [c] = ()
+  variables _ = S.empty
 
 ---------------------------------------------------------------------
 
@@ -87,6 +102,15 @@ equal_rules sys =
 type TRS v s = RS s ( Term v s )
 
 type SRS s = RS s [ s ]
+
+instance Variables r => Variables (Rule r) where
+  type Var (Rule r) = Var r
+  variables u =
+    S.unions [ variables (lhs u), variables (rhs u) ]
+
+instance Ord v => Variables (TRS v s) where
+  type Var (TRS v s) = v
+  variables sys = S.unions $ map variables $ rules sys
 
 data Problem v s =
      Problem { type_ :: Type

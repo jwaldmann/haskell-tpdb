@@ -1,5 +1,5 @@
 Name: tpdb
-Version: 2.1.1
+Version: 2.2
 Author: Alexander Bau, Johannes Waldmann
 Maintainer: Johannes Waldmann
 Category: Logic
@@ -47,6 +47,10 @@ Library
 Executable plain2xtc
   build-depends: base==4.*, tpdb, bytestring
   main-is: plain2xtc.hs
+
+Executable srs2trs
+  build-depends: base==4.*, tpdb, bytestring
+  main-is: srs2trs.hs
 
 -- Executable Compressor
 --     Main-is: Compressor.hs
