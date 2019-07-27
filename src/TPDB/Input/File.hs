@@ -5,7 +5,8 @@ import TPDB.Convert
 
 import qualified TPDB.Input.Memory as TIM
 
-import qualified Data.ByteString.Lazy as B
+import qualified Data.Text.Lazy as T
+import qualified Data.Text.Lazy.IO as T
 import System.FilePath.Posix ( takeExtension )
 
 -- | read input from file with given name.
@@ -23,7 +24,7 @@ get f = do
         Left err -> error err
 
 getE f = do
-  s <- B.readFile f
+  s <- T.readFile f
   TIM.get f s
 
 get_trs f = do

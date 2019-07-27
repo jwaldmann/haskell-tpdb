@@ -19,12 +19,12 @@ import TPDB.Data
 import TPDB.Plain.Write ()
 import Data.Typeable
 import TPDB.Pretty
-
-import Text.XML.HaXml.XmlContent.Haskell hiding ( text )
+import Data.Text
+import TPDB.Xml (XmlContent)
 
 data CertificationProblem =
      CertificationProblem { input :: CertificationProblemInput 
-                          , cpfVersion :: String -- urgh
+                          , cpfVersion :: Text
                           , proof :: Proof 
                           , origin :: Origin  
                           }  
@@ -35,8 +35,8 @@ data Origin = ProofOrigin { tool :: Tool }
 
 ignoredOrigin = ProofOrigin { tool = Tool "ignored" "ignored"  }
 
-data Tool = Tool { name :: String 
-                 , version :: String
+data Tool = Tool { name :: Text
+                 , version :: Text
                  } 
     deriving ( Typeable, Eq )
 
@@ -80,12 +80,12 @@ data Proof = TrsTerminationProof TrsTerminationProof
            | ACTerminationProof ACTerminationProof
    deriving ( Typeable, Eq )
 
-data DPS = forall s . ( XmlContent s , Typeable s, Eq s ) 
+data DPS = forall s . ( XmlContent s ,
+                        Typeable s, Eq s ) 
         => DPS [ Rule (Term Identifier s) ]
    deriving ( Typeable )
 
 instance Eq DPS where x == y = error "instance Eq DPS"
-
 
 data ComplexityProof = ComplexityProofFIXME ()
     deriving ( Typeable, Eq )
@@ -231,7 +231,7 @@ data Value = Polynomial    Polynomial
 data Polynomial = Sum [ Polynomial ]
                 | Product [ Polynomial ]
                 | Polynomial_Coefficient Coefficient
-                | Polynomial_Variable String
+                | Polynomial_Variable Text
    deriving ( Typeable, Eq )
 
 data ArithFunction = AFNatural  Integer
@@ -254,7 +254,8 @@ data Label = LblNumber [Integer]
 
 data Coefficient = Vector [ Coefficient ]
            | Matrix [ Coefficient ]
-           | forall a . (Eq a, XmlContent a ) => Coefficient_Coefficient a
+           | forall a . (Eq a , XmlContent a
+                        ) => Coefficient_Coefficient a
    deriving ( Typeable )
 
 instance Eq Coefficient where x == y = error "instance Eq Coefficient"

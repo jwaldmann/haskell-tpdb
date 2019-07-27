@@ -177,3 +177,4 @@ lvars = S.toList . vars
 -- | list of variables (in pre-order, with duplicates)
 voccs :: Term v c -> [ v ]
 voccs t = do ( p, Var v ) <- positions t ; return v
+

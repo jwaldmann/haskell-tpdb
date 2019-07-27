@@ -6,6 +6,6 @@ import TPDB.Plain.Write
 import Control.Monad ( forM, void )
 
 main = void $ do
-    [ p ] <- readProblems "test/AC09.xml"
+    p <- readProblemF "test/AC09.xml"
     print $ pretty p
     print $ full_signature p

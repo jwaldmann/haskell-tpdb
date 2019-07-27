@@ -1,22 +1,20 @@
 {-# language FlexibleContexts #-}
 {-# language FlexibleInstances #-}
 {-# language UndecidableInstances #-}
+{-# language QuasiQuotes #-}
 
 module TPDB.Data.Xml where
 
 import TPDB.Data
 import TPDB.Xml
 
-import Text.XML.HaXml.Types (QName (..) )
-import Text.XML.HaXml.XmlContent.Haskell hiding ( element, many )
-
+import Text.Hamlet.XML
+import Data.String
 import Data.Typeable
 
 -- | FIXME: move to separate module
 instance XmlContent Identifier where
-    parseContents = do
-        CString _ s _ <- next 
-        return  $ mknullary s
+    parseContents = content &| \ c -> mknullary c
     toContents i =
           -- probably not here: E.xmlEscape E.stdXmlEscaper
           -- this introduces whitespace between &lt; and =
@@ -24,12 +22,12 @@ instance XmlContent Identifier where
           -- and this creates a CDATA element
           -- [ CString True $ show i ]
           -- so here comes an UGLY HACK:
-          [ CString False ( escape $ show i ) () ]
+          [xml|#{fromString $ escape $ show i}|]
 
 
-instance ( Typeable ( Term v c ) , XmlContent v, XmlContent c )
+instance (  Show v, XmlContent v, XmlContent c )
          => XmlContent ( Term v c ) where
-    toContents ( Var v ) = rmkel "var" $ toContents v
+    toContents ( Var v ) = [xml|<var>#{fromString $ show v}|]
 {-
 -- for Rainbow:
     toContents ( Node f xs ) = return $ mkel "app"
@@ -51,31 +49,34 @@ instance ( Typeable ( Term v c ) , XmlContent v, XmlContent c )
 -- and toContents (Term v Identifier) should never occur,
 -- instead need to call  toContents (Term v Symbol)
 
-    toContents ( Node f args ) = rmkel "funapp" 
-            $ no_sharp_name_HACK ( toContents f )
-           ++ map ( \ arg -> mkel "arg" $ toContents arg ) args
+    toContents ( Node f args ) =
+      [xml|<funapp>
+             ^{no_sharp_name_HACK ( toContents f )}
+             $forall arg <- args
+               <arg>^{toContents arg}
+      |]
+
 
 no_sharp_name_HACK e = e
 
+{-
 sharp_name_HACK e = case e of
     [ CElem ( Elem (N "sharp") [] cs ) () ] -> 
         rmkel "sharp" $ rmkel "name" cs
     _ -> rmkel "name" e
 
+-}
 
 
 
-instance HTypeable ( Rule ( Term v c )) where
-     toHType _ = Prim "Rule" "Rule"
-
-instance ( HTypeable ( Rule ( Term v c) )
-         , XmlContent ( Term v c ) ) 
+instance ( XmlContent ( Term v c ) ) 
          => XmlContent ( Rule ( Term v c ) ) where
     toContents u =
-        return $ mkel "rule" 
-               [ mkel "lhs" $ toContents $ lhs u
-               , mkel "rhs" $ toContents $ rhs u
-               ]
+      [xml|<rule>
+             <lhs>^{toContents $ lhs u}
+             <rhs>^{toContents $ rhs u}
+      |]
+
 
 
 

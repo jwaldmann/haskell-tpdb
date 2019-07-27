@@ -6,7 +6,5 @@ import TPDB.Plain.Write
 import Control.Monad ( forM, void )
 
 main = void $ do
-    p <- readProblemF "test/3.39.xml"
+    p <- readProblemF "test/rel12.xml"
     print $ pretty p
-
-

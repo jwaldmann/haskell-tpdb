@@ -1,58 +1,54 @@
-{-# language Arrows, NoMonomorphismRestriction, PatternSignatures #-}
-
 -- | construct data object from XML tree.
 
-module TPDB.XTC.Read where
+{-# language NoMonomorphismRestriction, PatternSignatures, OverloadedStrings
+  , BangPatterns
+#-}
 
--- implementations follows these examples:
--- http://www.haskell.org/haskellwiki/HXT/Practical/
+
+module TPDB.XTC.Read (readProblemF, readProblemT ) where
 
 import TPDB.Data
 import TPDB.Data.Attributes
 
-import Text.XML.HXT.Arrow.XmlArrow
+import Text.XML
+import Text.XML.Cursor
+import qualified Data.Text as ST
+import qualified Data.Text.Lazy as LT
+import qualified Data.Text.Lazy.IO as LT
+import Data.String
+import Control.Monad.Catch
+import Data.Monoid ((<>))
 
-import Text.XML.HXT.Arrow.XmlState ( runX )
-import Text.XML.HXT.Arrow.ReadDocument ( readString )
-import Text.XML.HXT.Arrow.XmlOptions ( a_validate )
-import Text.XML.HXT.DOM.XmlKeywords (v_0)
-import Control.Arrow
-import Control.Arrow.ArrowList
-import Control.Arrow.ArrowTree
+readProblemF :: FilePath -> IO ( Problem Identifier Identifier )
+readProblemF file = do
+  doc <- Text.XML.readFile Text.XML.def file
+  case getProblem $ fromDocument doc of
+    [] -> error "input contains no XTC problem"
+    [p] -> return p
+    ps -> error "input contains more than one XTC problem"
 
-import qualified Data.ByteString.Lazy as BS
-import qualified Data.ByteString.Lazy.Char8 as C
-import Text.XML.HXT.IO.GetFILE
-import Text.XML.HXT.Arrow.ReadDocument
+readProblemT :: LT.Text -> Either SomeException (Problem Identifier Identifier)
+readProblemT t = case ( getProblem . fromDocument ) <$> Text.XML.parseText Text.XML.def t of
+  Right [ p ] -> Right p
+  Left ex -> Left ex
 
-atTag tag = deep (isElem >>> hasName tag)
 
-getTerm = getVar <+> getFunApp
-
-getVar = proc x -> do
-    nm <- getText <<< getChildren <<< hasName "var" -< x
-    returnA -< Var $ mk 0 nm
-
-getFunApp = proc x -> do
-    sub <- hasName "funapp" -< x
-    nm <- getText <<< gotoChild "name" -< sub
-    gs <- listA ( getTerm <<< gotoChild "arg" ) -< sub
-    let c = mk (length gs) nm
-    returnA -< Node c gs
-
-gotoChild tag = proc x -> do
-    returnA <<< getChildren <<< getChild tag -< x
-
-getChild tag = proc x -> do
-    returnA <<< hasName tag <<< isElem <<< getChildren -< x
-
-getProblem = atTag "problem" >>> proc x -> do
-    ty <- getType <<< getAttrValue "type" -< x
-    rs <- getTRS <<< getChild "trs" -< x
-    st <- getStrategy <<< getChild "strategy" -< x
-    stt <- listA ( getStartterm <<< getChild "startterm" ) -< x
-    sig <- getSignature <<<  getChild "trs" -< x
-    returnA -< Problem { trs = rs
+getProblem :: Cursor -> [ Problem Identifier Identifier ]
+getProblem = element "problem" >=> \ c -> do
+    let ! ty = case c $| attribute "type" of
+         [ "termination" ] -> Termination
+         [ "complexity"  ] -> Complexity
+         _ -> error "type"
+    let ! st = case c $/ element "strategy" &/ content of
+         [ "FULL" ]      -> Just Full
+         [ "INNERMOST" ] -> Just Innermost
+         [ "OUTERMOST" ] -> Just Outermost
+         [] -> Nothing
+         _ -> error "strategy"
+    rs <- c $/ element "trs" >=> getTRS         
+    let stt = c $/ element "startterm" &/ getStartterm
+    sig <- c $/ element "trs" >=> getSignature 
+    return $ Problem { trs = rs
                         , TPDB.Data.strategy = st
                         , TPDB.Data.full_signature = sig
                         , type_ = ty
@@ -62,74 +58,63 @@ getProblem = atTag "problem" >>> proc x -> do
                         , attributes = compute_attributes $ rules rs
                         }
 
-getType = proc x -> do
-    returnA -< case x of
-        "termination" -> Termination
-        "complexity" -> Complexity
+getTerm :: Cursor -> [ Term Identifier Identifier ]
+getTerm = getVar <> getFunApp
 
-getStrategy = proc x -> do
-    cs <- getText <<< getChildren -< x
-    returnA -< case cs of
-        "FULL"      -> Just Full
-        "INNERMOST" -> Just Innermost
-        "OUTERMOST" -> Just Outermost
+getVar :: Cursor -> [ Term Identifier Identifier ]
+getVar = element "var" &/ \ c -> ( Var . mk 0 ) <$> content c
 
-getStartterm = ( proc x -> do
-        getChild "constructor-based" -< x
-        returnA -< Startterm_Constructor_based
-   ) <+>  ( proc x -> do
-        getChild "full" -< x
-        returnA -< Startterm_Full
-   ) 
+getFunApp :: Cursor -> [ Term Identifier Identifier ]
+getFunApp = element "funapp" >=> \ c -> do
+  nm <- c $/ element "name" &/ content
+  let args = c $/ element "arg" &/ getTerm
+      f = mk (length args) $ nm
+  return $ Node f args
+          
 
-getTRS = proc x -> do
-    sig <- getSignature -< x
-    str <- getRules Strict <<< getChild "rules" -< x
-    nostr <- listA ( getRules Weak <<< getChild "relrules" <<< getChild "rules" ) -< x
+        
+
+getStartterm =
+     (element "constructor-based" &| const  Startterm_Constructor_based )
+  <> (element "full" &| const Startterm_Full   ) 
+
+getTRS c = do
+    sig <- getSignature c
+    let str   = c $/ element "rules" >=> getRulesWith Strict 
+        nostr = c $/ element "rules" &/ ( element "relrules" >=> getRulesWith Weak )
     -- FIXME: check that symbols are use with correct arity
-    returnA -< RS { signature = case sig of
-                       Signature fs -> do f <- fs ; return $ mk (fs_arity f) (fs_name f)
+    return $ RS { signature = case sig of
+                       Signature fs -> do f <- fs ; return $ mk (fs_arity f) ( fs_name f)
                        HigherOrderSignature {} -> []
-                  , rules = str ++ concat nostr
+                  , rules = concat str ++ concat nostr
                   , separate = False -- for TRS, don't need comma between rules
                   }
 
-getSignature =
-      ( getFOSignature <<< getChild "signature" )
-  <+> ( getHOSignature <<< getChild "higherOrderSignature" )
+getSignature c =  ( c $/ element "signature" >=> getFOSignature  )
+  <> ( c $/ element "higherOrderSignature" &| const HigherOrderSignature )
 
-getFOSignature = proc x -> do
-    fs <- listA ( getFuncsym <<< getChild "funcsym" ) -< x
-    returnA -< Signature fs
+getFOSignature c =
+  return $ Signature ( c $/ element "funcsym" >=> getFuncsym )
 
-getHOSignature = proc x -> do
-    returnA -< HigherOrderSignature
-
-getFuncsym = proc x -> do
-    nm <- getText <<< gotoChild "name" -< x
-    ar <- getRead <<< gotoChild "arity" -< x
-    th <- listA ( getRead <<< gotoChild "theory" ) -< x
-    rm <- listA ( listA (getRead <<< gotoChild "entry") <<< gotoChild "replacementmap" ) -< x
-    returnA -< Funcsym  { fs_name = nm
+getFuncsym c = do
+    nm <- c $/ element "name" &/ content
+    ar <- c $/ element "arity" &/ read_content
+    let th = c $/ element "theory" &/ read_content
+        rm = c $/ element "replacementmap" >=> \ c ->
+          return $ c $/ element "entry" &/ read_content
+    return $ Funcsym  { fs_name = nm
                         , fs_arity = ar
                         , fs_theory = case th of [] -> Nothing ; [t] -> Just t
                         , fs_replacementmap = case rm of [] -> Nothing ; [r] -> Just (Replacementmap r)
                         }
 
-getRead = proc x -> do s <- getText -< x ; returnA -< read s
+read_content c = (read . ST.unpack) <$> content c
 
-getRules str = proc x -> do
-    returnA <<< listA ( getRule str  <<< getChild "rule" ) -< x
+getRulesWith s c =
+  return ( c $/ ( element "rule" >=> getRule s ) )
 
-getRule str = proc x -> do
-    l <-  getTerm <<< isElem <<< gotoChild "lhs" -< x
-    r <-  getTerm <<< isElem <<< gotoChild "rhs" -< x
-    returnA -< Rule { lhs = l, relation = str, rhs = r, top = False }
+getRule :: Relation -> Cursor -> [ Rule (Term Identifier Identifier) ]
+getRule s c = 
+  ( \ l r -> Rule {lhs=l,relation=s,rhs=r,top=False})
+    <$> (c $/ element "lhs" &/ getTerm) <*> (c $/ element "rhs" &/ getTerm)
 
-readProblems :: FilePath -> IO [ Problem Identifier Identifier ]
-readProblems file =
-   runX ( readDocument [] file >>> getProblem )
-
-readProblemsBS :: BS.ByteString -> IO [ Problem Identifier Identifier ]
-readProblemsBS s =
-   runX ( readString [] (C.unpack s) >>> getProblem )

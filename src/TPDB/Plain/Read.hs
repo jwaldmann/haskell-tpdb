@@ -9,11 +9,9 @@ import TPDB.Data
 
 import Text.Parsec (parse)
 
-import qualified Data.ByteString.Lazy as B
-import Data.ByteString.Lazy (ByteString)
-import qualified Data.ByteString.Lazy.Char8 as C
+import qualified Data.Text.Lazy as T
 
-import Text.Parsec.ByteString.Lazy as P
+import Text.Parsec.Text.Lazy as P
 import Text.Parsec.Token
 import Text.Parsec.Language
 import Text.Parsec.Char
@@ -23,16 +21,18 @@ import Data.Functor.Identity (Identity)
 
 import TPDB.Pretty (pretty)
 import TPDB.Plain.Write ()
+import Data.Text ()
+import Data.String (fromString)
 
 import Control.Monad ( guard, void )
 import Data.List ( nub )
 
-trs :: ByteString -> Either String ( TRS Identifier Identifier )
+trs :: T.Text -> Either String ( TRS Identifier Identifier )
 trs s = case Text.Parsec.parse reader "input" s of
     Left err -> Left $ show err
     Right t  -> Right t
 
-srs :: ByteString -> Either String ( SRS Identifier )
+srs :: T.Text -> Either String ( SRS Identifier )
 srs s = case Text.Parsec.parse reader "input" s of
     Left err -> Left $ show err
     Right t  -> Right t
@@ -42,7 +42,7 @@ srs s = case Text.Parsec.parse reader "input" s of
 class Reader a where reader :: P.Parser a
 
 -- | warning: by definition, {}[] may appear in identifiers
-lexer :: GenTokenParser ByteString () Identity
+lexer :: GenTokenParser T.Text () Identity
 lexer = makeTokenParser
     $ LanguageDef
        { nestedComments = True
@@ -59,7 +59,7 @@ lexer = makeTokenParser
 instance Reader Identifier where 
     reader = do
         i :: String <- identifier lexer 
-	return $ mk 0 i
+        return $ mk 0 $ fromString i
 
 instance Reader s =>  Reader [s] where
     reader = many reader
@@ -71,7 +71,7 @@ instance ( Reader v ) => Reader ( Term v Identifier ) where
     reader = do
         f  <- reader 
         xs <- ( parens lexer $ commaSep lexer reader ) <|> return []
-        return $ Node ( f { arity = length xs } ) xs
+        return $ Node ( f { arity = Prelude.length xs } ) xs
 
 instance Reader u => Reader ( Rule u ) where
     reader = do
@@ -120,13 +120,13 @@ instance Reader ( SRS Identifier ) where
     reader = do 
         many space
         ds <- many $ declaration True
-	return $ make_srs ds
+        return $ make_srs ds
 
 instance Reader ( TRS Identifier Identifier ) where
     reader = do
         many space
         ds <- many $ declaration False
-	return $ make_trs ds
+        return $ make_trs ds
 
 repair_signature_srs sys = 
     let sig = nub $ do u <- rules sys ; lhs u ++ rhs u
@@ -152,9 +152,9 @@ make_trs ds = repair_signature_trs $
 
 repair_variables vars rules = do
     let xform ( Node c [] ) | c `elem` vars = Var c
-	xform ( Node c args ) = Node c ( map xform args )
+        xform ( Node c args ) = Node c ( map xform args )
     rule <- rules  
     return $ rule { lhs = xform $ lhs rule
-		  , rhs = xform $ rhs rule
-		  }
+                  , rhs = xform $ rhs rule
+                  }
 

@@ -3,7 +3,10 @@
 -- A termination problem is @Problem v s@. This contains a rewrite system plus extra
 -- information (strategy, theory, etc.)
 
-{-# language DeriveDataTypeable #-}
+{-# language DeriveDataTypeable,
+    FlexibleInstances, FlexibleContexts,
+    MultiParamTypeClasses, TypeFamilies
+#-}
 
 module TPDB.Data 
 
@@ -22,12 +25,15 @@ import TPDB.Data.Attributes
 import Data.Typeable
 import Control.Monad ( guard )
 
+import Data.Void
 import Data.Hashable
 import Data.Function (on)
+import qualified Data.Text as T
+import qualified Data.Set as S
 
 data Identifier =
      Identifier { _identifier_hash :: ! Int
-                , name :: ! String
+                , name :: ! T.Text
                 , arity :: Int
                 }
     deriving ( Eq, Ord, Typeable )
@@ -35,18 +41,29 @@ data Identifier =
 instance Hashable Identifier where
     hashWithSalt s i = hash (s, _identifier_hash i)
 
-instance Show Identifier where show = name
+instance Show Identifier where show = T.unpack . name
 
-mk :: Int -> String -> Identifier
+mk :: Int -> T.Text -> Identifier
 mk a n = Identifier { _identifier_hash = hash (a,n)
                     , arity = a, name = n }
 
+class Ord (Var t) => Variables t where
+  type Var t
+  variables :: t -> S.Set (Var t)
+
+instance Ord v => Variables (Term v c) where
+  type Var (Term v c) = v
+  variables = vars
+
+instance Variables [c] where
+  type Var [c] = ()
+  variables _ = S.empty
 
 ---------------------------------------------------------------------
 
 -- | according to XTC spec
 data Funcsym = Funcsym
-  { fs_name :: String -- ^ should be Text
+  { fs_name :: T.Text
   , fs_arity :: Int
   , fs_theory :: Maybe Theory
   , fs_replacementmap :: Maybe Replacementmap
@@ -86,6 +103,19 @@ equal_rules sys =
 type TRS v s = RS s ( Term v s )
 
 type SRS s = RS s [ s ]
+
+instance Variables r => Variables (Rule r) where
+  type Var (Rule r) = Var r
+  variables u =
+    S.unions [ variables (lhs u), variables (rhs u) ]
+
+instance Ord v => Variables (TRS v s) where
+  type Var (TRS v s) = v
+  variables sys = S.unions $ map variables $ rules sys
+
+instance Variables (SRS s) where
+  type Var (SRS s) = Void
+  variables sys = S.empty
 
 data Problem v s =
      Problem { type_ :: Type

@@ -6,6 +6,7 @@ import           Data.List (nub)
 import           TPDB.Data 
 import           TPDB.CPF.Proof.Type hiding (name)
 import           TPDB.DP 
+import Data.String (fromString)
 
 fromMarkedIdentifier :: Marked Identifier -> Symbol
 fromMarkedIdentifier = \case 
@@ -19,7 +20,7 @@ sortVariables r = r { lhs = vmap mapVar $ lhs r
   where
     oldVars      = nub $ voccs $ lhs r
     newVars      = zipWith mkNewVar [1..] oldVars
-    mkNewVar i v = v { name = "x" ++ show i }
+    mkNewVar i v = v { name = fromString $ "x" ++ show i }
     mapping      = M.fromList $ zip oldVars newVars
     mapVar v     = case M.lookup v mapping of
       Just v' -> v'
