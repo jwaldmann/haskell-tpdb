@@ -35,11 +35,11 @@ readProblemT t = case ( getProblem . fromDocument ) <$> Text.XML.parseText Text.
 
 getProblem :: Cursor -> [ Problem Identifier Identifier ]
 getProblem = element "problem" >=> \ c -> do
-    let ! ty = case c $| attribute "type" of
+    let !ty = case c $| attribute "type" of
          [ "termination" ] -> Termination
          [ "complexity"  ] -> Complexity
          _ -> error "type"
-    let ! st = case c $/ element "strategy" &/ content of
+    let !st = case c $/ element "strategy" &/ content of
          [ "FULL" ]      -> Just Full
          [ "INNERMOST" ] -> Just Innermost
          [ "OUTERMOST" ] -> Just Outermost

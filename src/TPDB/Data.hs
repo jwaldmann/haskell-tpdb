@@ -32,8 +32,8 @@ import qualified Data.Text as T
 import qualified Data.Set as S
 
 data Identifier =
-     Identifier { _identifier_hash :: ! Int
-                , name :: ! T.Text
+     Identifier { _identifier_hash :: !Int
+                , name :: !T.Text
                 , arity :: Int
                 }
     deriving ( Eq, Ord, Typeable )
