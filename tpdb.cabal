@@ -26,7 +26,7 @@ tested-with: GHC == 9.0.1 , GHC == 8.10.4 , GHC == 8.8.4
              , GHC == 8.2.2 , GHC == 8.0.2 , GHC == 7.10.3
           
 Extra-Source-Files:
-     test/3.15.xml, test/33.trs ,  test/z001.srs
+     test/*.xml, test/*.trs ,  test/*.srs, test/*.cpf
 
 Source-Repository head
   Type: git
