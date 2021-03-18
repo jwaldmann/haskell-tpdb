@@ -1,4 +1,4 @@
-Cabal-Version: 2.4
+Cabal-Version: 3.4
 
 Name: tpdb
 Version: 2.2.1
@@ -37,10 +37,10 @@ Library
     parsec, time, containers, filepath, hashable, bytestring, exceptions
   Hs-Source-Dirs: src
   Exposed-Modules:
-    TPDB.Data,     TPDB.Data.Term, TPDB.Data.Rule, TPDB.Data.Attributes, TPDB.Data.Xml
+    TPDB.Data,     TPDB.Data.Term, TPDB.Data.Rule, TPDB.Data.Attributes, TPDB.Data.Xml,
     -- TPDB.Compress, 
-    TPDB.Convert, TPDB.Input, TPDB.Input.File, TPDB.Input.Memory
-    TPDB.Mirror
+    TPDB.Convert, TPDB.Input, TPDB.Input.File, TPDB.Input.Memory,
+    TPDB.Mirror,
     TPDB.DP, TPDB.DP.Graph, TPDB.DP.Transform, TPDB.DP.Unify, TPDB.DP.Usable,  TPDB.DP.TCap,
     TPDB.Pretty, TPDB.Plain.Write,     TPDB.Plain.Read,
     TPDB.XTC,  TPDB.XTC.Read, TPDB.XTC.Write, TPDB.Xml, 
