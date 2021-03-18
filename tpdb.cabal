@@ -25,12 +25,12 @@ tested-with: GHC == 9.0.1 , GHC == 8.10.4 , GHC == 8.8.4
              , GHC == 8.6.5 , GHC == 8.4.4
              , GHC == 8.2.2 , GHC == 8.0.2 , GHC == 7.10.3
           
+Extra-Source-Files:
+     test/3.15.xml, test/33.trs ,  test/z001.srs
+
 Source-Repository head
   Type: git
   Location: git://github.com/jwaldmann/haskell-tpdb.git
-
-Extra-Source-Files:
-   test/3.15.xml, test/33.trs ,  test/z001.srs
 
 Library
   Build-Depends: base==4.*,  prettyprinter, text, mtl,
