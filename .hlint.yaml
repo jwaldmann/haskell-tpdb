@@ -1,0 +1,29 @@
+- arguments: [--cpp-define=HLINT, --cpp-ansi]
+
+- ignore:
+    name: Use camelCase
+
+- ignore:
+    name: Use lambda-case
+
+- ignore:
+   name: Move brackets to avoid $
+
+- ignore:
+   name: Redundant $
+
+- ignore:
+   name: Redundant bracket
+
+- ignore:
+   name: Use unless
+
+- ignore:
+   name: Avoid lambda
+
+- ignore:
+   name: Use fmap
+
+- ignore:
+   name: Eta reduce
+
