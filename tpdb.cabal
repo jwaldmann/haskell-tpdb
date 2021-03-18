@@ -21,6 +21,10 @@ Build-Type: Simple
 
 Homepage: https://github.com/jwaldmann/haskell-tpdb
 
+tested-with: GHC == 9.0.1 , GHC == 8.10.4 , GHC == 8.8.4
+             , GHC == 8.6.5 , GHC == 8.4.4
+             , GHC == 8.2.2 , GHC == 8.0.2 , GHC == 7.10.3
+          
 Source-Repository head
   Type: git
   Location: git://github.com/jwaldmann/haskell-tpdb.git
