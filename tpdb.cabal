@@ -1,21 +1,20 @@
+Cabal-Version: 2.4
+
 Name: tpdb
 Version: 2.2.1
 
 Author: Alexander Bau, Johannes Waldmann
 Maintainer: Johannes Waldmann
 Category: Logic
-License: GPL
-License-file: LICENSE
-Cabal-Version: >= 1.8
 Synopsis: Data Type for Rewriting Systems
-
-
 Description:
    The package defines data types and parsers for rewriting systems
    and termination proofs,
    as used in the Termination Competitions.
    For syntax and semantics specification, 
    see <http://www.termination-portal.org/wiki/TPDB>
+
+License: GPL-3.0-only
 
 Build-Type: Simple
 
@@ -26,7 +25,6 @@ tested-with: GHC == 9.0.1 , GHC == 8.10.4 , GHC == 8.8.4
              , GHC == 8.2.2 , GHC == 8.0.2 , GHC == 7.10.3
           
 Extra-Source-Files:
-   test/3.15.xml, test/3.39.xml,
    test/*.xml, test/*.trs ,  test/*.srs, test/*.cpf
 
 Source-Repository head
