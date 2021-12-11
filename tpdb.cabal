@@ -36,6 +36,7 @@ Library
     xml-hamlet, xml-conduit, data-default,
     parsec, time, containers, filepath, hashable, bytestring, exceptions
   Hs-Source-Dirs: src
+  default-language: Haskell2010
   Exposed-Modules:
     TPDB.Data,     TPDB.Data.Term, TPDB.Data.Rule, TPDB.Data.Attributes, TPDB.Data.Xml,
     -- TPDB.Compress, 
@@ -51,10 +52,12 @@ Library
 Executable plain2xtc
   build-depends: base==4.*, tpdb, bytestring
   main-is: plain2xtc.hs
+  default-language: Haskell2010
 
 Executable srs2trs
   build-depends: base==4.*, tpdb, bytestring
   main-is: srs2trs.hs
+  default-language: Haskell2010
 
 -- Executable Compressor
 --     Main-is: Compressor.hs
@@ -65,30 +68,35 @@ Test-Suite XML
   Type: exitcode-stdio-1.0
   main-is: read_print_xml.hs
   hs-source-dirs: test 
+  default-language: Haskell2010
 
 Test-Suite XML_relative
   Build-Depends: base==4.*, tpdb
   Type: exitcode-stdio-1.0
   main-is: read_print_xml_relative.hs
   hs-source-dirs: test 
+  default-language: Haskell2010
 
 Test-Suite TRS
   Build-Depends: base==4.*, tpdb, text
   Type: exitcode-stdio-1.0
   main-is: read_print_trs.hs
   hs-source-dirs: test 
+  default-language: Haskell2010
 
 Test-Suite TRS_02
   Build-Depends: base==4.*, tpdb, text
   Type: exitcode-stdio-1.0
   main-is: read_print_trs_2.hs
   hs-source-dirs: test 
+  default-language: Haskell2010
 
 Test-Suite SRS
   Build-Depends: base==4.*, tpdb, text
   Type: exitcode-stdio-1.0
   main-is: read_print_srs.hs
   hs-source-dirs: test 
+  default-language: Haskell2010
 
 Test-Suite Speed
   Buildable: False
@@ -96,46 +104,54 @@ Test-Suite Speed
   Type: exitcode-stdio-1.0
   main-is: speed.hs
   hs-source-dirs: test 
+  default-language: Haskell2010
                   
 Test-Suite Attributes
   Build-Depends: base==4.*, tpdb, text, pretty
   Type: exitcode-stdio-1.0
   main-is: attributes.hs
   hs-source-dirs: test 
+  default-language: Haskell2010
 
 Test-Suite XML-Theory
   Build-Depends: base==4.*, tpdb
   Type: exitcode-stdio-1.0
   main-is: read_print_xml_theory.hs
   hs-source-dirs: test 
+  default-language: Haskell2010
 
 Test-Suite CPF-AC
   Build-Depends: base==4.*, tpdb
   Type: exitcode-stdio-1.0
   main-is: read_cpf.hs
   hs-source-dirs: test 
+  default-language: Haskell2010
 
 Test-Suite Parse-AC
   Build-Depends: base==4.*, tpdb
   Type: exitcode-stdio-1.0
   main-is: parse_ac.hs
   hs-source-dirs: test 
+  default-language: Haskell2010
 
 Test-Suite read-cpf
   Build-Depends: base==4.*, tpdb
   Type: exitcode-stdio-1.0
   main-is: read_cpf.hs
   hs-source-dirs: test 
+  default-language: Haskell2010
 
 Test-Suite read-complex
   Build-Depends: base==4.*, tpdb
   Type: exitcode-stdio-1.0
   main-is: read_complex.hs
   hs-source-dirs: test 
+  default-language: Haskell2010
 
 Test-Suite read-large
   Build-Depends: base==4.*, tpdb
   Type: exitcode-stdio-1.0
   main-is: read_large.hs
   hs-source-dirs: test 
+  default-language: Haskell2010
 
