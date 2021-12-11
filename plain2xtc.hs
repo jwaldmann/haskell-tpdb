@@ -2,7 +2,7 @@ import qualified TPDB.Data as D
 import qualified TPDB.Input as I
 import qualified TPDB.XTC as X
 import System.Environment (getArgs)
-import qualified Data.ByteString.Lazy as L
+import qualified Data.ByteString.Lazy.Char8 as L
 
 main = do
   [f] <- getArgs
