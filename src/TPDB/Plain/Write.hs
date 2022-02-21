@@ -60,8 +60,19 @@ instance ( Pretty s, PrettyTerm r, Variables (RS s r)
         ]
 
 instance ( Pretty s, Pretty r, Variables (Term s r) ) => Pretty ( Problem s r ) where
-    pretty p = vcat
-       [ pretty $ trs p 
+    pretty p =
+      let rms = case full_signature p of
+            HigherOrderSignature -> []
+	    Signature fs -> do
+	      f <- fs
+	      case fs_replacementmap f of
+	        Nothing -> []
+	        Just (Replacementmap ps) ->
+	          return $ parens $ sep $ pretty (fs_name f) : map pretty ps
+      in  vcat
+       [ pretty $ trs p
+       , if null rms then empty
+         else parens $ sep $ "STRATEGY" : "CONTEXTSENSITIVE" : rms
        , case strategy p of  
              Nothing -> empty
              Just s -> sep [ "strategy"
