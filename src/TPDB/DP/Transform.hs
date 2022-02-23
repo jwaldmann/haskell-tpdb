@@ -1,7 +1,13 @@
 {-# language OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE PatternSynonyms #-}
 
-module TPDB.DP.Transform  where
+module TPDB.DP.Transform
+  ( dp, mark, Marked
+  , pattern Marked, pattern Original, pattern Auxiliary
+  , isOriginal, isMarked, mark_top
+  , defined
+  ) where
 
 import TPDB.Data
 import TPDB.Pretty
@@ -12,19 +18,31 @@ import Control.Monad ( guard, forM )
 import Data.Hashable
 import GHC.Generics
 
-data Marked a = Original a | Marked a | Auxiliary a
+data Mark = Orig
+   | Mark
+   | Aux -- ^ wat is this?
+  deriving (Eq, Ord, Show, Generic)
+instance Hashable Mark
+
+data Marked a = Marked_Imp { contents :: !a
+                       , mark :: !Mark
+                       }
     deriving ( Show, Eq, Ord, Generic )
 
-isOriginal m = case m of Original {} -> True ; _ -> False
-isMarked   m = case m of Marked   {} -> True ; _ -> False
+pattern Marked a = Marked_Imp { mark = Mark, contents = a }
+pattern Original a = Marked_Imp { mark = Orig, contents = a }
+pattern Auxiliary a = Marked_Imp { mark = Aux, contents = a }
+
+isOriginal m = mark m == Orig
+isMarked   m = mark m == Mark
 
 instance Hashable a => Hashable (Marked a) 
 
 instance Pretty a => Pretty ( Marked a) where
-   pretty m = case m of
-       Original a -> pretty a
-       Marked a -> pretty a <> "#"
-       Auxiliary a -> pretty a
+   pretty m = let p = pretty (contents m) in case mark m of
+       Orig -> p
+       Mark -> p <> "#"
+       Aux -> p
 
 mark_top :: Term v a -> Term v (Marked a)
 mark_top  (Node f args) = 
