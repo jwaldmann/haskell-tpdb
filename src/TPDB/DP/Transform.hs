@@ -44,9 +44,9 @@ instance Pretty a => Pretty ( Marked a) where
        Mark -> p <> "#"
        Aux -> p
 
-mark_top :: Term v a -> Term v (Marked a)
+mark_top :: TermC v a => Term v a -> Term v (Marked a)
 mark_top  (Node f args) = 
-          Node (Marked f) $ map (fmap Original) args
+          Node (Marked f) $ map (tmap Original) args
 
 defined s = S.fromList $ do 
                 u <- rules s
@@ -56,13 +56,13 @@ defined s = S.fromList $ do
 
 -- | compute the DP transformed system.
 
-dp :: (Ord v, Ord s) 
+dp :: TermC v s
    => RS s (Term v s) 
    -> RS (Marked s) (Term v (Marked s))
 dp s = 
    let os = map ( \ u -> Rule { relation = Weak
-                               , lhs = fmap Original $ lhs u  
-                               , rhs = fmap Original $ rhs u  
+                               , lhs = tmap Original $ lhs u  
+                               , rhs = tmap Original $ rhs u  
                                , top = False
                                } )
            $ rules s

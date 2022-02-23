@@ -1,7 +1,10 @@
+{-# language FlexibleContexts #-}
+
 module TPDB.DP.Unify ( mgu, match, unifies, apply, times ) where
 
 import TPDB.Data
-import qualified Data.Map as M
+import qualified Data.Map.Strict as M
+import qualified Data.Set as S
 import Control.Monad ( guard, foldM )
 import Data.Maybe (isJust)
 
@@ -10,30 +13,35 @@ type Substitution v c = M.Map v (Term v c)
 unifies t1 t2 = isJust $ mgu t1 t2
 
 -- | view variables as symbols
-pack :: Term v c -> Term any (Either v c)
+pack :: (TermC v c, TermC any (Either v c))
+  => Term v c -> Term any (Either v c)
 pack ( Var v ) = Node ( Left v ) []
 pack ( Node f args ) = Node ( Right f ) ( map pack args )
 
-unpack :: Term any (Either v c) -> Term v c
+unpack :: (TermC v c, TermC any (Either v c))
+  => Term any (Either v c) -> Term v c
 unpack ( Node ( Left v ) [] ) = Var v
 unpack ( Node ( Right f ) args ) = Node f ( map unpack args )
 
 -- | will only bind variables in the left side
-match :: ( Ord v, Ord w, Eq c )
+match :: ( TermC v c, TermC w c )
       => Term v c
       -> Term w c
       -> Maybe ( M.Map v ( Term w c ) )
 match l r = do
-    u <- mgu ( fmap Right l ) ( pack r )
+    u <- mgu ( tmap Right l ) ( pack r )
     return $ M.map unpack  u
 
 
 -- | naive implementation (worst case exponential)
 mgu
-  :: (Ord v, Eq c) =>
+  :: (TermC v c) =>
      Term v c -> Term v c -> Maybe (M.Map v (Term v c))
 mgu t1 t2 | t1 == t2 = return M.empty
 mgu ( Var v ) t2 = do
+    -- this requires t2 to be visited completely:
+    -- guard $ not $ S.member v $ vars t2  
+    -- this is lazy: will stop when encountering first v occurence
     guard $ not $ elem (Var v) $ subterms t2
     return $ M.singleton v t2
 mgu t1 ( Var v ) = mgu ( Var v ) t1  
@@ -45,7 +53,7 @@ mgu (Node f1 args1) (Node f2 args2)
             return $ times s t ) M.empty $ zip args1 args2 
 mgu _ _ = Nothing
    
-times :: Ord v 
+times :: TermC v c
       => Substitution v c -> Substitution v c -> Substitution v c
 times s t = 
     M.union ( M.difference t s )

@@ -1,7 +1,8 @@
 {-# language StandaloneDeriving #-}
 {-# language ExistentialQuantification #-}
-{-# language DeriveDataTypeable #-}
+{-# language DeriveDataTypeable, DeriveGeneric #-}
 {-# language OverloadedStrings #-}
+{-# language FlexibleContexts #-}
 
 -- | internal representation of CPF termination proofs,
 -- see <http://cl-informatik.uibk.ac.at/software/cpf/>
@@ -21,6 +22,8 @@ import Data.Typeable
 import TPDB.Pretty
 import Data.Text
 import TPDB.Xml (XmlContent)
+import GHC.Generics
+import Data.Hashable
 
 data CertificationProblem =
      CertificationProblem { input :: CertificationProblemInput 
@@ -81,7 +84,8 @@ data Proof = TrsTerminationProof TrsTerminationProof
    deriving ( Typeable, Eq )
 
 data DPS = forall s . ( XmlContent s ,
-                        Typeable s, Eq s ) 
+                        Typeable s,
+                        Hashable s, Ord s ) 
         => DPS [ Rule (Term Identifier s) ]
    deriving ( Typeable )
 
@@ -246,11 +250,13 @@ data ArithFunction = AFNatural  Integer
 data Symbol = SymName  Identifier
             | SymSharp Symbol
             | SymLabel Symbol Label
-            deriving ( Typeable, Eq )
+            deriving ( Typeable, Eq, Ord, Generic )
+instance Hashable Symbol
 
 data Label = LblNumber [Integer]
            | LblSymbol [Symbol]
-           deriving ( Typeable, Eq )
+           deriving ( Typeable, Eq, Ord, Generic )
+instance Hashable Label
 
 data Coefficient = Vector [ Coefficient ]
            | Matrix [ Coefficient ]
@@ -258,7 +264,8 @@ data Coefficient = Vector [ Coefficient ]
                         ) => Coefficient_Coefficient a
    deriving ( Typeable )
 
-instance Eq Coefficient where x == y = error "instance Eq Coefficient"
+instance Eq Coefficient where
+  x == y = error "instance Eq Coefficient"
 
 data Exotic = Minus_Infinite | E_Integer Integer | E_Rational Rational | Plus_Infinite
    deriving ( Typeable, Eq )

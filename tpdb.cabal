@@ -38,7 +38,9 @@ Library
   Hs-Source-Dirs: src
   default-language: Haskell2010
   Exposed-Modules:
-    TPDB.Data,     TPDB.Data.Term, TPDB.Data.Rule, TPDB.Data.Attributes, TPDB.Data.Xml,
+    TPDB.Data,
+    TPDB.Data.Term, TPDB.Data.Term.Plain, TPDB.Data.Term.Cached,
+    TPDB.Data.Rule, TPDB.Data.Attributes, TPDB.Data.Xml,
     -- TPDB.Compress, 
     TPDB.Convert, TPDB.Input, TPDB.Input.File, TPDB.Input.Memory,
     TPDB.Mirror,

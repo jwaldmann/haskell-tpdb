@@ -1,7 +1,7 @@
 -- | textual input,
 -- cf. <http://www.lri.fr/~marche/tpdb/format.html>
 
-{-# language PatternSignatures, TypeSynonymInstances, FlexibleInstances #-}
+{-# language PatternSignatures, TypeSynonymInstances, FlexibleInstances, FlexibleContexts #-}
 
 module TPDB.Plain.Read where
 
@@ -67,7 +67,7 @@ instance Reader s =>  Reader [s] where
 -- NOTE: this is dangerous since we read the variables as constants,
 -- and this needs to be patched up later.
 -- NOTE: this is more dangerous as we do not set the arity of identifiers
-instance ( Reader v ) => Reader ( Term v Identifier ) where
+instance ( TermC v Identifier, Reader v ) => Reader ( Term v Identifier ) where
     reader = do
         f  <- reader 
         xs <- ( parens lexer $ commaSep lexer reader ) <|> return []

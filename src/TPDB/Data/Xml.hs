@@ -25,7 +25,7 @@ instance XmlContent Identifier where
           [xml|#{fromString $ escape $ show i}|]
 
 
-instance (  Show v, XmlContent v, XmlContent c )
+instance (  TermC v c, Show v, XmlContent v, XmlContent c )
          => XmlContent ( Term v c ) where
     toContents ( Var v ) = [xml|<var>#{fromString $ show v}|]
 {-
@@ -69,7 +69,7 @@ sharp_name_HACK e = case e of
 
 
 
-instance ( XmlContent ( Term v c ) ) 
+instance ( TermC v c, XmlContent ( Term v c ) ) 
          => XmlContent ( Rule ( Term v c ) ) where
     toContents u =
       [xml|<rule>

@@ -1,3 +1,5 @@
+{-# language FlexibleContexts #-}
+
 module TPDB.DP.TCap where
 
 import TPDB.Data
@@ -13,10 +15,10 @@ import Control.Applicative
 -- even if the term is instantiated. All other parts are replaced by fresh variables.
 -- Def 4.4 in http://cl-informatik.uibk.ac.at/users/griff/publications/Sternagel-Thiemann-RTA10.pdf
 
-tcap :: (Ord v, Ord c) => TRS v c -> Term v c -> Term Int c
+tcap :: (TermC v c) => TRS v c -> Term v c -> Term Int c
 tcap dp t = evalState ( walk dp t ) 0
 
-fresh_var :: State Int ( Term Int c )
+fresh_var :: TermC Int c => State Int ( Term Int c )
 fresh_var = do i <- get ; put $ succ i ; return $ Var i
 
 walk dp t = case t of

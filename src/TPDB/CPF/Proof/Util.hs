@@ -1,4 +1,6 @@
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE FlexibleContexts #-}
+
 module TPDB.CPF.Proof.Util where
 
 import qualified Data.Map as M
@@ -7,13 +9,14 @@ import           TPDB.Data
 import           TPDB.CPF.Proof.Type hiding (name)
 import           TPDB.DP 
 import Data.String (fromString)
+import Data.Hashable
 
 fromMarkedIdentifier :: Marked Identifier -> Symbol
 fromMarkedIdentifier = \case 
   Original i -> SymName i
   Marked i   -> SymSharp $ SymName i
 
-sortVariables :: Rule (Term Identifier s) -> Rule (Term Identifier s)
+sortVariables :: (Ord s, Hashable s) => Rule (Term Identifier s) -> Rule (Term Identifier s)
 sortVariables r = r { lhs = vmap mapVar $ lhs r
                     , rhs = vmap mapVar $ rhs r
                     }

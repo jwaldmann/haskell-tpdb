@@ -6,8 +6,9 @@ import TPDB.Convert
 import Control.Monad ( forM, guard )
 
 -- | if input is SRS, reverse lhs and rhs of each rule
-mirror :: TRS Identifier s 
-       -> Maybe ( TRS Identifier s )
+mirror :: TermC v s
+  => TRS v  s 
+       -> Maybe ( TRS v s )
 mirror trs = do
     us <- forM (rules trs) $ \ u -> do
       ( left_spine, left_base ) <- spine $ lhs u

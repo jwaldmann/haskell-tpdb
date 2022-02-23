@@ -39,7 +39,7 @@ data Identifier =
     deriving ( Eq, Ord, Typeable )
 
 instance Hashable Identifier where
-    hashWithSalt s i = hash (s, _identifier_hash i)
+    hashWithSalt _ = _identifier_hash
 
 instance Show Identifier where show = T.unpack . name
 
@@ -51,7 +51,7 @@ class Ord (Var t) => Variables t where
   type Var t
   variables :: t -> S.Set (Var t)
 
-instance Ord v => Variables (Term v c) where
+instance TermC v c => Variables (Term v c) where
   type Var (Term v c) = v
   variables = vars
 
@@ -109,7 +109,7 @@ instance Variables r => Variables (Rule r) where
   variables u =
     S.unions [ variables (lhs u), variables (rhs u) ]
 
-instance Ord v => Variables (TRS v s) where
+instance TermC v s => Variables (TRS v s) where
   type Var (TRS v s) = v
   variables sys = S.unions $ map variables $ rules sys
 

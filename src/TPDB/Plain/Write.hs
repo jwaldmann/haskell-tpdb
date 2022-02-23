@@ -18,7 +18,7 @@ import qualified Data.Text as T
 instance Pretty Identifier where
     pretty i = pretty $ name i
 
-instance ( Pretty v, Pretty s ) => Pretty ( Term v s ) where
+instance ( TermC v s, Pretty v, Pretty s ) => Pretty ( Term v s ) where
     pretty t = case t of
         Var v -> pretty v
         Node f xs -> case xs of
@@ -41,7 +41,7 @@ instance PrettyTerm a => Pretty ( Rule a ) where
 instance Pretty s => PrettyTerm [s] where    
     prettyTerm xs = hsep $ map pretty xs
 
-instance ( Pretty v, Pretty s ) => PrettyTerm ( Term v s ) where
+instance ( TermC v s, Pretty v, Pretty s ) => PrettyTerm ( Term v s ) where
     prettyTerm = pretty
 
 instance ( Pretty s, PrettyTerm r, Variables (RS s r)
@@ -49,26 +49,26 @@ instance ( Pretty s, PrettyTerm r, Variables (RS s r)
   => Pretty ( RS s r ) where
     pretty sys = vcat 
         [ let vs = S.toList $ variables sys
-	  in if null vs
-	     then empty   
-	     else parens $ "VAR" <+> vcat (map pretty vs)
-	, parens $ "RULES" <+>
+          in if null vs
+             then empty   
+             else parens $ "VAR" <+> vcat (map pretty vs)
+        , parens $ "RULES" <+>
           vcat ( ( if separate sys then punctuate comma else id )
                  $ map pretty $ rules sys 
                )
         -- FIXME: output strategy, theory
         ]
 
-instance ( Pretty s, Pretty r, Variables (Term s r) ) => Pretty ( Problem s r ) where
+instance ( TermC s r, Pretty s, Pretty r, Variables (Term s r) ) => Pretty ( Problem s r ) where
     pretty p =
       let rms = case full_signature p of
             HigherOrderSignature -> []
-	    Signature fs -> do
-	      f <- fs
-	      case fs_replacementmap f of
-	        Nothing -> []
-	        Just (Replacementmap ps) ->
-	          return $ parens $ sep $ pretty (fs_name f) : map pretty ps
+            Signature fs -> do
+              f <- fs
+              case fs_replacementmap f of
+                Nothing -> []
+                Just (Replacementmap ps) ->
+                  return $ parens $ sep $ pretty (fs_name f) : map pretty ps
       in  vcat
        [ pretty $ trs p
        , if null rms then empty

@@ -125,7 +125,7 @@ instance XmlContent TrsTerminationProof where
           ]
 
 symbolize trs = 
-    ( fmap (fmap SymName) trs )
+    ( fmap (T.tmap SymName) trs )
     { T.signature = map SymName $ T.signature trs }
 
 instance XmlContent Bounds_Type where
