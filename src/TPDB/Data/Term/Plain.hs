@@ -2,6 +2,7 @@
 {-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE KindSignatures #-}
 
 module TPDB.Data.Term.Plain
 ( TermC, Term (..), tfold
@@ -14,10 +15,12 @@ import Data.Set (Set)
 import Data.Typeable
 import Data.Hashable
 import GHC.Generics
+import Data.Kind
 
+-- | we do derive Ord but it should probably not be used much
 data Term v s =  Var v | Node s [Term v s]
     deriving ( Eq
-             -- , Ord
+             , Ord
              , Typeable, Generic )
 
 {-# INLINE tfold #-}
@@ -27,10 +30,10 @@ tfold var node =
       go (Node f xs) = node f (map go xs)
   in  go
 
-vars :: TermC v c => Term v c -> S.Set v
+vars :: Ord v => Term v c -> S.Set v
 vars = tfold S.singleton (\ _ -> S.unions)
 
-syms :: TermC v c => Term v c -> S.Set c
+syms :: Ord c => Term v c -> S.Set c
 syms = tfold (const S.empty) (\ f xs -> S.unions $ S.singleton f : xs)
 
 size :: TermC v c => Term v c -> Int
@@ -39,9 +42,10 @@ size = tfold (const 0) (\ _ -> succ . sum )
 depth :: TermC v c => Term v c -> Int
 depth = tfold (const 0) (\ _ xs -> if null xs then 0 else succ $ maximum xs)
 
-instance TermC v s => Hashable (Term v s)
+instance (Hashable v, Hashable s) => Hashable (Term v s)
 
-type TermC v s = (Hashable v, Hashable s, Ord v, Ord s)
+type TermC v s = () :: Constraint
+   -- (Hashable v, Hashable s, Ord v, Ord s)
 
 
 

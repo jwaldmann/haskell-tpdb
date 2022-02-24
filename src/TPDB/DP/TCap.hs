@@ -15,7 +15,7 @@ import Control.Applicative
 -- even if the term is instantiated. All other parts are replaced by fresh variables.
 -- Def 4.4 in http://cl-informatik.uibk.ac.at/users/griff/publications/Sternagel-Thiemann-RTA10.pdf
 
-tcap :: (TermC v c) => [Rule (Term v c)] -> Term v c -> Term Int c
+tcap :: (Ord v, Eq c, TermC v c) => [Rule (Term v c)] -> Term v c -> Term Int c
 tcap dp t = evalState ( walk dp t ) 0
 
 fresh_var :: TermC Int c => State Int ( Term Int c )

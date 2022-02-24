@@ -6,7 +6,7 @@ import TPDB.Convert
 import Control.Monad ( forM, guard )
 
 -- | if input is SRS, reverse lhs and rhs of each rule
-mirror :: TermC v s
+mirror :: (Eq v, TermC v s)
   => TRS v  s 
        -> Maybe ( TRS v s )
 mirror trs = do

@@ -56,7 +56,7 @@ defined s = S.fromList $ do
 
 -- | compute the DP transformed system.
 
-dp :: TermC v s
+dp :: (Eq v, Ord s, TermC v s)
    => RS s (Term v s) 
    -> RS (Marked s) (Term v (Marked s))
 dp s = 

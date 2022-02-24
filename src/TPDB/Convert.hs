@@ -20,7 +20,7 @@ convert_srs_rule u =
           , rhs = handle $ rhs u
           }
 
-trs2srs :: TermC v s => TRS v s -> Maybe ( SRS s )
+trs2srs :: (Eq v, TermC v s) => TRS v s -> Maybe ( SRS s )
 trs2srs t = do
     us <- forM ( rules t ) convert_trs_rule
     return $ t { separate = True , rules = us }

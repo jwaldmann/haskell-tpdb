@@ -51,7 +51,7 @@ class Ord (Var t) => Variables t where
   type Var t
   variables :: t -> S.Set (Var t)
 
-instance TermC v c => Variables (Term v c) where
+instance (Ord v, TermC v c) => Variables (Term v c) where
   type Var (Term v c) = v
   variables = vars
 
@@ -109,7 +109,7 @@ instance Variables r => Variables (Rule r) where
   variables u =
     S.unions [ variables (lhs u), variables (rhs u) ]
 
-instance TermC v s => Variables (TRS v s) where
+instance (Ord v, TermC v s) => Variables (TRS v s) where
   type Var (TRS v s) = v
   variables sys = S.unions $ map variables $ rules sys
 

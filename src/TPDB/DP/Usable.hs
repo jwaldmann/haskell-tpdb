@@ -11,7 +11,7 @@ import qualified Data.IntMap.Strict as M
 
 -- | restrict one SCC to its usable rules.
 -- DANGER: this ignores the CE condition
-restrict :: TermC v c => RS c (Term v c) -> RS c (Term v c)
+restrict :: (Eq c, Ord v, TermC v c) => RS c (Term v c) -> RS c (Term v c)
 restrict dp = 
     dp { rules = filter strict (rules dp)
                ++ usable dp
@@ -20,7 +20,7 @@ restrict dp =
 -- | computes the least closed set of usable rules, cf. Def 4.5
 -- http://cl-informatik.uibk.ac.at/users/griff/publications/Sternagel-Thiemann-RTA10.pdf
 
-usable :: TermC v c
+usable :: (Eq c, Ord v, TermC v c)
        => TRS v c -> [Rule (Term v c)]
 usable dp =
   let dpi = M.fromList $ zip [0..] $ rules dp
@@ -34,7 +34,7 @@ fixpoint f x =
 
 -- | indices of rules that can be used
 -- to rewrite rhs of rules with indices @is@
-required :: TermC v c
+required :: (Eq c, Ord v, TermC v c)
        => M.IntMap ( Rule (Term v c) )
          -> [ Int ]
          -> S.IntSet
@@ -44,7 +44,7 @@ required dpi is =  S.fromList
 
 -- | indices of rules that can be used
 -- to rewrite the given term @t@ (including subterms)
-needed :: TermC v c
+needed :: (Eq c, Ord v, TermC v c)
        => M.IntMap (Rule (Term v c))
        -> Term v c
        -> [ Int ]

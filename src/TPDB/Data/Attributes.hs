@@ -39,7 +39,7 @@ instance Pretty Attributes where
 
 
 compute_attributes
-  :: TermC v c
+  :: (Ord v, Ord c, TermC v c)
   => [Rule (Term v c)] -> Attributes
 compute_attributes us =
   let terms = do u <- us; [lhs u, rhs u]
@@ -67,11 +67,11 @@ compute_attributes us =
 safe_maximum x [] = x
 safe_maximum x ys = maximum ys
 
-varcount :: TermC v c => Rule (Term v c) -> M.Map v (Int,Int)
+varcount :: (Ord v, TermC v c) => Rule (Term v c) -> M.Map v (Int,Int)
 varcount u = M.mergeWithKey ( \ k l r -> Just (l,r)) ( M.map ( \k -> (k,0))) (M.map ( \k -> (0,k)))
         (varcount_term $ lhs u) (varcount_term $ rhs u)
 
-varcount_term :: TermC v c => Term v c -> M.Map v Int
+varcount_term :: (Ord v, TermC v c) => Term v c -> M.Map v Int
 varcount_term t = M.fromListWith (+) $ do
   (p, Var v) <- positions t
   return (v, 1)

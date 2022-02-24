@@ -44,7 +44,8 @@ sympos t = do
 -- | variable positions
 varpos :: TermC v c => Term v c 
     -> [ Position ]
-varpos t = if null (vars t) then [] else do
+varpos t = -- if null (vars t) then [] else
+  do
     ( p, Var {} ) <- positions t
     return p
 
@@ -68,13 +69,13 @@ subterms t = t : case t of
 -- returning the preorder list (where the full term goes first)
 strict_subterms t = tail $ subterms t
 
-isSubtermOf :: (TermC v c, Eq c ) 
+isSubtermOf :: (TermC v c, Eq v, Eq c ) 
          => Term v c ->  Term v c  -> Bool
 isSubtermOf s t =
   -- size s <= size t &&
   (elem s $ subterms t)
 
-isStrictSubtermOf :: (TermC v c, Eq c ) 
+isStrictSubtermOf :: (TermC v c, Eq v, Eq c ) 
          => Term v c ->  Term v c  -> Bool
 isStrictSubtermOf s t =
   -- size s < size t &&
@@ -148,14 +149,14 @@ symsl :: TermC v c  => Term v c -> [ c ]
 symsl t = do Node c _ <- subterms t; return c
 
 -- | unique
-lsyms :: TermC v c => Term v c -> [ c ]
+lsyms :: (Ord c, TermC v c) => Term v c -> [ c ]
 lsyms = S.toList . syms
 
 isvar :: TermC v c => Term v c -> Bool
 isvar ( Var _ ) = True ; isvar _ = False
 
 -- | list of variables (each occurs once, unspecified ordering)
-lvars :: TermC v c => Term v c -> [ v ]
+lvars :: (Ord v, TermC v c) => Term v c -> [ v ]
 lvars = S.toList . vars
 
 -- | list of variables (in pre-order, with duplicates)
