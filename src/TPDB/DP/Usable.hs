@@ -7,37 +7,51 @@ import TPDB.DP.Unify
 import TPDB.DP.TCap
 
 import qualified Data.Set as S
+import qualified Data.Map.Strict as M
 
 -- | DANGER: this ignores the CE condition
 restrict :: TermC v c => RS c (Term v c) -> RS c (Term v c)
 restrict dp = 
     dp { rules = filter strict (rules dp)
-               ++ S.toList ( usable dp)
+               ++ usable dp
        }
 
 -- | computes the least closed set of usable rules, cf. Def 4.5
 -- http://cl-informatik.uibk.ac.at/users/griff/publications/Sternagel-Thiemann-RTA10.pdf
 
 usable :: TermC v c
-       => TRS v c -> S.Set (Rule (Term v c))
-usable dp = fixpoint ( \ s -> S.union s $ required dp s)
-    (required dp $ S.filter strict
-                 $ S.fromList $ rules dp) 
+       => TRS v c -> [Rule (Term v c)]
+usable dp =
+  let dpi = M.fromList $ zip [0..] $ rules dp
+      fp = fixpoint
+        ( \ s -> S.union s $ required dpi $ S.toList s)
+        (required dpi $ map fst $ filter (strict . snd) $ M.toList dpi)
+  in  map (dpi M.!) $ S.toList fp
 
 fixpoint f x = 
     let y = f x in if x == y then x else fixpoint f y
 
+-- | indices of rules that can be used
+-- to rewrite rhs of rules with indices @is@
 required :: TermC v c
-       => TRS v c -> S.Set ( Rule (Term v c) ) ->  S.Set ( Rule (Term v c) ) 
-required dp rs = 
-    S.fromList $ do { r <- S.toList rs ;  needed dp $ rhs r }
+       => M.Map Int ( Rule (Term v c) )
+         -> [ Int ]
+         -> S.Set Int
+required dpi is =  S.fromList
+  $ concatMap (needed dpi)
+  $ map (rhs . (dpi M.!)) is
 
+-- | indices of rules that can be used
+-- to rewrite the given term @t@
 needed :: TermC v c
-       => TRS v c -> Term v c -> [ Rule (Term v c) ]
-needed dp t = case t of
-    Node f args -> 
-          filter ( \ u -> unifies ( vmap Left $ lhs u ) ( vmap Right $ tcap dp t ) )
-                ( filter (not . strict) $ rules dp )
-        ++ ( args >>= needed dp )
+       => M.Map Int (Rule (Term v c))
+       -> Term v c
+       -> [ Int ]
+needed dpi t = case t of
+    Node f args -> (map fst
+         $ filter ( \ (j,u) -> unifies ( vmap Left $ lhs u ) ( vmap Right $ tcap (M.elems dpi) t ) )
+         $ filter ( not . strict . snd)
+         $ M.toList dpi)
+        ++ ( args >>= needed dpi )
     Var v -> []
 

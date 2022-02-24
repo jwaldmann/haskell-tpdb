@@ -1,6 +1,7 @@
 module TPDB.Data.Term (module T, module TPDB.Data.Term) where
 
 import TPDB.Data.Term.Plain as T
+-- import TPDB.Data.Term.Cached as T
 
 import qualified Data.Set as S
 
@@ -55,9 +56,8 @@ leafpos t = do
     return p
 
 
-{-# inline subterms #-}
-
 -- | in preorder
+{-# INLINE subterms #-}
 subterms :: TermC v c => Term v c 
          -> [ Term v c ]
 subterms t = t : case t of
@@ -145,11 +145,8 @@ pokes = foldl poke
 
 
 -- | list of function symbols (in pre-order, with duplicates)
-symsl :: TermC v c
-     => Term v c -> [ c ]
-symsl t = do
-    Node c _ <- subterms t
-    return c
+symsl :: TermC v c  => Term v c -> [ c ]
+symsl t = do Node c _ <- subterms t; return c
 
 -- | unique
 lsyms :: TermC v c => Term v c -> [ c ]
@@ -163,6 +160,7 @@ lvars :: TermC v c => Term v c -> [ v ]
 lvars = S.toList . vars
 
 -- | list of variables (in pre-order, with duplicates)
+{-# INLINE voccs #-}
 voccs :: TermC v c => Term v c -> [ v ]
-voccs t = do ( p, Var v ) <- positions t ; return v
+voccs = tfold (\ v -> [v]) (\ _ -> concat)
 

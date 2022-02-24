@@ -43,6 +43,7 @@ mgu ( Var v ) t2 = do
     -- guard $ not $ S.member v $ vars t2  
     -- this is lazy: will stop when encountering first v occurence
     guard $ not $ elem (Var v) $ subterms t2
+    -- guard $ not $ elem v $ voccs t2
     return $ M.singleton v t2
 mgu t1 ( Var v ) = mgu ( Var v ) t1  
 mgu (Node f1 args1) (Node f2 args2) 

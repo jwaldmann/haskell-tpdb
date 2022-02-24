@@ -69,8 +69,10 @@ dp s =
        def = defined s
        us = do 
             u <- rules s
-            let ssubs = S.fromList $ strict_subterms $ lhs u
-                walk r = if S.member r ssubs then [] else case r of
+            let -- ssubs = S.fromList $ strict_subterms $ lhs u
+                walk r = if  -- S.member r ssubs
+                          isStrictSubtermOf r (lhs u)
+                         then [] else case r of
                     -- will raise exception if rhs contains 
                     -- a variable that is not in lhs
                     Node f args -> 

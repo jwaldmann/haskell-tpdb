@@ -15,17 +15,17 @@ import Control.Applicative
 -- even if the term is instantiated. All other parts are replaced by fresh variables.
 -- Def 4.4 in http://cl-informatik.uibk.ac.at/users/griff/publications/Sternagel-Thiemann-RTA10.pdf
 
-tcap :: (TermC v c) => TRS v c -> Term v c -> Term Int c
+tcap :: (TermC v c) => [Rule (Term v c)] -> Term v c -> Term Int c
 tcap dp t = evalState ( walk dp t ) 0
 
 fresh_var :: TermC Int c => State Int ( Term Int c )
 fresh_var = do i <- get ; put $ succ i ; return $ Var i
 
-walk dp t = case t of
-    Node f args -> do
-        t' <- Node f <$> forM args (walk dp)
-        if all ( \ u -> not $ unifies ( vmap Left $ lhs u ) ( vmap Right t' ) )
-                   $ filter (not . strict) $ rules dp
+walk dp t =
+  let go t = case t of
+        Node f args -> do
+          t' <- Node f <$> forM args go
+          if all ( \ u -> not $ unifies ( vmap Left $ lhs u ) ( vmap Right t' ) )  $ filter (not . strict) dp 
             then return t' else fresh_var
-    _ -> fresh_var 
-
+        _ -> fresh_var 
+  in  go t
