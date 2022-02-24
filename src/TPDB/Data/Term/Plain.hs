@@ -15,7 +15,7 @@ import Data.Typeable
 import Data.Hashable
 import GHC.Generics
 
-data Term v s = Var v | Node s [Term v s]
+data Term v s =  Var v | Node s [Term v s]
     deriving ( Eq
              -- , Ord
              , Typeable, Generic )

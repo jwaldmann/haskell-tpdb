@@ -16,17 +16,17 @@ import Data.Hashable
 import GHC.Generics
 
 data Term v s = Var_Imp
-                { name  :: v
-                -- , _hash :: !Int
+                { _hash :: !Int
+                , name  :: v
                 -- , size :: !Int
                 -- , depth :: !Int
                 -- , vars :: S.Set v
                 -- , syms :: S.Set s
                 }
               | Node_Imp
-                { fun   :: s
+                { _hash :: !Int
+                , fun   :: s
                 , args  :: [Term v s]
-                -- , _hash :: !Int
                 -- , size :: !Int
                 -- , depth :: !Int
                 -- , vars :: S.Set v
@@ -54,9 +54,6 @@ instance TermC v s => Eq (Term v s) where
     _ -> False
 -}
 
--- | this will first compare hash values,
--- so the result is not predictable.
--- but it's fine for use with ordered sets etc.
 {-
 instance TermC v s => Ord (Term v s) where
   compare s t =
@@ -70,36 +67,29 @@ instance TermC v s => Ord (Term v s) where
 -}
 
 instance TermC v s => Hashable (Term v s)
-  -- where hashWithSalt _ = _hash
+  where hashWithSalt _ = _hash
 
 
-pattern Var v = Var_Imp v
-pattern Node f xs = Node_Imp f xs
-
-{-               
-pattern Var :: -- TermC v s => () =>
+pattern Var :: TermC v s => () =>
                v -> Term v s
 pattern Var v <- Var_Imp { name = v } where
   Var v = Var_Imp { name = v
-                  -- ,_hash = hash v
+                  ,_hash = hash v
                   -- , size = 1, depth = 0
                   -- , vars = S.singleton v
                   -- , syms = mempty
                   }
--}
 
-{-
-pattern Node :: -- TermC v s => () =>
+pattern Node :: TermC v s => () =>
                 s -> [Term v s] -> Term v s
 pattern Node f xs <- Node_Imp { fun = f, args = xs } where
   Node f xs = Node_Imp { fun = f, args = xs
-                       -- , _hash = hash (f, xs)
+                       , _hash = hash (f, xs)
                        -- , size = 1 + sum (map size xs)
                        -- , depth = if null xs then 0 else succ $ maximum $ map depth xs
                        -- , vars = S.unions $ map vars xs
                        -- , syms = S.unions $ map syms xs
                        }
--}
 
 type TermC v s = (Hashable v, Hashable s, Ord v, Ord s)
 

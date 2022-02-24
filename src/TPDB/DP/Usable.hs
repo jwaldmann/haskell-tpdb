@@ -6,10 +6,11 @@ import TPDB.Pretty
 import TPDB.DP.Unify
 import TPDB.DP.TCap
 
-import qualified Data.Set as S
-import qualified Data.Map.Strict as M
+import qualified Data.IntSet as S
+import qualified Data.IntMap.Strict as M
 
--- | DANGER: this ignores the CE condition
+-- | restrict one SCC to its usable rules.
+-- DANGER: this ignores the CE condition
 restrict :: TermC v c => RS c (Term v c) -> RS c (Term v c)
 restrict dp = 
     dp { rules = filter strict (rules dp)
@@ -34,17 +35,17 @@ fixpoint f x =
 -- | indices of rules that can be used
 -- to rewrite rhs of rules with indices @is@
 required :: TermC v c
-       => M.Map Int ( Rule (Term v c) )
+       => M.IntMap ( Rule (Term v c) )
          -> [ Int ]
-         -> S.Set Int
+         -> S.IntSet
 required dpi is =  S.fromList
   $ concatMap (needed dpi)
   $ map (rhs . (dpi M.!)) is
 
 -- | indices of rules that can be used
--- to rewrite the given term @t@
+-- to rewrite the given term @t@ (including subterms)
 needed :: TermC v c
-       => M.Map Int (Rule (Term v c))
+       => M.IntMap (Rule (Term v c))
        -> Term v c
        -> [ Int ]
 needed dpi t = case t of

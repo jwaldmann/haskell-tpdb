@@ -12,8 +12,8 @@ import TPDB.Pretty
 import TPDB.Plain.Read -- for testing
 import TPDB.Plain.Write -- for testing
 
-import qualified Data.Set as S
-import qualified Data.Map as M
+import qualified Data.IntSet as S
+import qualified Data.IntMap.Strict as M
 import Data.Graph ( stronglyConnComp, SCC(..) )
 import Control.Monad ( guard, forM )
 import Control.Applicative
@@ -26,6 +26,7 @@ import Control.Monad.State.Strict
 -- others in Left.
 components s = do 
     let su = indexed s
+        ns = filter (not . strict) (rules s) 
         es = M.fromListWith (<>) 
            $ do (i,j) <- edges su ; return (i, S.singleton j)
     comp <- reverse $ stronglyConnComp $ do
@@ -33,8 +34,7 @@ components s = do
         let js = M.findWithDefault mempty i es
         return (u, i, S.toList js)
     return $ case comp of
-        CyclicSCC vs -> Right $ s { rules = vs 
-                 ++ filter (not . strict) (rules s) } 
+        CyclicSCC vs -> Right $ s { rules = vs <> ns }
         AcyclicSCC v -> Left v
 
 -- | edges of the estimated dependency graph
@@ -48,7 +48,7 @@ edges su = do
 check = edges $ indexed $ dp sys
 
 -- | numbering for non-strict rules
-indexed :: TRS v c -> M.Map Int (Rule (Term v c))
+indexed :: TRS v c -> M.IntMap (Rule (Term v c))
 indexed s = M.fromList $ zip [0::Int ..] $ filter strict $ rules s
 
 -- example from "DP Revisited" http://colo6-c703.uibk.ac.at/ttt/rta04.pdf

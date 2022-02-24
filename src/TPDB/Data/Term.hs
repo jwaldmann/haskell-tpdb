@@ -61,8 +61,7 @@ leafpos t = do
 subterms :: TermC v c => Term v c 
          -> [ Term v c ]
 subterms t = t : case t of
-    Node c args -> do arg <- args
-                      subterms arg
+    Node c args -> args >>= subterms
     _ -> []
 
 -- Note: following implementation relies on @subterms@
