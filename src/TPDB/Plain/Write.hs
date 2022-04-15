@@ -47,17 +47,15 @@ instance ( TermC v s, Pretty v, Pretty s ) => PrettyTerm ( Term v s ) where
 instance ( Pretty s, PrettyTerm r, Variables (RS s r)
   , Pretty (Var (RS s r)))
   => Pretty ( RS s r ) where
-    pretty sys = vcat 
-        [ let vs = S.toList $ variables sys
-          in if null vs
-             then empty   
-             else parens $ "VAR" <+> vcat (map pretty vs)
-        , parens $ "RULES" <+>
-          vcat ( ( if separate sys then punctuate comma else id )
+    pretty sys =
+      let vs = S.toList $ variables sys
+          vars = parens $ "VAR" <+> vcat (map pretty vs)
+          ruls = parens $ "RULES" <+>
+            vcat ( ( if separate sys then punctuate comma else id )
                  $ map pretty $ rules sys 
-               )
+                 )
+      in  if null vs then ruls else vcat [vars, ruls]
         -- FIXME: output strategy, theory
-        ]
 
 instance ( TermC s r, Pretty s, Pretty r, Variables (Term s r) ) => Pretty ( Problem s r ) where
     pretty p =
