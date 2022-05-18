@@ -1,4 +1,4 @@
-{-# language TypeSynonymInstances, FlexibleContexts, FlexibleInstances, UndecidableInstances, OverlappingInstances, IncoherentInstances, PatternSignatures, DeriveDataTypeable, OverloadedStrings #-}
+{-# language TypeSynonymInstances, FlexibleContexts, FlexibleInstances, UndecidableInstances, OverlappingInstances, IncoherentInstances, PatternSignatures, DeriveDataTypeable, OverloadedStrings, LambdaCase #-}
 
 -- | from internal representation to XML, and back
 
@@ -85,7 +85,7 @@ instance XmlContent Proof where
      let missing t = rmkel t $ rmkel "missing-toContents-instance" [] 
      in  case p of
        TrsTerminationProof p -> toContents p
-       TrsNonterminationProof p -> missing "TrsNonterminationProof"
+       TrsNonterminationProof p -> toContents p
        RelativeTerminationProof p -> missing "RelativeTerminationProof"
        RelativeNonterminationProof p -> missing "RelativeNonterminationProof"
        ComplexityProof p -> missing "ComplexityProof"
@@ -376,3 +376,41 @@ instance XmlContent ArgumentFilterEntry where
         Right is -> rmkel "nonCollapsing" 
                   $ map (\i -> mkel "position" $ toContents i) is
     ]
+
+instance XmlContent TrsNonterminationProof where
+  toContents (Loop {rewriteSequence = rs, substitution = sub, context = ctx }) =
+    rmkel "trsNonterminationProof" $ rmkel "loop"
+      $ concat  [ toContents rs, toContents sub, toContents ctx ]
+
+instance XmlContent RewriteSequence where
+  toContents (RewriteSequence start steps) =
+    rmkel "rewriteSequence" $ concat
+      [ rmkel "startTerm" $ toContents start 
+      , concatMap toContents steps
+      ]
+
+instance XmlContent RewriteStep where
+  toContents rs = rmkel "rewriteStep" $ concat
+    [ rmkel "positionInTerm"
+      $ concatMap (\ k -> rmkel "position" $ toContents k ) $ rs_position rs
+    , toContents $ rs_rule rs
+    , toContents $ rs_term rs
+    ]
+
+instance XmlContent Substitution where
+  toContents (Substitution ses) = rmkel "substitution" $ concatMap toContents ses
+instance XmlContent SubstEntry where
+  toContents (SubstEntry v t) = rmkel "substEntry" $ concat
+    [ toContents $ (T.Var v :: T.Term Identifier Symbol)
+    , toContents $ t
+    ]
+
+instance XmlContent Context where
+  toContents c = case c of
+    Box -> rmkel "box" []
+    FunContext {} -> rmkel "funContext" $ concat
+      [ toContents $ fc_symbol c
+      , rmkel "before" $ concatMap toContents $ fc_before c
+      , toContents $ fc_here c
+      , rmkel "after" $ concatMap toContents $ fc_after c
+      ]

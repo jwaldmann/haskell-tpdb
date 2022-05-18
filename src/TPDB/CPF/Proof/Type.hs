@@ -106,7 +106,36 @@ data ComplexityClass =
      -- http://cl-informatik.uibk.ac.at/users/georg/cbr/competition/rules.php
     deriving ( Typeable, Eq, Generic , Show )
 
-data TrsNonterminationProof = TrsNonterminationProofFIXME ()
+data TrsNonterminationProof
+  = Loop
+  { rewriteSequence :: RewriteSequence
+  , substitution :: Substitution
+  , context :: Context
+  }
+    deriving ( Typeable, Eq, Generic  )
+
+data RewriteSequence = RewriteSequence (Term Identifier Symbol) [ RewriteStep ]
+    deriving ( Typeable, Eq, Generic  )
+
+data RewriteStep = RewriteStep
+  { rs_position :: Position
+  , rs_rule :: Rule (Term Identifier Symbol)
+  , rs_term :: Term Identifier Symbol
+  }
+    deriving ( Typeable, Eq, Generic  )
+
+data Substitution = Substitution [ SubstEntry ]
+    deriving ( Typeable, Eq, Generic  )
+
+data SubstEntry = SubstEntry Identifier (Term Identifier Symbol)
+    deriving ( Typeable, Eq, Generic  )
+
+data Context = Box
+   | FunContext { fc_symbol :: Symbol
+                , fc_before :: [Term Identifier Symbol ]
+		, fc_here :: Context
+		, fc_after  :: [Term Identifier Symbol ]
+		}
     deriving ( Typeable, Eq, Generic  )
 
 data TrsTerminationProof 
