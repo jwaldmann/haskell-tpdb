@@ -3,6 +3,7 @@
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE KindSignatures #-}
+{-# LANGUAGE DeriveFunctor #-}
 
 module TPDB.Data.Term.Plain
 ( TermC, Term (..), tfold
@@ -21,7 +22,7 @@ import Data.Kind
 data Term v s =  Var v | Node s [Term v s]
     deriving ( Eq
              , Ord
-             , Typeable, Generic )
+             , Typeable, Generic, Functor )
 
 {-# INLINE tfold #-}
 tfold :: TermC v c => (v -> r) -> (c -> [r] -> r) -> Term v c -> r

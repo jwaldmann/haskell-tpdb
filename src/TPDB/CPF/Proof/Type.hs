@@ -31,17 +31,17 @@ data CertificationProblem =
                           , proof :: Proof 
                           , origin :: Origin  
                           }  
-   deriving ( Typeable, Eq )
+   deriving ( Typeable, Eq, Generic )
 
 data Origin = ProofOrigin { tool :: Tool }
-    deriving ( Typeable, Eq )
+    deriving ( Typeable, Eq, Generic )
 
 ignoredOrigin = ProofOrigin { tool = Tool "ignored" "ignored"  }
 
 data Tool = Tool { name :: Text
                  , version :: Text
                  } 
-    deriving ( Typeable, Eq )
+    deriving ( Typeable, Eq, Generic )
 
 data CertificationProblemInput 
     = TrsInput { trsinput_trs :: TRS Identifier Identifier }
@@ -56,7 +56,7 @@ data CertificationProblemInput
                       , asymbols :: [ Identifier ]
                       , csymbols :: [ Identifier ]
                       }
-   deriving ( Typeable, Eq )      
+   deriving ( Typeable, Eq, Generic  )
 
 instance Pretty CertificationProblemInput where
   pretty cpi = case cpi of
@@ -81,7 +81,7 @@ data Proof = TrsTerminationProof TrsTerminationProof
            | RelativeNonterminationProof TrsNonterminationProof
            | ComplexityProof ComplexityProof
            | ACTerminationProof ACTerminationProof
-   deriving ( Typeable, Eq )
+   deriving ( Typeable, Eq, Generic  )
 
 data DPS = forall s . ( XmlContent s ,
                         Typeable s,
@@ -92,22 +92,22 @@ data DPS = forall s . ( XmlContent s ,
 instance Eq DPS where x == y = error "instance Eq DPS"
 
 data ComplexityProof = ComplexityProofFIXME ()
-    deriving ( Typeable, Eq )
+    deriving ( Typeable, Eq, Generic  )
 
 data ComplexityMeasure 
      = DerivationalComplexity
      | RuntimeComplexity
-    deriving ( Typeable, Eq, Show )
+    deriving ( Typeable, Eq, Generic , Show )
 
 data ComplexityClass = 
      ComplexityClassPolynomial { degree :: Int } 
      -- ^ it seems the degree must always be given in CPF,
      -- although the category spec also allows "POLY"
      -- http://cl-informatik.uibk.ac.at/users/georg/cbr/competition/rules.php
-    deriving ( Typeable, Eq, Show )
+    deriving ( Typeable, Eq, Generic , Show )
 
 data TrsNonterminationProof = TrsNonterminationProofFIXME ()
-    deriving ( Typeable, Eq )
+    deriving ( Typeable, Eq, Generic  )
 
 data TrsTerminationProof 
      = RIsEmpty
@@ -133,34 +133,34 @@ data TrsTerminationProof
               , bounds_finalStates :: [ State ]
               , bounds_closedTreeAutomaton :: ClosedTreeAutomaton
               }
-   deriving ( Typeable, Eq )
+   deriving ( Typeable, Eq, Generic  )
 
 data Bounds_Type = Roof | Match
-  deriving ( Typeable, Eq )
+  deriving ( Typeable, Eq, Generic  )
 
 data ClosedTreeAutomaton = ClosedTreeAutomaton
   { cta_treeAutomaton :: TreeAutomaton
   , cta_criterion :: Criterion
   }
-  deriving ( Typeable, Eq )
+  deriving ( Typeable, Eq, Generic  )
 
 data Criterion = Compatibility
-  deriving ( Typeable, Eq )
+  deriving ( Typeable, Eq, Generic  )
 
 data TreeAutomaton = TreeAutomaton
   { ta_finalStates :: [ State ]
   , ta_transitions :: [ Transition ]
   }
-   deriving ( Typeable, Eq )
+   deriving ( Typeable, Eq, Generic  )
 
 data State = State Int
-   deriving ( Typeable, Eq )
+   deriving ( Typeable, Eq, Generic  )
 
 data Transition = Transition
   { transition_lhs :: Transition_Lhs
   , transition_rhs :: [ State ]
   }
-  deriving ( Typeable, Eq )
+  deriving ( Typeable, Eq, Generic  )
 
 data Transition_Lhs
   = Transition_Symbol { tr_symbol :: Symbol
@@ -168,10 +168,10 @@ data Transition_Lhs
                       , tr_arguments :: [ State ]
                       }                    
   | Transition_Epsilon State
-  deriving ( Typeable, Eq )
+  deriving ( Typeable, Eq, Generic  )
 
 data Model = FiniteModel Int [Interpret]
-   deriving ( Typeable, Eq )
+   deriving ( Typeable, Eq, Generic  )
        
 data DpProof = PIsEmpty  
              | RedPairProc { rppOrderingConstraintProof :: OrderingConstraintProof
@@ -190,53 +190,53 @@ data DpProof = PIsEmpty
                           , ulpTrs :: DPS
                           , ulpDpProof :: DpProof
                           }
-   deriving ( Typeable, Eq )
+   deriving ( Typeable, Eq, Generic  )
 
 data DepGraphComponent =
      DepGraphComponent { dgcRealScc :: Bool
                        , dgcDps :: DPS
                        , dgcDpProof :: DpProof
                        }
-   deriving ( Typeable, Eq )
+   deriving ( Typeable, Eq, Generic  )
 
 data OrderingConstraintProof = OCPRedPair RedPair
-                             deriving ( Typeable, Eq )
+                             deriving ( Typeable, Eq, Generic  )
 
 data RedPair = RPInterpretation Interpretation
              | RPPathOrder      PathOrder
-             deriving ( Typeable, Eq )
+             deriving ( Typeable, Eq, Generic  )
 
 data Interpretation =
      Interpretation { interpretation_type :: Interpretation_Type
                     , interprets :: [ Interpret  ]
                     }
-   deriving ( Typeable, Eq )
+   deriving ( Typeable, Eq, Generic  )
 
 data Interpretation_Type = 
    Matrix_Interpretation { domain :: Domain, dimension :: Int
                          , strictDimension :: Int
                          }
-   deriving ( Typeable, Eq )
+   deriving ( Typeable, Eq, Generic  )
 
 data Domain = Naturals 
             | Rationals Rational
             | Arctic Domain
             | Tropical Domain
-   deriving ( Typeable, Eq )
+   deriving ( Typeable, Eq, Generic  )
 
 data Interpret = Interpret 
     { symbol :: Symbol , arity :: Int , value :: Value }
-   deriving ( Typeable, Eq )
+   deriving ( Typeable, Eq, Generic  )
 
 data Value = Polynomial    Polynomial
            | ArithFunction ArithFunction
-   deriving ( Typeable, Eq )
+   deriving ( Typeable, Eq, Generic  )
 
 data Polynomial = Sum [ Polynomial ]
                 | Product [ Polynomial ]
                 | Polynomial_Coefficient Coefficient
                 | Polynomial_Variable Text
-   deriving ( Typeable, Eq )
+   deriving ( Typeable, Eq, Generic  )
 
 data ArithFunction = AFNatural  Integer
                    | AFVariable Integer
@@ -245,7 +245,7 @@ data ArithFunction = AFNatural  Integer
                    | AFMin      [ArithFunction]
                    | AFMax      [ArithFunction]
                    | AFIfEqual  ArithFunction ArithFunction ArithFunction ArithFunction
-                   deriving ( Typeable, Eq )
+                   deriving ( Typeable, Eq, Generic  )
 
 data Symbol = SymName  Identifier
             | SymSharp Symbol
@@ -268,26 +268,25 @@ instance Eq Coefficient where
   x == y = error "instance Eq Coefficient"
 
 data Exotic = Minus_Infinite | E_Integer Integer | E_Rational Rational | Plus_Infinite
-   deriving ( Typeable, Eq )
+   deriving ( Typeable, Eq, Generic  )
 
 class ToExotic a where toExotic :: a -> Exotic
 
 data PathOrder = PathOrder [PrecedenceEntry] [ArgumentFilterEntry]
-               deriving ( Typeable, Eq )
+               deriving ( Typeable, Eq, Generic  )
 
 data PrecedenceEntry = PrecedenceEntry { peSymbol     :: Symbol
                                        , peArity      :: Int
                                        , pePrecedence :: Integer
                                        }
-                     deriving ( Typeable, Eq )
+                     deriving ( Typeable, Eq, Generic  )
 
 data ArgumentFilterEntry = 
      ArgumentFilterEntry { afeSymbol :: Symbol
                          , afeArity  :: Int
                          , afeFilter :: Either Int [Int]
                          }
-     deriving ( Typeable, Eq )
+     deriving ( Typeable, Eq, Generic  )
 
 data ACTerminationProof = ACTerminationProofFIXME ()
-    deriving ( Typeable, Eq )
-
+    deriving ( Typeable, Eq, Generic  )
