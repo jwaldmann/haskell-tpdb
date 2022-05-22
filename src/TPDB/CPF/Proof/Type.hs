@@ -107,7 +107,10 @@ data ComplexityClass =
     deriving ( Typeable, Eq, Generic , Show )
 
 data TrsNonterminationProof
-  = Loop
+  = VariableConditionViolated
+  | TNP_RuleRemoval (TRS Identifier Identifier) TrsNonterminationProof
+  | TNP_StringReversal (TRS Identifier Identifier) TrsNonterminationProof
+  | Loop
   { rewriteSequence :: RewriteSequence
   , substitution :: Substitution
   , context :: Context

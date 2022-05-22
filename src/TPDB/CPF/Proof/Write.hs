@@ -1,5 +1,7 @@
 {-# language TypeSynonymInstances, FlexibleContexts, FlexibleInstances, UndecidableInstances, OverlappingInstances, IncoherentInstances, PatternSignatures, DeriveDataTypeable, OverloadedStrings, LambdaCase #-}
 
+{-# OPTIONS_GHC -Wincomplete-patterns #-}
+
 -- | from internal representation to XML, and back
 
 module TPDB.CPF.Proof.Write where
@@ -378,9 +380,14 @@ instance XmlContent ArgumentFilterEntry where
     ]
 
 instance XmlContent TrsNonterminationProof where
-  toContents (Loop {rewriteSequence = rs, substitution = sub, context = ctx }) =
-    rmkel "trsNonterminationProof" $ rmkel "loop"
-      $ concat  [ toContents rs, toContents sub, toContents ctx ]
+  toContents tnp = rmkel "trsNonterminationProof" $ case tnp of
+    VariableConditionViolated -> rmkel "variableConditionViolated" []
+    TNP_RuleRemoval sys sub -> rmkel "ruleRemoval"
+      $ concat [ toContents $ symbolize sys, toContents sub ]
+    TNP_StringReversal sys sub -> rmkel "stringReversal"
+      $ concat [ toContents $ symbolize sys , toContents sub ]
+    Loop {rewriteSequence = rs, substitution = sub, context = ctx } -> rmkel "loop"
+        $ concat  [ toContents rs, toContents sub, toContents ctx ]
 
 instance XmlContent RewriteSequence where
   toContents (RewriteSequence start steps) =
