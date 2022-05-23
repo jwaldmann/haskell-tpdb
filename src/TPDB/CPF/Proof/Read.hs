@@ -86,7 +86,6 @@ getACTerminationInput = element "acRewriteSystem" >=> \ c -> do
       , csymbols = cs
       }
 
-getSymbol = element1 "name" &/ \ c -> mk 0 <$> content c 
 
 getComplexityInput = element "input" >=> \ c -> do
     trsI <- c $/ element "complexityInput" &/ element "trsInput" &/ getTrsInput
@@ -114,7 +113,7 @@ getTrsInput c =
 getRulesWith s =  element1 "rules" >=> \ c ->
   return ( c $/ ( element "rule" >=> getRule s ) )
 
-getRule :: Relation -> Cursor -> [ Rule (Term Identifier Identifier) ]
+getRule :: Relation -> Cursor -> [ Rule (Term Identifier Symbol) ]
 getRule s c = 
   ( \ l r -> Rule {lhs=l,relation=s,rhs=r,top=False})
     <$> (c $/ element "lhs" &/ getTerm) <*> (c $/ element "rhs" &/ getTerm)
@@ -132,16 +131,19 @@ getProof c = c $|
 getDummy :: X.Name -> b -> Cursor -> [ b ]
 getDummy t c cursor = cursor $| element t >=> return [ c]
 
-getTerm :: Cursor -> [ Term Identifier Identifier ]
+getTerm :: Cursor -> [ Term Identifier Symbol ]
 getTerm = getVar <> getFunApp
 
-getVar :: Cursor -> [ Term Identifier Identifier ]
+getVar :: Cursor -> [ Term Identifier Symbol ]
 getVar = element "var" &/ \ c -> ( Var . mk 0 ) <$> content c
 
-getFunApp :: Cursor -> [ Term Identifier Identifier ]
+getFunApp :: Cursor -> [ Term Identifier Symbol ]
 getFunApp = element "funapp" >=> \ c -> do
-  nm <- c $/ element "name" &/ content
+  f <- c $/ getSymbol
   let args = c $/ element "arg" &/ getTerm
-      f = mk (length args) $ nm
+      set_arity k s = mk k $ TPDB.Data.name s -- FIXME
   return $ Node f args
-          
+
+
+getSymbol :: Cursor -> [ Symbol ]
+getSymbol = element1 "name" &/ \ c -> (SymName . mk 0) <$> content c 

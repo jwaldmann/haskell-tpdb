@@ -24,6 +24,7 @@ import Data.Text
 import TPDB.Xml (XmlContent)
 import GHC.Generics
 import Data.Hashable
+import qualified Data.Text.Lazy as T
 
 data CertificationProblem =
      CertificationProblem { input :: CertificationProblemInput 
@@ -43,18 +44,23 @@ data Tool = Tool { name :: Text
                  } 
     deriving ( Typeable, Eq, Generic )
 
+-- | use this type throughout.
+-- Variables are plain identifiers
+-- but signature can use sharped, and labelled symbols.
+type Trs = TRS Identifier Symbol
+
 data CertificationProblemInput 
-    = TrsInput { trsinput_trs :: TRS Identifier Identifier }
+    = TrsInput { trsinput_trs :: Trs }
       -- ^ this is actually not true, since instead of copying from XTC,
       -- CPF format repeats the definition of TRS,
       -- and it's a different one (relative rules are extra)
-    | ComplexityInput { trsinput_trs :: TRS Identifier Identifier
+    | ComplexityInput { trsinput_trs :: Trs
                       , complexityMeasure :: ComplexityMeasure
                       , complexityClass :: ComplexityClass      
                       }
-    | ACRewriteSystem { trsinput_trs :: TRS Identifier Identifier
-                      , asymbols :: [ Identifier ]
-                      , csymbols :: [ Identifier ]
+    | ACRewriteSystem { trsinput_trs :: Trs
+                      , asymbols :: [ Symbol ]
+                      , csymbols :: [ Symbol ]
                       }
    deriving ( Typeable, Eq, Generic  )
 
@@ -83,10 +89,7 @@ data Proof = TrsTerminationProof TrsTerminationProof
            | ACTerminationProof ACTerminationProof
    deriving ( Typeable, Eq, Generic  )
 
-data DPS = forall s . ( XmlContent s ,
-                        Typeable s,
-                        Hashable s, Ord s ) 
-        => DPS [ Rule (Term Identifier s) ]
+data DPS = DPS [ Rule (Term Identifier Symbol) ]
    deriving ( Typeable )
 
 instance Eq DPS where x == y = error "instance Eq DPS"
@@ -108,8 +111,8 @@ data ComplexityClass =
 
 data TrsNonterminationProof
   = VariableConditionViolated
-  | TNP_RuleRemoval (TRS Identifier Identifier) TrsNonterminationProof
-  | TNP_StringReversal (TRS Identifier Identifier) TrsNonterminationProof
+  | TNP_RuleRemoval Trs TrsNonterminationProof
+  | TNP_StringReversal Trs TrsNonterminationProof
   | Loop
   { rewriteSequence :: RewriteSequence
   , substitution :: Substitution
@@ -144,22 +147,27 @@ data Context = Box
 data TrsTerminationProof 
      = RIsEmpty
      | RuleRemoval { rr_orderingConstraintProof :: OrderingConstraintProof
-                   , trs :: TRS Identifier Identifier 
+                   , trs :: Trs
                    , trsTerminationProof :: TrsTerminationProof  
                    }  
      | DpTrans  { dptrans_dps :: DPS
                 , markedSymbols :: Bool , dptrans_dpProof :: DpProof }
+     | FlatContextClosure
+         { flatContexts :: [Context]
+         , trs :: Trs
+         , trsTerminationProof :: TrsTerminationProof
+         }
      | Semlab {  model :: Model 
-              , trs :: TRS Identifier Identifier
+              , trs :: Trs
               , trsTerminationProof :: TrsTerminationProof
               }
-     | Unlab {  trs :: TRS Identifier Identifier
+     | Unlab {  trs :: Trs
               , trsTerminationProof :: TrsTerminationProof
               }
-     | StringReversal { trs :: TRS Identifier Identifier
+     | StringReversal { trs :: Trs
                       , trsTerminationProof :: TrsTerminationProof  
                       }
-     | Bounds { trs :: TRS Identifier Identifier
+     | Bounds { trs :: Trs
               , bounds_type :: Bounds_Type
               , bounds_bound :: Int
               , bounds_finalStates :: [ State ]
@@ -202,7 +210,9 @@ data Transition_Lhs
   | Transition_Epsilon State
   deriving ( Typeable, Eq, Generic  )
 
-data Model = FiniteModel Int [Interpret]
+data Model
+  = FiniteModel Int [Interpret]
+  | RootLabeling
    deriving ( Typeable, Eq, Generic  )
 
 data Mono = Weak | Strict
@@ -212,7 +222,7 @@ data DpProof = PIsEmpty
              | RedPairProc { rppMono :: Mono
                            , rppOrderingConstraintProof :: OrderingConstraintProof
                            , rppDps                     :: DPS
-                           , rppTrs :: Maybe (TRS Identifier Symbol)
+                           , rppTrs :: Maybe Trs
                            , rppUsableRules             :: Maybe DPS
                            , rppDpProof                 :: DpProof 
                            }
@@ -290,10 +300,23 @@ data Symbol = SymName  Identifier
             deriving ( Typeable, Eq, Ord, Generic )
 instance Hashable Symbol
 
+instance Pretty Symbol where
+  pretty s = case s of
+    SymName n -> pretty n
+    SymSharp s -> pretty s <> "#"
+    SymLabel s l -> pretty s <> "_" <> pretty l
+
+instance Show Symbol where show = T.unpack . render . pretty
+
+
 data Label = LblNumber [Integer]
            | LblSymbol [Symbol]
            deriving ( Typeable, Eq, Ord, Generic )
 instance Hashable Label
+
+instance Pretty Label where
+  pretty (LblNumber xs) = pretty xs
+  pretty (LblSymbol xs) = pretty xs
 
 data Coefficient = Vector [ Coefficient ]
            | Matrix [ Coefficient ]

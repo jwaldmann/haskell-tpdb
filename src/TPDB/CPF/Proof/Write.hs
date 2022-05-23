@@ -60,9 +60,9 @@ instance XmlContent CertificationProblemInput where
    parseContents = error "parseContents not implemented"
 
    toContents i = case i of
-      TrsInput {} -> rmkel "trsInput" $ toContents ( symbolize $ trsinput_trs i )
+      TrsInput {} -> rmkel "trsInput" $ toContents (trsinput_trs i )
       ComplexityInput {} -> rmkel "complexityInput" $ concat
-          [ rmkel "trsInput" $ toContents $ symbolize $ trsinput_trs i
+          [ rmkel "trsInput" $ toContents $ trsinput_trs i
           ]
 
 instance XmlContent ( T.TRS Identifier Symbol ) where
@@ -109,16 +109,31 @@ instance XmlContent TrsTerminationProof where
           , toContents $ dptrans_dpProof p
           ]
       StringReversal {} -> rmkel "stringReversal" $ concat
-          [ toContents $ symbolize $ trs p
+          [ toContents $ trs p
+          , toContents $ trsTerminationProof p
+          ]
+      FlatContextClosure {} -> rmkel "flatContextClosure" $ concat
+          [ rmkel "flatContexts" $ concatMap toContents
+               $ flatContexts p
+          , toContents $ trs p
+          , toContents $ trsTerminationProof p
+          ]
+      Semlab {} -> rmkel "semlab" $ concat
+          [ toContents $ model p
+          , toContents $ trs p
+          , toContents $ trsTerminationProof p
+          ]
+      Unlab {} -> rmkel "unlab" $ concat
+          [ toContents $ trs p
           , toContents $ trsTerminationProof p
           ]
       RuleRemoval {} -> rmkel "ruleRemoval" $ concat
           [ toContents $ rr_orderingConstraintProof p
-          , toContents $ symbolize $ trs p
+          , toContents $ trs p
           , toContents $ trsTerminationProof p
           ]
       Bounds {} -> rmkel "bounds" $ concat
-          [ toContents $ symbolize $ trs p
+          [ toContents $ trs p
           , toContents $ bounds_type p
           , rmkel "bound" $ toContents $ bounds_bound p 
           , rmkel "finalStates" $ concat
@@ -181,6 +196,7 @@ instance XmlContent Model where
         [ rmkel "carrierSize"  $ toContents carrierSize
         , concatMap toContents interprets
         ]
+    RootLabeling -> rmkel "rootLabeling" []    
 
 instance XmlContent DpProof where
   parseContents = error "parseContents not implemented"
@@ -389,9 +405,9 @@ instance XmlContent TrsNonterminationProof where
   toContents tnp = rmkel "trsNonterminationProof" $ case tnp of
     VariableConditionViolated -> rmkel "variableConditionViolated" []
     TNP_RuleRemoval sys sub -> rmkel "ruleRemoval"
-      $ concat [ toContents $ symbolize sys, toContents sub ]
+      $ concat [ toContents sys, toContents sub ]
     TNP_StringReversal sys sub -> rmkel "stringReversal"
-      $ concat [ toContents $ symbolize sys , toContents sub ]
+      $ concat [ toContents sys , toContents sub ]
     Loop {rewriteSequence = rs, substitution = sub, context = ctx } -> rmkel "loop"
         $ concat  [ toContents rs, toContents sub, toContents ctx ]
 
