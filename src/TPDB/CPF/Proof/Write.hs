@@ -6,7 +6,7 @@
 
 module TPDB.CPF.Proof.Write where
 
-import TPDB.CPF.Proof.Type
+import TPDB.CPF.Proof.Type as Type
 import qualified TPDB.Data as T
 
 import TPDB.Xml 
@@ -187,16 +187,19 @@ instance XmlContent DpProof where
 
   toContents p = rmkel "dpProof" $ case p of
     PIsEmpty -> rmkel "pIsEmpty" []
-    RedPairProc {} -> case rppUsableRules p of
-      Nothing -> rmkel "redPairProc" $ concat
+    RedPairProc {} ->
+      let name = case rppUsableRules p of
+            Nothing -> case rppMono p of
+              Weak -> "redPairProc"; Strict -> "monoRedPairProc"
+            Just _ ->  case rppMono p of
+              Weak -> "redPairUrProc"; Strict -> "monoRedPairUrProc" 
+      in  rmkel name $ concat
         [ toContents $ rppOrderingConstraintProof p
         , toContents $ rppDps p
-        , toContents $ rppDpProof p
-        ]
-      Just (DPS ur) -> rmkel "redPairUrProc" $ concat
-        [ toContents $ rppOrderingConstraintProof p
-        , toContents $ rppDps p
-        , rmkel "usableRules" $ rmkel "rules" $ concatMap toContents ur
+        , case rppUsableRules p of
+            Nothing -> []
+            Just (DPS ur) -> rmkel "usableRules"
+              $ rmkel "rules" $ concatMap toContents ur
         , toContents $ rppDpProof p
         ]
     DepGraphProc cs -> rmkel "depGraphProc" $ concat $ map toContents cs

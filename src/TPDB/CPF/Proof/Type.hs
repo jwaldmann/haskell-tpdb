@@ -136,9 +136,9 @@ data SubstEntry = SubstEntry Identifier (Term Identifier Symbol)
 data Context = Box
    | FunContext { fc_symbol :: Symbol
                 , fc_before :: [Term Identifier Symbol ]
-		, fc_here :: Context
-		, fc_after  :: [Term Identifier Symbol ]
-		}
+                , fc_here :: Context
+                , fc_after  :: [Term Identifier Symbol ]
+                }
     deriving ( Typeable, Eq, Generic  )
 
 data TrsTerminationProof 
@@ -204,13 +204,17 @@ data Transition_Lhs
 
 data Model = FiniteModel Int [Interpret]
    deriving ( Typeable, Eq, Generic  )
-       
+
+data Mono = Weak | Strict
+   deriving ( Typeable, Eq, Generic  )
+
 data DpProof = PIsEmpty  
-             | RedPairProc { rppOrderingConstraintProof :: OrderingConstraintProof
+             | RedPairProc { rppMono :: Mono
+                           , rppOrderingConstraintProof :: OrderingConstraintProof
                            , rppDps                     :: DPS 
                            , rppUsableRules             :: Maybe DPS
                            , rppDpProof                 :: DpProof 
-                           }  
+                           }
              | DepGraphProc [ DepGraphComponent ]
 
              | SemLabProc { slpModel   :: Model

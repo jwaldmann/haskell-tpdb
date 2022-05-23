@@ -2,7 +2,7 @@
 
 module TPDB.CPF.Proof.Read where
 
-import TPDB.CPF.Proof.Type 
+import TPDB.CPF.Proof.Type as Type
 import TPDB.Data
 
 {-
@@ -107,8 +107,8 @@ getComplexityClass = element "polynomial" &/ \ c ->
 
 
 getTrsInput c =
-     ( c $/ element "trs" &/  getRulesWith Strict )
-  <> ( c $/ element "relativeRules" &/ getRulesWith Weak )
+     ( c $/ element "trs" &/  getRulesWith TPDB.Data.Strict )
+  <> ( c $/ element "relativeRules" &/ getRulesWith TPDB.Data.Weak )
 
 
 getRulesWith s =  element1 "rules" >=> \ c ->
