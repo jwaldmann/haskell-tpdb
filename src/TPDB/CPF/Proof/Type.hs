@@ -211,7 +211,8 @@ data Mono = Weak | Strict
 data DpProof = PIsEmpty  
              | RedPairProc { rppMono :: Mono
                            , rppOrderingConstraintProof :: OrderingConstraintProof
-                           , rppDps                     :: DPS 
+                           , rppDps                     :: DPS
+                           , rppTrs :: Maybe (TRS Identifier Symbol)
                            , rppUsableRules             :: Maybe DPS
                            , rppDpProof                 :: DpProof 
                            }

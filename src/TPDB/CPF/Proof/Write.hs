@@ -196,6 +196,9 @@ instance XmlContent DpProof where
       in  rmkel name $ concat
         [ toContents $ rppOrderingConstraintProof p
         , toContents $ rppDps p
+        , case rppTrs p of
+            Nothing -> []
+            Just sys -> toContents sys
         , case rppUsableRules p of
             Nothing -> []
             Just (DPS ur) -> rmkel "usableRules"
