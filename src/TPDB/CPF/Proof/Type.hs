@@ -1,4 +1,5 @@
 {-# language StandaloneDeriving #-}
+{-# language DataKinds, KindSignatures, GADTs, StandaloneDeriving #-}
 {-# language ExistentialQuantification #-}
 {-# language DeriveDataTypeable, DeriveGeneric #-}
 {-# language OverloadedStrings #-}
@@ -24,6 +25,7 @@ import Data.Text
 import TPDB.Xml (XmlContent)
 import GHC.Generics
 import Data.Hashable
+import Data.Kind
 import qualified Data.Text.Lazy as T
 
 data CertificationProblem =
@@ -81,10 +83,13 @@ instance Pretty CertificationProblemInput where
          , "csymbols" <+> text (show $ csymbols cpi )
          ]
 
-data Proof = TrsTerminationProof TrsTerminationProof
-           | TrsNonterminationProof TrsNonterminationProof
-           | RelativeTerminationProof TrsTerminationProof
-           | RelativeNonterminationProof TrsNonterminationProof
+data Kind = Standard | Relative
+   deriving ( Typeable, Eq, Generic  )
+
+data Proof = TrsTerminationProof (TrsTerminationProof Standard)
+           | TrsNonterminationProof (TrsNonterminationProof Standard)
+           | RelativeTerminationProof (TrsTerminationProof Relative)
+           | RelativeNonterminationProof (TrsNonterminationProof Relative)
            | ComplexityProof ComplexityProof
            | ACTerminationProof ACTerminationProof
    deriving ( Typeable, Eq, Generic  )
@@ -109,10 +114,10 @@ data ComplexityClass =
      -- http://cl-informatik.uibk.ac.at/users/georg/cbr/competition/rules.php
     deriving ( Typeable, Eq, Generic , Show )
 
-data TrsNonterminationProof
+data TrsNonterminationProof (k :: Kind)
   = VariableConditionViolated
-  | TNP_RuleRemoval Trs TrsNonterminationProof
-  | TNP_StringReversal Trs TrsNonterminationProof
+  | TNP_RuleRemoval Trs (TrsNonterminationProof k)
+  | TNP_StringReversal Trs (TrsNonterminationProof k)
   | Loop
   { rewriteSequence :: RewriteSequence
   , substitution :: Substitution
@@ -144,36 +149,42 @@ data Context = Box
                 }
     deriving ( Typeable, Eq, Generic  )
 
-data TrsTerminationProof 
-     = RIsEmpty
-     | RuleRemoval { rr_orderingConstraintProof :: OrderingConstraintProof
+data TrsTerminationProof (k :: Kind) where
+  RIsEmpty :: TrsTerminationProof k
+  SIsEmpty :: { trsTerminationProof_Standard :: TrsTerminationProof Standard }
+    -> TrsTerminationProof Relative
+  RuleRemoval :: { rr_orderingConstraintProof :: OrderingConstraintProof
                    , trs :: Trs
-                   , trsTerminationProof :: TrsTerminationProof  
-                   }  
-     | DpTrans  { dptrans_dps :: DPS
-                , markedSymbols :: Bool , dptrans_dpProof :: DpProof }
-     | FlatContextClosure
+                   , trsTerminationProof :: TrsTerminationProof k
+                   } -> TrsTerminationProof k
+  DpTrans :: { dptrans_dps :: DPS
+                , markedSymbols :: Bool , dptrans_dpProof :: DpProof } -> TrsTerminationProof Standard
+  FlatContextClosure ::
          { flatContexts :: [Context]
          , trs :: Trs
-         , trsTerminationProof :: TrsTerminationProof
-         }
-     | Semlab {  model :: Model 
+         , trsTerminationProof :: TrsTerminationProof k
+         } -> TrsTerminationProof k
+  Semlab :: {  model :: Model 
               , trs :: Trs
-              , trsTerminationProof :: TrsTerminationProof
-              }
-     | Unlab {  trs :: Trs
-              , trsTerminationProof :: TrsTerminationProof
-              }
-     | StringReversal { trs :: Trs
-                      , trsTerminationProof :: TrsTerminationProof  
-                      }
-     | Bounds { trs :: Trs
+              , trsTerminationProof :: TrsTerminationProof k
+              } -> TrsTerminationProof k
+  Split :: { trs_standard :: Trs
+           , remove :: TrsTerminationProof Relative
+           , remain :: TrsTerminationProof Standard
+           } -> TrsTerminationProof Standard
+  StringReversal :: { trs :: Trs
+                      , trsTerminationProof :: TrsTerminationProof k
+                      } -> TrsTerminationProof k
+  Bounds :: { bounds_trs :: Trs
               , bounds_type :: Bounds_Type
               , bounds_bound :: Int
               , bounds_finalStates :: [ State ]
               , bounds_closedTreeAutomaton :: ClosedTreeAutomaton
-              }
-   deriving ( Typeable, Eq, Generic  )
+              } -> TrsTerminationProof Standard
+
+deriving instance Typeable (TrsTerminationProof k)
+deriving instance Eq (TrsTerminationProof k)
+-- deriving instance Generic (TrsTerminationProof k)
 
 data Bounds_Type = Roof | Match
   deriving ( Typeable, Eq, Generic  )

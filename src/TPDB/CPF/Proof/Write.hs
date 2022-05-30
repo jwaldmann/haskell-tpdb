@@ -1,4 +1,4 @@
-{-# language TypeSynonymInstances, FlexibleContexts, FlexibleInstances, UndecidableInstances, OverlappingInstances, IncoherentInstances, PatternSignatures, DeriveDataTypeable, OverloadedStrings, LambdaCase #-}
+{-# language TypeSynonymInstances, FlexibleContexts, FlexibleInstances, UndecidableInstances, OverlappingInstances, IncoherentInstances, PatternSignatures, DeriveDataTypeable, OverloadedStrings, LambdaCase, DataKinds, GADTs #-}
 
 {-# OPTIONS_GHC -Wincomplete-patterns #-}
 
@@ -98,7 +98,7 @@ instance XmlContent DPS where
    toContents ( DPS rules ) = rmkel "dps" 
         $ rmkel "rules" $ rules >>= toContents
 
-instance XmlContent TrsTerminationProof where
+instance XmlContent (TrsTerminationProof Standard) where
    parseContents = error "parseContents not implemented"
 
    toContents p = rmkel "trsTerminationProof" $ case p of
@@ -123,9 +123,10 @@ instance XmlContent TrsTerminationProof where
           , toContents $ trs p
           , toContents $ trsTerminationProof p
           ]
-      Unlab {} -> rmkel "unlab" $ concat
+      Split {} -> rmkel "split" $ concat
           [ toContents $ trs p
-          , toContents $ trsTerminationProof p
+          , toContents $ remove p
+          , toContents $ remain p
           ]
       RuleRemoval {} -> rmkel "ruleRemoval" $ concat
           [ toContents $ rr_orderingConstraintProof p
@@ -139,6 +140,36 @@ instance XmlContent TrsTerminationProof where
           , rmkel "finalStates" $ concat
              $ map toContents $ bounds_finalStates p
           , toContents $ bounds_closedTreeAutomaton p
+          ]
+
+instance XmlContent (TrsTerminationProof Relative) where
+   parseContents = error "parseContents not implemented"
+
+   toContents p = rmkel "relativeTerminationProof" $ case p of
+      RIsEmpty -> rmkel "rIsEmpty" []
+      SIsEmpty {} -> rmkel "sIsEmpty" $ concat
+          [ toContents $ trsTerminationProof p
+          ]
+
+      StringReversal {} -> rmkel "stringReversal" $ concat
+          [ toContents $ trs p
+          , toContents $ trsTerminationProof p
+          ]
+      FlatContextClosure {} -> rmkel "flatContextClosure" $ concat
+          [ rmkel "flatContexts" $ concatMap toContents
+               $ flatContexts p
+          , toContents $ trs p
+          , toContents $ trsTerminationProof p
+          ]
+      Semlab {} -> rmkel "semlab" $ concat
+          [ toContents $ model p
+          , toContents $ trs p
+          , toContents $ trsTerminationProof p
+          ]
+      RuleRemoval {} -> rmkel "ruleRemoval" $ concat
+          [ toContents $ rr_orderingConstraintProof p
+          , toContents $ trs p
+          , toContents $ trsTerminationProof p
           ]
 
 symbolize trs = 
@@ -401,7 +432,7 @@ instance XmlContent ArgumentFilterEntry where
                   $ map (\i -> mkel "position" $ toContents i) is
     ]
 
-instance XmlContent TrsNonterminationProof where
+instance XmlContent (TrsNonterminationProof Standard) where
   toContents tnp = rmkel "trsNonterminationProof" $ case tnp of
     VariableConditionViolated -> rmkel "variableConditionViolated" []
     TNP_RuleRemoval sys sub -> rmkel "ruleRemoval"
