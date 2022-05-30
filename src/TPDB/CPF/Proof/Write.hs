@@ -150,27 +150,33 @@ instance XmlContent (TrsTerminationProof Relative) where
       SIsEmpty {} -> rmkel "sIsEmpty" $ concat
           [ toContents $ trsTerminationProof p
           ]
-
       StringReversal {} -> rmkel "stringReversal" $ concat
-          [ toContents $ trs p
+          [ toContents $ standard $ trs p
+          , toContents $ relative $ trs p
           , toContents $ trsTerminationProof p
           ]
       FlatContextClosure {} -> rmkel "flatContextClosure" $ concat
           [ rmkel "flatContexts" $ concatMap toContents
                $ flatContexts p
-          , toContents $ trs p
+          , toContents $ standard $ trs p
+          , toContents $ relative $ trs p
           , toContents $ trsTerminationProof p
           ]
       Semlab {} -> rmkel "semlab" $ concat
           [ toContents $ model p
-          , toContents $ trs p
+          , toContents $ standard $ trs p
+          , toContents $ relative $ trs p
           , toContents $ trsTerminationProof p
           ]
       RuleRemoval {} -> rmkel "ruleRemoval" $ concat
           [ toContents $ rr_orderingConstraintProof p
-          , toContents $ trs p
+          , toContents $ standard $ trs p
+          , toContents $ relative $ trs p
           , toContents $ trsTerminationProof p
           ]
+
+standard trs = trs `T.with_rules` filter T.strict (T.rules trs)
+relative trs = trs `T.with_rules` filter T.weak   (T.rules trs)
 
 symbolize trs = 
     ( fmap (T.tmap SymName) trs )
