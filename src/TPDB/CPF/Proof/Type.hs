@@ -4,6 +4,7 @@
 {-# language DeriveDataTypeable, DeriveGeneric #-}
 {-# language OverloadedStrings #-}
 {-# language FlexibleContexts #-}
+{-# language StrictData #-}
 
 -- | internal representation of CPF termination proofs,
 -- see <http://cl-informatik.uibk.ac.at/software/cpf/>
@@ -168,10 +169,10 @@ data TrsTerminationProof (k :: Kind) where
               , trs :: Trs
               , trsTerminationProof :: TrsTerminationProof k
               } -> TrsTerminationProof k
-  Split :: { trs_standard :: Trs
+  Split :: { trs :: Trs
            , remove :: TrsTerminationProof Relative
-           , remain :: TrsTerminationProof Standard
-           } -> TrsTerminationProof Standard
+           , remain :: TrsTerminationProof k
+           } -> TrsTerminationProof k
   StringReversal :: { trs :: Trs
                       , trsTerminationProof :: TrsTerminationProof k
                       } -> TrsTerminationProof k
