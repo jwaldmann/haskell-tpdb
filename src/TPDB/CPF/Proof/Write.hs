@@ -1,4 +1,4 @@
-{-# language TypeSynonymInstances, FlexibleContexts, FlexibleInstances, UndecidableInstances, OverlappingInstances, IncoherentInstances, PatternSignatures, DeriveDataTypeable, OverloadedStrings, LambdaCase, DataKinds, GADTs #-}
+{-# language TypeSynonymInstances, FlexibleContexts, FlexibleInstances, UndecidableInstances, OverlappingInstances, IncoherentInstances, PatternSignatures, DeriveDataTypeable, OverloadedStrings, LambdaCase, DataKinds, GADTs, QuasiQuotes #-}
 
 {-# OPTIONS_GHC -Wincomplete-patterns #-}
 
@@ -11,7 +11,8 @@ import qualified TPDB.Data as T
 
 import TPDB.Xml 
 import Text.XML
-import TPDB.Data.Xml 
+import TPDB.Data.Xml
+import Text.Hamlet.XML
 
 import Data.List ( nub )
 import Data.Char ( toLower )
@@ -23,6 +24,7 @@ import qualified Data.Time as T
 import Control.Monad
 import Data.Typeable
 import Data.Ratio
+import Data.String (fromString)
 
 tox :: CertificationProblem -> Document 
 tox p = 
@@ -188,7 +190,8 @@ instance XmlContent Bounds_Type where
     Match -> rmkel "match" []
 
 instance XmlContent State where
-  toContents (State s) = rmkel "state"  $ toContents s
+  toContents (State s) =
+    rmkel "state"  [xml|#{fromString $ escape $ T.unpack s}|]
 
 instance XmlContent ClosedTreeAutomaton where
   toContents c = concat

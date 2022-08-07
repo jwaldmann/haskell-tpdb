@@ -205,7 +205,7 @@ data TreeAutomaton = TreeAutomaton
   }
    deriving ( Typeable, Eq, Generic  )
 
-data State = State Int
+data State = State Text -- Int -- Ha! Wrong.
    deriving ( Typeable, Eq, Generic  )
 
 data Transition = Transition
