@@ -176,11 +176,11 @@ data TrsTerminationProof (k :: Kind) where
   StringReversal :: { trs :: Trs
                       , trsTerminationProof :: TrsTerminationProof k
                       } -> TrsTerminationProof k
-  Bounds :: { bounds_trs :: Trs
-              , bounds_type :: Bounds_Type
+  Bounds :: {  bounds_type :: Bounds_Type
               , bounds_bound :: Int
               , bounds_finalStates :: [ State ]
-              , bounds_closedTreeAutomaton :: ClosedTreeAutomaton
+              , bounds_closedTreeAutomaton :: TreeAutomaton
+              , bounds_criterion :: Criterion
               } -> TrsTerminationProof Standard
 
 deriving instance Typeable (TrsTerminationProof k)
@@ -188,12 +188,6 @@ deriving instance Eq (TrsTerminationProof k)
 -- deriving instance Generic (TrsTerminationProof k)
 
 data Bounds_Type = Roof | Match
-  deriving ( Typeable, Eq, Generic  )
-
-data ClosedTreeAutomaton = ClosedTreeAutomaton
-  { cta_treeAutomaton :: TreeAutomaton
-  , cta_criterion :: Criterion
-  }
   deriving ( Typeable, Eq, Generic  )
 
 data Criterion = Compatibility
@@ -210,7 +204,7 @@ data State = State Text -- Int -- Ha! Wrong.
 
 data Transition = Transition
   { transition_lhs :: Transition_Lhs
-  , transition_rhs :: [ State ]
+  , transition_rhs :: State
   }
   deriving ( Typeable, Eq, Generic  )
 

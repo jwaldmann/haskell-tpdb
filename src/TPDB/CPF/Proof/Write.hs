@@ -136,12 +136,12 @@ instance XmlContent (TrsTerminationProof Standard) where
           , toContents $ trsTerminationProof p
           ]
       Bounds {} -> rmkel "bounds" $ concat
-          [ toContents $ trs p
-          , toContents $ bounds_type p
+          [ rmkel "type" $ toContents $ bounds_type p
           , rmkel "bound" $ toContents $ bounds_bound p 
           , rmkel "finalStates" $ concat
              $ map toContents $ bounds_finalStates p
           , toContents $ bounds_closedTreeAutomaton p
+          , rmkel "criterion" $ toContents $ bounds_criterion p
           ]
 
 instance XmlContent (TrsTerminationProof Relative) where
@@ -193,12 +193,6 @@ instance XmlContent State where
   toContents (State s) =
     rmkel "state"  [xml|#{fromString $ escape $ T.unpack s}|]
 
-instance XmlContent ClosedTreeAutomaton where
-  toContents c = concat
-    [ toContents $ cta_treeAutomaton c
-    , toContents $ cta_criterion c
-    ]
-
 instance XmlContent Criterion where
   toContents c = case c of
     Compatibility -> rmkel "compatibility" []
@@ -214,8 +208,7 @@ instance XmlContent TreeAutomaton where
 instance XmlContent Transition where
   toContents t = rmkel "transition" $ concat
     [ rmkel "lhs" $ toContents $ transition_lhs t
-    , rmkel "rhs" $ concat
-       $ map toContents $ transition_rhs t
+    , rmkel "rhs" $ toContents $ transition_rhs t
     ]
 
 instance XmlContent Transition_Lhs where
