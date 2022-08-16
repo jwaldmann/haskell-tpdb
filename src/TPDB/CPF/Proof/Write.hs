@@ -383,6 +383,7 @@ instance XmlContent Exotic where
     toContents e = case e of
        Minus_Infinite -> rmkel "minusInfinity" []
        E_Integer i -> rmkel "integer" $ toContents i
+       E_Rational r -> {- rmkel "rational" $ -} toContents r
        Plus_Infinite -> rmkel "plusInfinity" []
 
 -- see remark in TPDB.Data.Xml (sharp_name_HACK)
