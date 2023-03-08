@@ -7,6 +7,7 @@ import TPDB.Pretty
 
 import TPDB.DP.Unify
 
+import Control.Monad (forM)
 import Control.Monad.State.Strict 
 import Control.Applicative
 
