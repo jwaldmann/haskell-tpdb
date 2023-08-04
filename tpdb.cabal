@@ -1,7 +1,7 @@
-Cabal-Version: 2.4
+Cabal-Version: 3.0
 
 Name: tpdb
-Version: 2.5.0
+Version: 2.6.0
 
 Author: Alexander Bau, Johannes Waldmann
 Maintainer: Johannes Waldmann
@@ -20,9 +20,7 @@ Build-Type: Simple
 
 Homepage: https://github.com/jwaldmann/haskell-tpdb
 
-tested-with: GHC == 9.0.1 , GHC == 8.10.4 , GHC == 8.8.4
-             , GHC == 8.6.5 , GHC == 8.4.4
-             , GHC == 8.2.2 , GHC == 8.0.2 , GHC == 7.10.3
+tested-with: GHC == 9.6.2
           
 Extra-Source-Files:
    test/*.xml, test/*.trs ,  test/*.srs, test/*.cpf

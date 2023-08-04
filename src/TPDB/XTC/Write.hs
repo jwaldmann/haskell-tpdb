@@ -24,7 +24,7 @@ document p = X.Document (X.Prologue [] Nothing []) root [] where
     root = X.Element "problem"
       (M.fromList [("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
                   ,("type","termination")
-                  ,("xsi:noNamespaceSchemaLocation","http://dev.aspsimon.org/xtc.xsd")
+                  ,("xsi:noNamespaceSchemaLocation","xtc.xsd")
                   ])
       [xml|
 <trs>^{trs $ D.trs p}
@@ -38,10 +38,12 @@ strategy s = case s of
 trs :: D.TRS D.Identifier D.Identifier -> [X.Node]
 trs rs = [xml|
 <rules>
-  $forall u <- D.rules rs
-    <rule>
-      <lhs>^{term $ D.lhs u}
-      <rhs>^{term $ D.rhs u}
+  $forall u <- D.strict_rules rs
+    ^{rule u}
+  $if not (null (D.weak_rules rs))
+    <relrules>
+      $forall u <- D.weak_rules rs
+        ^{rule u}
 <signature>
   $forall f <- D.signature rs
     <funcsym>
@@ -49,6 +51,12 @@ trs rs = [xml|
       <arity>#{T.pack $ show $ D.arity f}
 |]
 
+rule (l,r) = [xml|
+<rule>
+  <lhs>^{term l}
+  <rhs>^{term r}
+|]
+  
 term :: D.Term D.Identifier D.Identifier -> [X.Node]
 term t = case t of
   D.Var v -> [xml|
