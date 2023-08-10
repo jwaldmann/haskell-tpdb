@@ -1,6 +1,6 @@
 {-# language TypeSynonymInstances, FlexibleContexts, FlexibleInstances, UndecidableInstances, OverlappingInstances, IncoherentInstances, PatternSignatures, DeriveDataTypeable, OverloadedStrings, LambdaCase, DataKinds, GADTs, QuasiQuotes #-}
 
-{-# OPTIONS_GHC -Wincomplete-patterns #-}
+{-# OPTIONS_GHC -Werror=incomplete-patterns #-}
 
 -- | from internal representation to XML, and back
 
@@ -66,6 +66,7 @@ instance XmlContent CertificationProblemInput where
       ComplexityInput {} -> rmkel "complexityInput" $ concat
           [ rmkel "trsInput" $ toContents $ trsinput_trs i
           ]
+      ACRewriteSystem {} -> error "toContents ACRewriteSystem"    
 
 instance XmlContent ( T.TRS Identifier Symbol ) where
    parseContents = error "parseContents not implemented"
@@ -93,6 +94,7 @@ instance XmlContent Proof where
        RelativeTerminationProof p -> toContents p
        RelativeNonterminationProof p -> toContents p
        ComplexityProof p -> missing "ComplexityProof"
+       ACTerminationProof p -> missing "ACTerminationProof"
 
 instance XmlContent DPS where
    parseContents = error "parseContents not implemented"
@@ -175,6 +177,11 @@ instance XmlContent (TrsTerminationProof Relative) where
           , toContents $ standard $ trs p
           , toContents $ relative $ trs p
           , toContents $ trsTerminationProof p
+          ]
+      Split {} -> rmkel "split" $ concat
+          [ toContents $ trs p
+          , toContents $ remove p
+          , toContents $ remain p
           ]
 
 standard trs = trs `T.with_rules` filter T.strict (T.rules trs)
