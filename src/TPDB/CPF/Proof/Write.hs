@@ -179,7 +179,8 @@ instance XmlContent (TrsTerminationProof Relative) where
           , toContents $ trsTerminationProof p
           ]
       Split {} -> rmkel "split" $ concat
-          [ toContents $ trs p
+          [ toContents $ standard $ trs p
+          , toContents $ relative $ trs p
           , toContents $ remove p
           , toContents $ remain p
           ]
