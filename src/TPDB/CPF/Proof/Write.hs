@@ -178,6 +178,9 @@ instance XmlContent (TrsTerminationProof Relative) where
           , toContents $ relative $ trs p
           , toContents $ trsTerminationProof p
           ]
+      EqualityRemoval {} -> rmkel "equalityRemoval" $ concat
+          [ toContents $ trsTerminationProof_Relative p
+          ]
       Split {} -> rmkel "split" $ concat
           [ toContents $ standard $ trs p
           , toContents $ relative $ trs p

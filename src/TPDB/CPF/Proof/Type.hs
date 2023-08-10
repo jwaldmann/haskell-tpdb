@@ -158,6 +158,8 @@ data TrsTerminationProof (k :: Kind) where
                    , trs :: !Trs
                    , trsTerminationProof :: !(TrsTerminationProof k)
                    } -> TrsTerminationProof k
+  EqualityRemoval :: { trsTerminationProof_Relative :: !(TrsTerminationProof Relative)
+                   } -> TrsTerminationProof Relative
   DpTrans :: { dptrans_dps :: DPS
                 , markedSymbols :: Bool , dptrans_dpProof :: DpProof } -> TrsTerminationProof Standard
   FlatContextClosure ::
