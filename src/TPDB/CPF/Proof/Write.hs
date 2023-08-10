@@ -90,8 +90,8 @@ instance XmlContent Proof where
      in  case p of
        TrsTerminationProof p -> toContents p
        TrsNonterminationProof p -> toContents p
-       RelativeTerminationProof p -> missing "RelativeTerminationProof"
-       RelativeNonterminationProof p -> missing "RelativeNonterminationProof"
+       RelativeTerminationProof p -> toContents p
+       RelativeNonterminationProof p -> toContents p
        ComplexityProof p -> missing "ComplexityProof"
 
 instance XmlContent DPS where
@@ -150,7 +150,7 @@ instance XmlContent (TrsTerminationProof Relative) where
    toContents p = rmkel "relativeTerminationProof" $ case p of
       RIsEmpty -> rmkel "rIsEmpty" []
       SIsEmpty {} -> rmkel "sIsEmpty" $ concat
-          [ toContents $ trsTerminationProof p
+          [ toContents $ trsTerminationProof_Standard p
           ]
       StringReversal {} -> rmkel "stringReversal" $ concat
           [ toContents $ standard $ trs p
@@ -437,6 +437,16 @@ instance XmlContent ArgumentFilterEntry where
 
 instance XmlContent (TrsNonterminationProof Standard) where
   toContents tnp = rmkel "trsNonterminationProof" $ case tnp of
+    VariableConditionViolated -> rmkel "variableConditionViolated" []
+    TNP_RuleRemoval sys sub -> rmkel "ruleRemoval"
+      $ concat [ toContents sys, toContents sub ]
+    TNP_StringReversal sys sub -> rmkel "stringReversal"
+      $ concat [ toContents sys , toContents sub ]
+    Loop {rewriteSequence = rs, substitution = sub, context = ctx } -> rmkel "loop"
+        $ concat  [ toContents rs, toContents sub, toContents ctx ]
+
+instance XmlContent (TrsNonterminationProof Relative) where
+  toContents tnp = rmkel "relativeNonterminationProof" $ case tnp of
     VariableConditionViolated -> rmkel "variableConditionViolated" []
     TNP_RuleRemoval sys sub -> rmkel "ruleRemoval"
       $ concat [ toContents sys, toContents sub ]

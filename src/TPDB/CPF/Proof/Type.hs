@@ -152,29 +152,29 @@ data Context = Box
 
 data TrsTerminationProof (k :: Kind) where
   RIsEmpty :: TrsTerminationProof k
-  SIsEmpty :: { trsTerminationProof_Standard :: TrsTerminationProof Standard }
+  SIsEmpty :: { trsTerminationProof_Standard :: !(TrsTerminationProof Standard) }
     -> TrsTerminationProof Relative
-  RuleRemoval :: { rr_orderingConstraintProof :: OrderingConstraintProof
-                   , trs :: Trs
-                   , trsTerminationProof :: TrsTerminationProof k
+  RuleRemoval :: { rr_orderingConstraintProof :: !OrderingConstraintProof
+                   , trs :: !Trs
+                   , trsTerminationProof :: !(TrsTerminationProof k)
                    } -> TrsTerminationProof k
   DpTrans :: { dptrans_dps :: DPS
                 , markedSymbols :: Bool , dptrans_dpProof :: DpProof } -> TrsTerminationProof Standard
   FlatContextClosure ::
-         { flatContexts :: [Context]
-         , trs :: Trs
-         , trsTerminationProof :: TrsTerminationProof k
+         { flatContexts :: ![Context]
+         , trs :: !Trs
+         , trsTerminationProof :: !(TrsTerminationProof k)
          } -> TrsTerminationProof k
-  Semlab :: {  model :: Model 
-              , trs :: Trs
-              , trsTerminationProof :: TrsTerminationProof k
+  Semlab :: {  model :: !Model 
+              , trs :: !Trs
+              , trsTerminationProof :: !(TrsTerminationProof k)
               } -> TrsTerminationProof k
-  Split :: { trs :: Trs
-           , remove :: TrsTerminationProof Relative
-           , remain :: TrsTerminationProof k
+  Split :: { trs :: !Trs
+           , remove :: !(TrsTerminationProof Relative)
+           , remain :: !(TrsTerminationProof k)
            } -> TrsTerminationProof k
-  StringReversal :: { trs :: Trs
-                      , trsTerminationProof :: TrsTerminationProof k
+  StringReversal :: { trs :: !Trs
+                      , trsTerminationProof :: !(TrsTerminationProof k)
                       } -> TrsTerminationProof k
   Bounds :: {  bounds_type :: Bounds_Type
               , bounds_bound :: Int
