@@ -478,6 +478,10 @@ instance XmlContent RewriteStep where
     [ rmkel "positionInTerm"
       $ concatMap (\ k -> rmkel "position" $ toContents k ) $ rs_position rs
     , toContents $ rs_rule rs
+    , case T.relation $ rs_rule rs of
+        T.Strict -> []
+        T.Weak -> rmkel "relative" []
+        T.Equal -> error "toContents for Equal rule"
     , toContents $ rs_term rs
     ]
 
