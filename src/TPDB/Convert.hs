@@ -14,13 +14,15 @@ srs2trs s = s { separate = False
 set_arity a s = s { arity = a }
 
 convert_srs_rule u =
-    let v = mk 0 "x"
+    let v = case original_variable u of
+          Nothing -> mk 0 "x" -- RISKY
+          Just v -> v
         handle = unspine v . map (set_arity 1)
     in  u { lhs = handle $ lhs u
           , rhs = handle $ rhs u
           }
 
-trs2srs :: (Eq v, TermC v s) => TRS v s -> Maybe ( SRS s )
+trs2srs :: (Eq v, TermC v s, v ~ Identifier) => TRS v s -> Maybe ( SRS s )
 trs2srs t = do
     us <- forM ( rules t ) convert_trs_rule
     return $ t { separate = True , rules = us }
@@ -29,7 +31,10 @@ convert_trs_rule u = do
       ( left_spine, left_base ) <- spine $ lhs u
       ( right_spine, right_base ) <- spine $ rhs u
       guard $ left_base == right_base
-      return $ u { lhs = left_spine, rhs = right_spine }
+      return $ u
+        { lhs = left_spine, rhs = right_spine
+        , original_variable = Just left_base
+        }
 
 unspine :: TermC v s => v -> [s] -> Term v s
 unspine v = foldr (  \ c t -> Node c [ t ] ) ( Var v )

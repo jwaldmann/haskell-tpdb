@@ -11,6 +11,7 @@
 module TPDB.Data 
 
 ( module TPDB.Data
+, module TPDB.Data.Identifier
 , module TPDB.Data.Term
 , module TPDB.Data.Rule
 )
@@ -18,6 +19,7 @@ module TPDB.Data
 where
 
 
+import TPDB.Data.Identifier
 import TPDB.Data.Term
 import TPDB.Data.Rule
 import TPDB.Data.Attributes
@@ -31,21 +33,6 @@ import Data.Function (on)
 import qualified Data.Text as T
 import qualified Data.Set as S
 
-data Identifier =
-     Identifier { _identifier_hash :: !Int
-                , name :: !T.Text
-                , arity :: Int
-                }
-    deriving ( Eq, Ord, Typeable )
-
-instance Hashable Identifier where
-    hashWithSalt _ = _identifier_hash
-
-instance Show Identifier where show = T.unpack . name
-
-mk :: Int -> T.Text -> Identifier
-mk a n = Identifier { _identifier_hash = hash (a,n)
-                    , arity = a, name = n }
 
 class Ord (Var t) => Variables t where
   type Var t
