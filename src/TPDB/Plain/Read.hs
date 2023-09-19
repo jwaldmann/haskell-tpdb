@@ -82,7 +82,9 @@ instance Reader u => Reader ( Rule u ) where
           -- as it would deviate from published TPDB syntax
           -- <|> do reservedOp lexer "=" ; return Equal
         r <- reader
-        return $ Rule { lhs = l, relation = rel, top = False, rhs = r }
+        return $ Rule { lhs = l, relation = rel, top = False, rhs = r
+                      , original_variable = Nothing
+                      }
 
 data Declaration u
      = Var_Declaration [ Identifier ]
