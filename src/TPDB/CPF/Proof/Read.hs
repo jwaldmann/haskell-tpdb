@@ -115,7 +115,7 @@ getRulesWith s =  element1 "rules" >=> \ c ->
 
 getRule :: Relation -> Cursor -> [ Rule (Term Identifier Symbol) ]
 getRule s c = 
-  ( \ l r -> Rule {lhs=l,relation=s,rhs=r,top=False})
+  ( \ l r -> Rule {lhs=l,relation=s,rhs=r,top=False, original_variable=Nothing})
     <$> (c $/ element "lhs" &/ getTerm) <*> (c $/ element "rhs" &/ getTerm)
 
 getProof :: Cursor -> [ Proof ]

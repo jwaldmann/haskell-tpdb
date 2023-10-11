@@ -6,14 +6,14 @@ import Data.Typeable
 data Relation = Strict |  Weak | Equal deriving ( Eq, Ord, Typeable, Show )
 
 data Rule a = Rule
-  { lhs :: a, rhs :: a 
-  , relation :: Relation
-  , top :: Bool
-  -- TPDC (XTC) represents SRS as TRS,
+  { lhs :: !a, rhs :: !a 
+  , relation :: !Relation
+  , top :: !Bool
+  -- TPDB (XTC) represents SRS as TRS,
   -- e.g.,  "ab -> ba" is "a(b(x)) -> b(a(x))",
   -- and when we convert back (as we need for CPF),
   -- need to use the original variable in the rule
-  , original_variable :: Maybe Identifier 
+  , original_variable :: !(Maybe Identifier)
   }
     deriving ( Eq, Ord, Typeable )
 

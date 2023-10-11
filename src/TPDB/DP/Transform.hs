@@ -64,6 +64,7 @@ dp s =
                                , lhs = tmap Original $ lhs u  
                                , rhs = tmap Original $ rhs u  
                                , top = False
+                               , original_variable = original_variable u
                                } )
            $ rules s
        def = defined s
@@ -83,6 +84,7 @@ dp s =
                           , lhs = mark_top $ lhs u
                           , rhs = mark_top r 
                           , top = True
+                          , original_variable = original_variable u
                           }
    in RS { signature = map Marked ( S.toList def )
                      ++ map Original ( signature s )

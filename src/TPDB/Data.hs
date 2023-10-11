@@ -148,7 +148,9 @@ mkunary   s = mk 1 s
 from_strict_rules :: Bool -> [(t,t)] -> RS i t
 from_strict_rules sep rs =
     RS { rules = map ( \ (l,r) ->
-             Rule { relation = Strict, top = False, lhs = l, rhs = r } ) rs
+             Rule { relation = Strict, top = False, lhs = l, rhs = r
+                  , original_variable = Nothing
+                  } ) rs
        , separate = sep
        }
 
