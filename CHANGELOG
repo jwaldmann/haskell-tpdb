@@ -1,3 +1,5 @@
+2.7.3 : #46 builds with text-2.1.2 (ghc-9.12) 
+
 2.5 : add TrsNonterminationProof to CPF
 
 2.2 : add (VAR ..) for plain TRS printout

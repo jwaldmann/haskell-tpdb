@@ -22,12 +22,13 @@ import TPDB.Data
 import TPDB.Plain.Write ()
 import Data.Typeable
 import TPDB.Pretty
-import Data.Text
+import Data.Text (Text)
+import qualified Data.Text as T
 import TPDB.Xml (XmlContent)
 import GHC.Generics
 import Data.Hashable
 import Data.Kind
-import qualified Data.Text.Lazy as T
+import qualified Data.Text.Lazy as TL
 
 data CertificationProblem =
      CertificationProblem { input :: CertificationProblemInput 
@@ -314,7 +315,7 @@ instance Pretty Symbol where
     SymSharp s -> pretty s <> "#"
     SymLabel s l -> pretty s <> "_" <> pretty l
 
-instance Show Symbol where show = T.unpack . render . pretty
+instance Show Symbol where show = TL.unpack . render . pretty
 
 
 data Label = LblNumber [Integer]
