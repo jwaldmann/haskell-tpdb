@@ -24,6 +24,7 @@ import qualified Data.Time as T
 import Control.Monad
 import Data.Typeable
 import Data.Ratio
+import Numeric.Natural
 import Data.String (fromString)
 
 tox :: CertificationProblem -> Document 
@@ -317,11 +318,22 @@ instance XmlContent Interpretation where
 instance XmlContent Interpretation_Type where
    parseContents = error "parseContents not implemented"
 
-   toContents t = rmkel "matrixInterpretation" $ concat 
+   toContents (t@Matrix_Interpretation {}) = rmkel "matrixInterpretation" $ concat 
       [ toContents ( domain t )
       , rmkel "dimension"       $ toContents $ dimension t 
       , rmkel "strictDimension" $ toContents $ strictDimension t
       ]
+   toContents (t@Core_Matrix_Interpretation {}) = rmkel "coreMatrixInterpretation" $ concat 
+      [ toContents ( domain t )
+      , rmkel "dimension"       $ toContents $ dimension t
+      , rmkel "indices" $ concatMap toContents $ indices t
+      , toContents (mode t)
+      ]
+
+instance XmlContent Natural where
+  parseContents = error "parsecContents not implemented"
+
+  toContents d = rmkel "nat" $ toContents $ fromIntegral d
      
 instance XmlContent Domain where
    parseContents = error "parseContents not implemented"
@@ -332,6 +344,13 @@ instance XmlContent Domain where
          $ rmkel "delta" $ toContents delta
        Arctic d -> rmkel "arctic" $ toContents d
        Tropical d -> rmkel  "tropical" $ toContents d
+
+instance XmlContent Mode where
+   parseContents = error "parseContents not implemented"
+
+   toContents d = rmkel "mode" $ case d of
+       E -> rmkel "E" []
+       M -> rmkel "M" []
 
 instance XmlContent Rational where
     parseContents = error "parseContents not implemented"

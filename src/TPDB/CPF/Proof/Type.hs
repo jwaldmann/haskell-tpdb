@@ -28,6 +28,7 @@ import TPDB.Xml (XmlContent)
 import GHC.Generics
 import Data.Hashable
 import Data.Kind
+import Numeric.Natural
 import qualified Data.Text.Lazy as TL
 
 data CertificationProblem =
@@ -272,7 +273,16 @@ data Interpretation_Type =
    Matrix_Interpretation { domain :: Domain, dimension :: Int
                          , strictDimension :: Int
                          }
+   | Core_Matrix_Interpretation
+     { domain :: Domain
+     , dimension :: Int
+     , indices :: [Natural]
+     , mode :: Mode
+     }
    deriving ( Typeable, Eq, Generic  )
+
+data Mode = E | M
+  deriving ( Typeable, Eq, Generic  )
 
 data Domain = Naturals 
             | Rationals Rational
