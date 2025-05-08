@@ -31,9 +31,27 @@ import Data.Kind
 import Numeric.Natural
 import qualified Data.Text.Lazy as TL
 
+cp :: CertificationProblem
+cp = CertificationProblem
+  { cpfVersion = "3.4"
+  , input = TrsInput
+    { trsinput_trs = RS { rules = [ ru ] }
+    }
+  , proof = TrsTerminationProof RIsEmpty
+  , origin = ignoredOrigin
+  }
+
+ru = let a = SymName $ mk 0 "s" in Rule
+        { top = False
+        , relation = TPDB.Data.Strict
+        , lhs = Node a []
+        , rhs = Node a []
+        , original_variable = Nothing
+        }
+
 data CertificationProblem =
-     CertificationProblem { input :: CertificationProblemInput 
-                          , cpfVersion :: Text
+     CertificationProblem { cpfVersion :: Text
+                          , input :: CertificationProblemInput
                           , proof :: Proof 
                           , origin :: Origin  
                           }  

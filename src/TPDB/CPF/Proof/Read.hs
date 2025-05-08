@@ -63,8 +63,8 @@ element1 name c =
 fromDoc :: Cursor -> [ CertificationProblem ]
 fromDoc = element1 "certificationProblem" >=> \ c -> 
   ( CertificationProblem
-     <$> (c $/ element "input" &/ getInput )
-     <*> (c $/ element "cpfVersion" &/ content )
+     <$> (c $/ element "cpfVersion" &/ content )
+     <*> (c $/ element "input" &/ getInput )
      <*> (c $/ element "proof" &/ getProof)
      <*> (c $/ element "origin" >=> return [ignoredOrigin] )
   )

@@ -73,8 +73,8 @@ instance ( TermC v c, XmlContent ( Term v c ) )
          => XmlContent ( Rule ( Term v c ) ) where
     toContents u =
       [xml|<rule>
-             <lhs>^{toContents $ lhs u}
-             <rhs>^{toContents $ rhs u}
+             ^{toContents $ lhs u}
+             ^{toContents $ rhs u}
       |]
 
 
