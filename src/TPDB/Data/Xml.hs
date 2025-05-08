@@ -53,7 +53,7 @@ instance (  TermC v c, Show v, XmlContent v, XmlContent c )
       [xml|<funapp>
              ^{no_sharp_name_HACK ( toContents f )}
              $forall arg <- args
-               <arg>^{toContents arg}
+               ^{toContents arg}
       |]
 
 

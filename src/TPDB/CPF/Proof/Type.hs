@@ -175,7 +175,8 @@ data TrsTerminationProof (k :: Kind) where
   SIsEmpty :: { trsTerminationProof_Standard :: !(TrsTerminationProof Standard) }
     -> TrsTerminationProof Relative
   RuleRemoval :: { rr_orderingConstraintProof :: !OrderingConstraintProof
-                   , trs :: !Trs
+                   , trs_deleted :: !Trs
+                   , trs_remaining :: !Trs
                    , trsTerminationProof :: !(TrsTerminationProof k)
                    } -> TrsTerminationProof k
   EqualityRemoval :: { trsTerminationProof_Relative :: !(TrsTerminationProof Relative)

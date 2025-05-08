@@ -42,6 +42,8 @@ instance XmlContent CertificationProblem where
          [ mkel "cpfVersion" [ nospaceString $ cpfVersion cp ]
          , mkel "lookupTables"  []
          , mkel "input" $ toContents ( input cp )
+         , mkel "property" $ rmkel "termination" []
+         , mkel "answer" $ rmkel "yes" [] -- FIXME (no?)
          , mkel "proof" $ toContents ( proof cp )
          , mkel "origin" $ toContents ( origin cp )
          ]
@@ -136,7 +138,7 @@ instance XmlContent (TrsTerminationProof Standard) where
           ]
       RuleRemoval {} -> rmkel "ruleRemoval" $ concat
           [ toContents $ rr_orderingConstraintProof p
-          , toContents $ trs p
+          , toContents $ trs_deleted p
           , toContents $ trsTerminationProof p
           ]
       Bounds {} -> rmkel "bounds" $ concat
@@ -299,13 +301,16 @@ instance XmlContent DepGraphComponent where
 instance XmlContent OrderingConstraintProof where
   parseContents = error "parseContents not implemented"
 
-  toContents (OCPRedPair rp) = rmkel "orderingConstraintProof" 
-                             $ toContents rp
+  toContents (OCPRedPair rp) = id
+    -- $ rmkel "orderingConstraintProof" 
+    $ toContents rp
            
 instance XmlContent RedPair where
   parseContents = error "parseContents not implemented"
 
-  toContents rp = rmkel "redPair" $ case rp of
+  toContents rp = id
+          --  $ rmkel "redPair"
+          $ case rp of
     RPInterpretation i -> toContents i
     RPPathOrder      o -> toContents o
 
@@ -381,10 +386,14 @@ instance XmlContent Value where
 instance XmlContent Polynomial where
    parseContents = error "parseContents not implemented"
 
-   toContents p = rmkel "polynomial" $ case p of
+   toContents p = id
+                  -- $ rmkel "polynomial"
+                  $ case p of
        Sum     ps -> rmkel "sum"     $ concat ( map toContents ps )
        Product ps -> rmkel "product" $ concat ( map toContents ps )
-       Polynomial_Coefficient c -> rmkel "coefficient" $ toContents c
+       Polynomial_Coefficient c -> id
+         --  $ rmkel "coefficient"
+         $ toContents c
        Polynomial_Variable v -> rmkel "variable" [ nospaceString v ]
 
 instance XmlContent ArithFunction where
@@ -405,8 +414,9 @@ instance XmlContent Coefficient where
    toContents v = case v of
        Matrix vs -> rmkel "matrix" $ concat ( map toContents vs )
        Vector cs -> rmkel "vector" $ concat ( map toContents cs )
-       Coefficient_Coefficient i -> 
-          rmkel "coefficient" $ toContents i
+       Coefficient_Coefficient i -> id
+          -- $ rmkel "coefficient"
+          $ toContents i
 
 instance XmlContent Exotic where
     parseContents = error "parseContents not implemented"
