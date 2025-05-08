@@ -3,4 +3,5 @@
 *.hi
 *~
 dist/
+dist-newstyle/
 .stack-work/
