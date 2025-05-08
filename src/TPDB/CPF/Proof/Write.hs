@@ -1,4 +1,4 @@
-{-# language TypeSynonymInstances, FlexibleContexts, FlexibleInstances, UndecidableInstances, OverlappingInstances, IncoherentInstances, PatternSignatures, DeriveDataTypeable, OverloadedStrings, LambdaCase, DataKinds, GADTs, QuasiQuotes #-}
+{-# language TypeSynonymInstances, FlexibleContexts, FlexibleInstances, UndecidableInstances, OverlappingInstances, IncoherentInstances, PatternSignatures, DeriveDataTypeable, OverloadedStrings, LambdaCase, DataKinds, GADTs, QuasiQuotes, TypeApplications #-}
 
 {-# OPTIONS_GHC -Werror=incomplete-patterns #-}
 
@@ -39,8 +39,9 @@ instance XmlContent CertificationProblem where
    parseContents = error "parseContents not implemented"
 
    toContents cp = rmkel "certificationProblem"
-         [ mkel "input" $ toContents ( input cp )
-         , mkel "cpfVersion" [ nospaceString $ cpfVersion cp ]
+         [ mkel "cpfVersion" [ nospaceString $ cpfVersion cp ]
+         , mkel "lookupTables"  []
+         , mkel "input" $ toContents ( input cp )
          , mkel "proof" $ toContents ( proof cp )
          , mkel "origin" $ toContents ( origin cp )
          ]
@@ -80,8 +81,8 @@ instance ( Typeable t, XmlContent t  )
    parseContents = error "parseContents not implemented"
 
    toContents u = rmkel "rule" $ concat
-      [ rmkel "lhs" ( toContents $ T.lhs u )
-      , rmkel "rhs" ( toContents $ T.rhs u )
+      [ toContents $ T.lhs u
+      , toContents $ T.rhs u
       ]
 
 instance XmlContent Proof where
@@ -333,7 +334,8 @@ instance XmlContent Interpretation_Type where
 instance XmlContent Natural where
   parseContents = error "parsecContents not implemented"
 
-  toContents d = rmkel "nat" $ toContents $ fromIntegral d
+  toContents d =
+    rmkel "nat" $ toContents $ fromIntegral @Natural @Integer d
      
 instance XmlContent Domain where
    parseContents = error "parseContents not implemented"
