@@ -153,7 +153,7 @@ instance XmlContent (TrsTerminationProof Standard) where
 instance XmlContent (TrsTerminationProof Relative) where
    parseContents = error "parseContents not implemented"
 
-   toContents p = rmkel "relativeTerminationProof" $ case p of
+   toContents p = rmkel "trsTerminationProof" $ case p of
       RIsEmpty -> rmkel "rIsEmpty" []
       SIsEmpty {} -> rmkel "sIsEmpty" $ concat
           [ toContents $ trsTerminationProof_Standard p
@@ -178,8 +178,7 @@ instance XmlContent (TrsTerminationProof Relative) where
           ]
       RuleRemoval {} -> rmkel "ruleRemoval" $ concat
           [ toContents $ rr_orderingConstraintProof p
-          , toContents $ standard $ trs p
-          , toContents $ relative $ trs p
+          , toContents $ trs_deleted p
           , toContents $ trsTerminationProof p
           ]
       EqualityRemoval {} -> rmkel "equalityRemoval" $ concat
