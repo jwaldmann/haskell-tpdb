@@ -35,15 +35,23 @@ cp :: CertificationProblem
 cp = CertificationProblem
   { cpfVersion = "3.4"
   , input = TrsInput
-    { trsinput_trs = RS { rules = [ ru ] }
+    { trsinput_trs = RS { rules = [ rs, rw ] }
     }
   , proof = TrsTerminationProof RIsEmpty
   , origin = ignoredOrigin
   }
 
-ru = let a = SymName $ mk 0 "s" in Rule
+rs = let a = SymName $ mk 0 "s" in Rule
         { top = False
         , relation = TPDB.Data.Strict
+        , lhs = Node a []
+        , rhs = Node a []
+        , original_variable = Nothing
+        }
+
+rw = let a = SymName $ mk 0 "s" in Rule
+        { top = False
+        , relation = TPDB.Data.Weak
         , lhs = Node a []
         , rhs = Node a []
         , original_variable = Nothing

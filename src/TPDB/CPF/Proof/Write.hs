@@ -66,7 +66,16 @@ instance XmlContent CertificationProblemInput where
    parseContents = error "parseContents not implemented"
 
    toContents i = case i of
-      TrsInput {} -> rmkel "trsInput" $ toContents (trsinput_trs i )
+      TrsInput {} ->
+        let sys = trsinput_trs i
+            s = standard sys
+            r = relative sys
+        in  rmkel "trsInput" $
+                toContents s
+                <> if null (T.rules r) then []
+                   else rmkel "relativeRules" $
+                        rmkel "rules" $
+                        concatMap toContents $ T.rules r
       ComplexityInput {} -> rmkel "complexityInput" $ concat
           [ rmkel "trsInput" $ toContents $ trsinput_trs i
           ]
