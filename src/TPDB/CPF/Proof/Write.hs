@@ -122,7 +122,7 @@ instance XmlContent (TrsTerminationProof Standard) where
       RIsEmpty -> rmkel "rIsEmpty" []
       DpTrans {} -> rmkel "dpTrans" $ concat
           [ toContents $ dptrans_dps p
-          , rmkel "markedSymbols" [ nospaceString "true" ]
+          -- , rmkel "markedSymbols" [ nospaceString "true" ]
           , toContents $ dptrans_dpProof p
           ]
       StringReversal {} -> rmkel "stringReversal" $ concat
@@ -297,10 +297,12 @@ instance XmlContent DpProof where
 instance XmlContent DepGraphComponent where
     toContents dgc = rmkel "component" $ concat $
         [ {- rmkel "dps" $ -} toContents $ dgcDps dgc
+{-        
         , rmkel "realScc" 
            --  $ toContents $ dgcRealScc dgc
            -- NO, Bool is encoded as text, not as attribute
-            $ toContents $ dgcRealScc dgc 
+            $ toContents $ dgcRealScc dgc
+-}
         ] ++ 
         [ {- rmkel "dpProof" $ -} toContents $ dgcDpProof dgc
         | dgcRealScc dgc
