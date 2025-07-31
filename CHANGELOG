@@ -1,3 +1,7 @@
+2.8.3 : (ceta-3) omit empty S of relative R/S system
+	
+2.8.2 : (ceta-3) DP problem no longer has markeSymbols attribute
+
 2.8.0: add core matrix interpretationen (ceta-3.4)
 
 2.7.3 : #46 builds with text-2.1.2 (ghc-9.12)
