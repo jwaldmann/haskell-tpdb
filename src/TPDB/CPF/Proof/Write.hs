@@ -172,19 +172,16 @@ instance XmlContent (TrsTerminationProof Relative) where
           , toContents $ relative $ trs p
           , toContents $ trsTerminationProof p
           ]
-      FlatContextClosure {} -> rmkel "flatContextClosure" $ concat
+      FlatContextClosure {} -> rmkel "flatContextClosure" $ concat $
           [ rmkel "flatContexts" $ concatMap toContents
                $ flatContexts p
-          , toContents $ standard $ trs p
-          , toContents $ relative $ trs p
-          , toContents $ trsTerminationProof p
           ]
-      Semlab {} -> rmkel "semlab" $ concat
-          [ toContents $ model p
-          , toContents $ standard $ trs p
-          , toContents $ relative $ trs p
-          , toContents $ trsTerminationProof p
-          ]
+          <> toco_relative (trs p)
+          <> [ toContents $ trsTerminationProof p ]
+      Semlab {} -> rmkel "semlab" $ concat $
+          [ toContents $ model p ]
+          <> toco_relative (trs p)
+          <> [ toContents $ trsTerminationProof p ]
       RuleRemoval {} -> rmkel "ruleRemoval" $ concat
           [ toContents $ rr_orderingConstraintProof p
           , toContents $ trs_deleted p
@@ -201,6 +198,11 @@ instance XmlContent (TrsTerminationProof Relative) where
 
 standard trs = trs `T.with_rules` filter T.strict (T.rules trs)
 relative trs = trs `T.with_rules` filter T.weak   (T.rules trs)
+
+toco_relative s = 
+      [ toContents $ standard s ]
+   <> [ toContents $ relative s | not $ null $ filter T.weak  $ T.rules s ]
+
 
 symbolize trs = 
     ( fmap (T.tmap SymName) trs )
