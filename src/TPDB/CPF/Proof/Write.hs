@@ -177,9 +177,7 @@ instance XmlContent (TrsTerminationProof Relative) where
           [ toContents $ trsTerminationProof_Standard p
           ]
       StringReversal {} -> rmkel "stringReversal" $ concat
-          [ -- toContents $ trs p
-            toContents $ standard $ trs p
-          , toContents $ relative $ trs p
+          [ toContents $ trs p
           , toContents $ trsTerminationProof p
           ]
       FlatContextClosure {} -> rmkel "flatContextClosure" $ concat $
