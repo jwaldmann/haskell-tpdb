@@ -115,7 +115,7 @@ data Problem v s =
              }
 
 data Type = Termination | Complexity
-     deriving Show
+  deriving Show
 
 data Strategy = Full | Innermost | Outermost
      deriving Show

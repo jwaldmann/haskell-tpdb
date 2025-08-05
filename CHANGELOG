@@ -1,3 +1,6 @@
+2.8.4	(ceta-3) add "property" and "answer" component to Certif.Prob.
+	repair output of sub-system in (rel) fcc
+
 2.8.3 : (ceta-3) omit empty S of relative R/S system
 	
 2.8.2 : (ceta-3) DP problem no longer has markeSymbols attribute

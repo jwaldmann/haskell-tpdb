@@ -18,7 +18,7 @@ module TPDB.CPF.Proof.Type
 
 where
 
-import TPDB.Data
+import TPDB.Data hiding (Type(..))
 import TPDB.Plain.Write ()
 import Data.Typeable
 import TPDB.Pretty
@@ -33,10 +33,12 @@ import qualified Data.Text.Lazy as TL
 
 cp :: CertificationProblem
 cp = CertificationProblem
-  { cpfVersion = "3.4"
+  { cpfVersion = "3.6"
   , input = TrsInput
     { trsinput_trs = RS { rules = [ rs, rw ] }
     }
+  , property = Termination
+  , answer = Yes
   , proof = TrsTerminationProof RIsEmpty
   , origin = ignoredOrigin
   }
@@ -57,10 +59,15 @@ rw = let a = SymName $ mk 0 "s" in Rule
         , original_variable = Nothing
         }
 
+data Property = Termination deriving (Typeable, Eq, Generic)
+data Answer = No | Yes deriving (Typeable, Eq, Generic)
+
 data CertificationProblem =
      CertificationProblem { cpfVersion :: Text
-                          , input :: CertificationProblemInput
-                          , proof :: Proof 
+                          , input :: !CertificationProblemInput
+                          , property :: !Property
+                          , answer :: !Answer
+                          , proof :: !Proof 
                           , origin :: Origin  
                           }  
    deriving ( Typeable, Eq, Generic )

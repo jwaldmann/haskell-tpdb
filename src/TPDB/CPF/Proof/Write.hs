@@ -42,11 +42,20 @@ instance XmlContent CertificationProblem where
          [ mkel "cpfVersion" [ nospaceString $ cpfVersion cp ]
          , mkel "lookupTables"  []
          , mkel "input" $ toContents ( input cp )
-         , mkel "property" $ rmkel "termination" []
-         , mkel "answer" $ rmkel "yes" [] -- FIXME (no?)
+         , mkel "property" $ toContents (property cp)
+         , mkel "answer" $ toContents (answer cp)
          , mkel "proof" $ toContents ( proof cp )
          , mkel "origin" $ toContents ( origin cp )
          ]
+
+instance XmlContent Property where
+  toContents p = case p of
+    Termination -> rmkel "termination" []
+
+instance XmlContent Answer where
+  toContents a = case a of
+    No -> rmkel "no" []
+    Yes -> rmkel "yes" []
 
 instance XmlContent Origin where
    parseContents = error "parseContents not implemented"
@@ -168,7 +177,8 @@ instance XmlContent (TrsTerminationProof Relative) where
           [ toContents $ trsTerminationProof_Standard p
           ]
       StringReversal {} -> rmkel "stringReversal" $ concat
-          [ toContents $ standard $ trs p
+          [ -- toContents $ trs p
+            toContents $ standard $ trs p
           , toContents $ relative $ trs p
           , toContents $ trsTerminationProof p
           ]
@@ -198,6 +208,8 @@ instance XmlContent (TrsTerminationProof Relative) where
 
 standard trs = trs `T.with_rules` filter T.strict (T.rules trs)
 relative trs = trs `T.with_rules` filter T.weak   (T.rules trs)
+
+toco_relative s = [ toContents s ]
 
 toco_relative s = 
       [ toContents $ standard s ]

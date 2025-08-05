@@ -3,7 +3,7 @@
 module TPDB.CPF.Proof.Read where
 
 import TPDB.CPF.Proof.Type as Type
-import TPDB.Data
+import TPDB.Data hiding (Type (..))
 
 {-
 import Text.XML.HXT.Arrow.XmlArrow
@@ -65,9 +65,16 @@ fromDoc = element1 "certificationProblem" >=> \ c ->
   ( CertificationProblem
      <$> (c $/ element "cpfVersion" &/ content )
      <*> (c $/ element "input" &/ getInput )
+     <*> (c $/ element "property" &/ getProperty )
+     <*> (c $/ element "answer" &/ getAnswer )
      <*> (c $/ element "proof" &/ getProof)
      <*> (c $/ element "origin" >=> return [ignoredOrigin] )
   )
+
+getProperty = (element "termination" >> return [ Termination])
+
+getAnswer = (element "no" >> return [No])
+       <>   (element "yes" >> return [Yes])
 
 getInput =  getTerminationInput
    <> getComplexityInput
@@ -85,7 +92,6 @@ getACTerminationInput = element "acRewriteSystem" >=> \ c -> do
       , asymbols = as
       , csymbols = cs
       }
-
 
 getComplexityInput = element "input" >=> \ c -> do
     trsI <- c $/ element "complexityInput" &/ element "trsInput" &/ getTrsInput
