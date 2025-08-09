@@ -1,10 +1,12 @@
+2.8.6  (ceta-3) omit sIsEmpty nodes
+
 2.8.5  (ceta-3) string-reversalo for relative termination
 
-2.8.4	(ceta-3) add "property" and "answer" component to Certif.Prob.
-	repair output of sub-system in (rel) fcc
+2.8.4   (ceta-3) add "property" and "answer" component to Certif.Prob.
+        repair output of sub-system in (rel) fcc
 
 2.8.3 : (ceta-3) omit empty S of relative R/S system
-	
+        
 2.8.2 : (ceta-3) DP problem no longer has markeSymbols attribute
 
 2.8.0: add core matrix interpretationen (ceta-3.4)

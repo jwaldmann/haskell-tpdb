@@ -171,11 +171,10 @@ instance XmlContent (TrsTerminationProof Standard) where
 instance XmlContent (TrsTerminationProof Relative) where
    parseContents = error "parseContents not implemented"
 
+   toContents p@SIsEmpty{} = 
+          toContents $ trsTerminationProof_Standard p
    toContents p = rmkel "trsTerminationProof" $ case p of
       RIsEmpty -> rmkel "rIsEmpty" []
-      SIsEmpty {} -> rmkel "sIsEmpty" $ concat
-          [ toContents $ trsTerminationProof_Standard p
-          ]
       StringReversal {} -> rmkel "stringReversal" $ concat
           [ toContents $ trs p
           , toContents $ trsTerminationProof p
