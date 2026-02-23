@@ -7,12 +7,13 @@ where
 import TPDB.Data
 import TPDB.Plain.Read
 import TPDB.XTC.Read
+import qualified TPDB.ARI
 
 import qualified Data.Text.Lazy as T
 import System.FilePath.Posix ( takeExtension )
 
 -- | first argument is file name, second argument is file contents.
--- first arg. is needed to pick the proper parser (SRS, TRS, XTC)
+-- first arg. is needed to pick the proper parser (SRS, TRS, XTC, ARI)
 get :: String -> T.Text
     -> IO (Either String (Either (TRS Identifier Identifier) (SRS Identifier)))
 get f s = case takeExtension f of

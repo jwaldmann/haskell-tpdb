@@ -1,0 +1,7 @@
+packages: .
+
+source-repository-package
+  type: git
+  location: https://github.com/jwaldmann/atto-lisp
+  tag: 1817de9d34dafd87dc4e6e8a60386baa84111879
+

@@ -1,7 +1,7 @@
 Cabal-Version: 3.8
 
 Name: tpdb
-Version: 2.8.6
+Version: 2.9.0
 
 Author: Alexander Bau, Johannes Waldmann
 Maintainer: Johannes Waldmann
@@ -20,7 +20,7 @@ Build-Type: Simple
 
 Homepage: https://github.com/jwaldmann/haskell-tpdb
 
-tested-with: GHC == 9.12.2
+tested-with: GHC == 9.12.2, GHC == 9.14.1
           
 Extra-Source-Files:
    test/*.xml, test/*.trs ,  test/*.srs, test/*.cpf
@@ -32,7 +32,8 @@ Source-Repository head
 Library
   Build-Depends: base==4.*,  prettyprinter, text, mtl,
     xml-hamlet, xml-conduit, data-default,
-    parsec, time, containers, filepath, hashable, bytestring, exceptions
+    parsec, time, containers, filepath, hashable, bytestring, exceptions,
+    attoparsec,atto-lisp,unordered-containers
   Hs-Source-Dirs: src
   default-language: Haskell2010
   Exposed-Modules:
@@ -47,7 +48,8 @@ Library
     TPDB.XTC,  TPDB.XTC.Read, TPDB.XTC.Write, TPDB.Xml, 
     TPDB.CPF.Proof.Write,  TPDB.CPF.Proof.Read,  
     TPDB.CPF.Proof.Xml,  
-    TPDB.CPF.Proof.Type, TPDB.CPF.Proof.Util
+    TPDB.CPF.Proof.Type, TPDB.CPF.Proof.Util,
+    TPDB.ARI
 
 Executable plain2xtc
   build-depends: base==4.*, tpdb, bytestring
@@ -150,6 +152,13 @@ Test-Suite read-complex
   Build-Depends: base==4.*, tpdb
   Type: exitcode-stdio-1.0
   main-is: read_complex.hs
+  hs-source-dirs: test 
+  default-language: Haskell2010
+
+Test-Suite read-ARI
+  Build-Depends: base==4.*, tpdb
+  Type: exitcode-stdio-1.0
+  main-is: read_ARI.hs
   hs-source-dirs: test 
   default-language: Haskell2010
 

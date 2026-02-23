@@ -2,15 +2,17 @@ module TPDB.Input.File where
 
 import TPDB.Data
 import TPDB.Convert
+import qualified TPDB.ARI
 
 import qualified TPDB.Input.Memory as TIM
 
 import qualified Data.Text.Lazy as T
 import qualified Data.Text.Lazy.IO as T
+import qualified Data.ByteString as BS
 import System.FilePath.Posix ( takeExtension )
 
 -- | read input from file with given name.
--- can have extension .srs, .trs, .xml.
+-- can have extension .srs, .trs, .xml, .ari
 -- unknown extension is considered as .xml, because of 
 -- http://starexec.forumotion.com/t60-restore-file-extension-for-renamed-benchmarks
 
@@ -23,9 +25,17 @@ get f = do
         Right x -> return x 
         Left err -> error err
 
-getE f = do
-  s <- T.readFile f
-  TIM.get f s
+getE :: FilePath 
+         -> IO (Either String
+                 ( Either (TRS Identifier Identifier) 
+                        ( SRS Identifier ) ) )
+getE f = case takeExtension f of
+  ".ari" -> do
+    s <- BS.readFile f
+    return $ fmap Left $ TPDB.ARI.get s
+  _ ->  do
+    s <- T.readFile f
+    TIM.get f s
 
 get_trs f = do
     x <- get f
