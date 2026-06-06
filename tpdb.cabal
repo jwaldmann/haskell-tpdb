@@ -27,7 +27,7 @@ Extra-Source-Files:
 
 Source-Repository head
   Type: git
-  Location: git://github.com/jwaldmann/haskell-tpdb.git
+  Location: https://github.com/jwaldmann/haskell-tpdb
 
 Library
   Build-Depends: base==4.*,  prettyprinter >= 1.7.2, text, mtl,
