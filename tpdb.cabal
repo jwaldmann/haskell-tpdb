@@ -30,7 +30,7 @@ Source-Repository head
   Location: git://github.com/jwaldmann/haskell-tpdb.git
 
 Library
-  Build-Depends: base==4.*,  prettyprinter, text, mtl,
+  Build-Depends: base==4.*,  prettyprinter >= 1.7.2, text, mtl,
     xml-hamlet, xml-conduit, data-default,
     parsec, time, containers, filepath, hashable, bytestring, exceptions,
     attoparsec,atto-lisp,unordered-containers

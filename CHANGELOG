@@ -1,3 +1,5 @@
+2.9.0  prettyprinter added tuple instances
+        
 2.8.6  (ceta-3) omit sIsEmpty nodes
 
 2.8.5  (ceta-3) string-reversalo for relative termination

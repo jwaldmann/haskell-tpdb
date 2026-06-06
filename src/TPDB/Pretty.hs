@@ -53,9 +53,6 @@ displayIO = T.renderIO
 text :: String -> D.Doc ann
 text = fromString
 
-instance ( Pretty a, Pretty b, Pretty c, Pretty d ) => Pretty (a,b,c,d) where
-    pretty (x,y,z,u) = parens $ fsep $ punctuate comma [ pretty x, pretty y, pretty z, pretty u ]
-
 -- | WARNING: there is  instance Pretty a => Pretty (Maybe a) in the back-end
 -- but its spec is "Ignore Nothings, print Just contents"
 
